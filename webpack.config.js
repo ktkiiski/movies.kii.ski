@@ -114,7 +114,7 @@ module.exports = (env = process.env) => {
                 // Compile TypeScript files ('.ts' or '.tsx')
                 {
                     test: /\.tsx?$/,
-                    loader: 'ts-loader',
+                    loader: 'awesome-typescript-loader',
                 },
                 // Extract CSS stylesheets from the main bundle
                 {
