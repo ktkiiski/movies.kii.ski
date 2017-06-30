@@ -125,16 +125,9 @@ module.exports = (env = process.env) => {
                             options: {
                                 // For production, compress the CSS
                                 minimize: !debug,
-                                sourceMap: true,
+                                sourceMap: debug,
                                 url: true,
                                 import: true,
-                            },
-                        }, {
-                            // Resolve relative url(...) references in the stylesheets
-                            loader: 'resolve-url-loader',
-                            options: {
-                                fail: true,
-                                sourceMap: true,
                             },
                         }],
                         fallback: 'style-loader',
@@ -143,14 +136,7 @@ module.exports = (env = process.env) => {
                 // Compile SASS files ('.scss')
                 {
                     test: /\.scss($|\?)/,
-                    // Extract to separate stylesheet file from the main bundle
-                    loader: 'sass-loader',
-                    options: {
-                        outputStyle: 'nested',
-                        // Source maps must be used in order to resolve-url-loader to work correctly!
-                        sourceMap: true,
-                        sourceMapContents: true,
-                    },
+                    loader: 'fast-sass-loader',
                 },
                 // Convert any Pug (previously 'Jade') templates to HTML
                 {
