@@ -51,6 +51,7 @@ gulp.task('build', ['clean'], callback => {
 /**
  * Serves and auto-reloads with webpack-dev-server.
  */
+// eslint-disable-next-line no-unused-vars
 gulp.task('serve', callback => {
     const webpackConfig = createWebpackConfig(({ debug: debug, devServer: true }));
     const serverConfig = webpackConfig.devServer;
