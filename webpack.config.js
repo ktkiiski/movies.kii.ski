@@ -234,8 +234,8 @@ module.exports = (env) => {
             watchOptions: {
                 poll: 1000,
             },
-            host: process.env.HOST || '0.0.0.0',
-            port: process.env.PORT || 1111,
+            host: devServerHost,
+            port: devServerPort,
         },
 
         // Plugins
