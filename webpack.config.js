@@ -107,14 +107,27 @@ module.exports = (env) => {
                     loader: 'source-map-loader',
                     enforce: 'pre',
                 },
-                // Run tslint for the script files
+                // Lint TypeScript files using tslint
                 {
-                    test: /\.(js|tsx?)$/,
+                    test: /\.tsx?$/,
                     include: sourceDirPath,
                     loader: 'tslint-loader',
                     enforce: 'pre',
                     options: {
-                        fix: true,
+                        fix: true, // Auto-fix if possible
+                    },
+                },
+                // Lint JavaScript files using eslint
+                {
+                    test: /\.jsx?$/,
+                    include: sourceDirPath,
+                    loader: 'eslint-loader',
+                    enforce: 'pre',
+                    options: {
+                        cache: true,
+                        failOnError: true, // Fail the build if there are linting errors
+                        failOnWarning: false, // Do not fail the build on linting warnings
+                        fix: true, // Auto-fix if possible
                     },
                 },
                 // Compile TypeScript files ('.ts' or '.tsx')
