@@ -84,7 +84,7 @@ module.exports = (env = process.env) => {
             // Output files are place to this folder
             path: buildDirPath,
             // The file name template for the entry chunks
-            filename: debug ? '[name].js' : '[name].[hash].js',
+            filename: debug ? '[name].js' : '[name].[chunkhash].js',
             // The URL to the output directory resolved relative to the HTML page
             publicPath: devServer ? devServerBaseUrl : '/',
             // The name of the exported library, e.g. the global variable name
