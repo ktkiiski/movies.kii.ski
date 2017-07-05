@@ -16,7 +16,7 @@ const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
 
 // Resolve modules, source, build and static paths
 const sourceDirPath = path.resolve(__dirname, siteConfig.sourceDir);
-const scripts = _.union(..._.map(siteConfig.pages, page => page.scripts));
+const scriptPaths = _.union(..._.map(siteConfig.pages, page => page.scripts));
 const buildDirPath = path.resolve(__dirname, tsconfig.compilerOptions.outDir);
 const modulesDirPath = path.resolve(__dirname, 'node_modules');
 
@@ -80,7 +80,7 @@ module.exports = (env) => {
     return {
         // The main entry points for source files.
         entry: _.fromPairs(
-            scripts.map(entry => [
+            scriptPaths.map(entry => [
                 path.basename(entry).replace(/\..*?$/, ''),
                 [path.resolve(sourceDirPath, entry)]
             ])
