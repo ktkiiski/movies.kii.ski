@@ -8,6 +8,8 @@ Features:
 
 - Write your scripts in [TypeScript](http://www.typescriptlang.org/)
 - Write your stylesheets in [SASS](http://sass-lang.com/)
+- Lint your JavaScript code style with [ESLint](http://eslint.org/)
+- Lint your TypeScript code style with [TSLint](https://palantir.github.io/tslint/)
 - Generate static HTML pages from [Pug](https://pugjs.org/) templates
 - Automatically include any images from your HTML, Pug, or Markdown files.
 - Include Markdown to your Pug templates. You may [include with filters](https://pugjs.org/language/includes.html#including-filtered-text) but `!= require("foo.md")` is preferred because it will also require any images.
