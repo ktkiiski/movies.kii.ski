@@ -24,16 +24,22 @@ const modulesDirPath = path.resolve(__dirname, 'node_modules');
  * Creates the Webpack 2 configuration according to the
  * defined environment. The options are documented at
  * https://webpack.js.org/configuration/
+ *
+ * The 'env' parameter contains all the --env command line parameters passed to webpack:
+ * https://webpack.js.org/configuration/configuration-types/#exporting-a-function-to-use-env
+ *
+ * The following --env parameters are supported:
+ *
+ * --env.devServer : Include the dev server host to the public URLs.
+ * --env.debug : Disable compression and make the bundle easier to debug.
  */
-module.exports = (env = process.env) => {
-    const config = _.assign({}, env, process.env);
+module.exports = (env) => {
     // Read configuration from environment variables
-    const devServerHost = config.HOST || '0.0.0.0';
-    const devServerPort = config.PORT || 1111;
+    const devServerHost = env.host || '0.0.0.0';
+    const devServerPort = env.port || 1111;
     const devServerBaseUrl = `http://${devServerHost}:${devServerPort}/`;
-    const nodeEnv = config.NODE_ENV || 'development';
-    const debug = nodeEnv !== 'production';
-    const devServer = config.devServer;
+    const debug = env.debug;
+    const devServer = env.devServer;
     // Generate the plugins
     const plugins = [
         // Extract stylesheets to separate files in production
@@ -57,7 +63,7 @@ module.exports = (env = process.env) => {
         // This will strip out development features from React when building for production
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: JSON.stringify(nodeEnv),
+                NODE_ENV: JSON.stringify(debug ? 'development' : 'production'),
             },
         }),
     ];

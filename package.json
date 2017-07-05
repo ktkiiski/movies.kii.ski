@@ -4,11 +4,11 @@
   "scripts": {
     "start": "gulp serve",
     "clean": "gulp clean",
-    "build": "gulp build",
-    "build:dev": "NODE_ENV=development gulp build",
-    "build:prod": "NODE_ENV=production gulp build",
-    "deploy": "NODE_ENV=production gulp deploy",
-    "watch": "NODE_ENV=development gulp watch",
+    "build": "echo 'Please run either `build:dev` or `build:production`'",
+    "build:dev": "gulp build --debug",
+    "build:prod": "gulp build",
+    "deploy": "gulp deploy",
+    "watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {},

@@ -13,6 +13,8 @@ const AWS = require('aws-sdk');
 const staticAssetsCacheDuration = 31556926;
 // HTML pages are cached for an hour
 const staticHtmlCacheDuration = 3600;
+// Whether or not running in debug mode
+const debug = process.argv.indexOf('--debug') >= 0;
 
 /**
  * Clean the build folder.
@@ -34,7 +36,7 @@ gulp.task('watch', ['build'], () => {
  * using the Webpack 2.
  */
 gulp.task('build', ['clean'], callback => {
-    const webpackConfig = createWebpackConfig(process.env);
+    const webpackConfig = createWebpackConfig({ debug: debug });
     webpack(webpackConfig).run((err, stats) => {
         if (err) {
             throw new gutil.PluginError('build', err);
@@ -50,7 +52,7 @@ gulp.task('build', ['clean'], callback => {
  * Serves and auto-reloads with webpack-dev-server.
  */
 gulp.task('serve', callback => {
-    const webpackConfig = createWebpackConfig(Object.assign({}, process.env, {devServer: true}));
+    const webpackConfig = createWebpackConfig(({ debug: debug, devServer: true }));
     const serverConfig = webpackConfig.devServer;
     const host = serverConfig.host;
     const port = serverConfig.port;
