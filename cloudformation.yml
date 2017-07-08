@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Stack for the deployed application
+Parameters:
+  # Name of the service, including the stage
+  ServiceName:
+    Type: String
+  # Domain for the website HTML files
+  SiteDomainName:
+    Type: String
+  # Domain for the static asset files
+  AssetsDomainName:
+    Type: String
+Resources:
+  # S3 bucket for storing the website HTML files
+  SiteS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub "${ServiceName}-website"
+      WebsiteConfiguration:
+        IndexDocument: index.html
+  # S3 bucket for storing the static asset files
+  AssetsS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub "${ServiceName}-assets"
+      WebsiteConfiguration:
+        IndexDocument: index.html
+  # Make website HTML files public for everyone
+  SiteS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref SiteS3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AddPerm
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub "${SiteS3Bucket.Arn}/*"
+  # Make static asset files public for everyone
+  AssetsS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref AssetsS3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AddPerm
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub "${AssetsS3Bucket.Arn}/*"
+
+Outputs:
+  SiteS3BucketName:
+    Value: !Ref SiteS3Bucket
+  AssetsS3BucketName:
+    Value: !Ref AssetsS3Bucket

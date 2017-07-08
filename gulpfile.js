@@ -1,3 +1,4 @@
+const fs = require('fs');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
 const del = require('del');
@@ -6,9 +7,16 @@ const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 const createWebpackConfig = require('./webpack.config.js');
 const siteConfig = require('./site.config.js');
+const path = require('path');
 const s3 = require('gulp-s3-upload')({ signatureVersion: 'v4' });
 const AWS = require('aws-sdk');
+// TODO: Lock API versions?
+const cloudFormation = new AWS.CloudFormation({
+    region: siteConfig.region,
+});
 
+// Where the CloudFormation template is located
+const cloudFormationTemplatePath = path.resolve(__dirname, 'cloudformation.yml');
 // Static assets are cached for a year
 const staticAssetsCacheDuration = 31556926;
 // HTML pages are cached for an hour
@@ -70,6 +78,20 @@ gulp.task('serve', callback => {
 });
 
 /**
+ * Create or update the development CloudFormation stack.
+ */
+gulp.task('cloudformation:dev', [], (callback) => {
+    deployCloudFormationStack('dev', callback);
+});
+
+/**
+ * Create or update the production CloudFormation stack.
+ */
+gulp.task('cloudformation:prod', [], (callback) => {
+    deployCloudFormationStack('prod', callback);
+});
+
+/**
  * Upload the static assets to Amazon S3.
  */
 gulp.task('deploy:assets', ['build'], () =>
@@ -98,3 +120,54 @@ gulp.task('deploy', ['deploy:html']);
 
 // By default run the webpack-dev-server
 gulp.task('default', ['serve']);
+
+/**
+ * Creates or updates a CloudFormation stack for the given stage.
+ *
+ * @param {string} stage name of the stage to be deployed
+ * @param {Function} callback function to be called when finished
+ */
+function deployCloudFormationStack(stage, callback) {
+    const appStageName = `${siteConfig.appName}-${stage}`;
+    const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
+    const stageConfig = siteConfig.stages[stage];
+    const siteDomain = stageConfig.siteDomain;
+    const assetsDomain = stageConfig.assetsDomain;
+    cloudFormation.createStack({
+        StackName: appStageName,
+        TemplateBody: cloudFormationTemplate,
+        OnFailure: 'ROLLBACK',
+        Capabilities: [
+            'CAPABILITY_IAM',
+            'CAPABILITY_NAMED_IAM',
+        ],
+        Parameters: [{
+            ParameterKey: 'ServiceName',
+            ParameterValue: appStageName,
+        }, {
+            ParameterKey: 'SiteDomainName',
+            ParameterValue: siteDomain,
+        }, {
+            ParameterKey: 'AssetsDomainName',
+            ParameterValue: assetsDomain,
+        }],
+    }, function(launchError, launchData) {
+        if (launchError) {
+            callback(launchError, launchData);
+        } else {
+            gutil.log('[cloudformation]', 'Started creating the CloudFormation stack');
+            // Wait until the creation completes
+            cloudFormation.waitFor(
+                'stackCreateComplete',
+                { StackName: appStageName },
+                function(createError, createData) {
+                    if (createError) {
+                        callback(createError, createData);
+                    } else {
+                        callback(null, createData);
+                    }
+                }
+            );
+        }
+    });
+}
