@@ -123,12 +123,61 @@ gulp.task('default', ['serve']);
 
 /**
  * Creates or updates a CloudFormation stack for the given stage.
- *
  * @param {string} stage name of the stage to be deployed
  * @param {Function} callback function to be called when finished
  */
 function deployCloudFormationStack(stage, callback) {
     const appStageName = `${siteConfig.appName}-${stage}`;
+    checkCloudFormationStackExists(appStageName, (checkError, stackExists) => {
+        if (checkError) {
+            callback(checkError, stackExists);
+        } else if (stackExists) {
+            // Stack already exists => update the stack
+            updateStack(stage, appStageName, callback);
+        } else {
+            // Stack does not exist => create the stack
+            createStack(stage, appStageName, callback);
+        }
+    })
+}
+
+/**
+ * Waits for the Cloudformation for the specific state.
+ * @param {string} state The CloudFormation state to wait for
+ * @param {string} stackName Name of the CloudFormation stack
+ * @param {Function} callback Function to call when ready
+ */
+function waitForCloudFormation(state, stackName, callback) {
+    cloudFormation.waitFor(state, { StackName: stackName }, callback);
+}
+
+/**
+ * Checks whether or not a CloudFormation stack with the given name
+ * exists, calling the given callback with a boolean value as a result.
+ * @param {string} stackName Name of the CloudFormation stack to check
+ * @param {Function} callback Function to be called with the result
+ */
+function checkCloudFormationStackExists(stackName, callback) {
+    cloudFormation.describeStacks({ StackName: stackName }, (describeErr) => {
+        if (describeErr) {
+            if (describeErr.message.indexOf('does not exist') > -1) {
+                callback(null, false);
+            } else {
+                callback(describeErr, null);
+            }
+        } else {
+            callback(null, true);
+        }
+    });
+}
+
+/**
+ * Creates the CloudFormation stack.
+ * @param {string} stage Stage of the deployment
+ * @param {string} appStageName Name of the CloudFormation stack
+ * @param {Function} callback Function to be called after creation
+ */
+function createStack(stage, appStageName, callback) {
     const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
     const stageConfig = siteConfig.stages[stage];
     const siteDomain = stageConfig.siteDomain;
@@ -151,23 +200,52 @@ function deployCloudFormationStack(stage, callback) {
             ParameterKey: 'AssetsDomainName',
             ParameterValue: assetsDomain,
         }],
-    }, function(launchError, launchData) {
-        if (launchError) {
-            callback(launchError, launchData);
+    }, (createError, createData) => {
+        if (createError) {
+            callback(createError, createData);
         } else {
-            gutil.log('[cloudformation]', 'Started creating the CloudFormation stack');
-            // Wait until the creation completes
-            cloudFormation.waitFor(
-                'stackCreateComplete',
-                { StackName: appStageName },
-                function(createError, createData) {
-                    if (createError) {
-                        callback(createError, createData);
-                    } else {
-                        callback(null, createData);
-                    }
-                }
-            );
+            gutil.log('[cloudformation]', 'Creating the CloudFormation stack...');
+            waitForCloudFormation('stackCreateComplete', appStageName, callback);
+        }
+    });
+}
+
+/**
+ * Updates the CloudFormation stack.
+ * @param {string} stage Stage of the deployment
+ * @param {string} appStageName Name of the CloudFormation stack
+ * @param {Function} callback Function to be called after creation
+ */
+function updateStack(stage, appStageName, callback) {
+    const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
+    const stageConfig = siteConfig.stages[stage];
+    const siteDomain = stageConfig.siteDomain;
+    const assetsDomain = stageConfig.assetsDomain;
+    cloudFormation.updateStack({
+        StackName: appStageName,
+        TemplateBody: cloudFormationTemplate,
+        Capabilities: [
+            'CAPABILITY_IAM',
+            'CAPABILITY_NAMED_IAM',
+        ],
+        Parameters: [{
+            ParameterKey: 'ServiceName',
+            ParameterValue: appStageName,
+        }, {
+            ParameterKey: 'SiteDomainName',
+            ParameterValue: siteDomain,
+        }, {
+            ParameterKey: 'AssetsDomainName',
+            ParameterValue: assetsDomain,
+        }],
+    }, (updateError, updateData) => {
+        if (!updateError) {
+            gutil.log('[cloudformation]', 'Updating the CloudFormation stack...');
+            waitForCloudFormation('stackUpdateComplete', appStageName, callback);
+        } else if (updateError.message.indexOf('No updates are to be performed') >= 0) {
+            gutil.log('[cloudformation]', 'CloudFormation stack is up-to-date');
+        } else {
+            callback(updateError, updateData);
         }
     });
 }
