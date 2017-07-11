@@ -244,6 +244,7 @@ function updateStack(stage, appStageName, callback) {
             waitForCloudFormation('stackUpdateComplete', appStageName, callback);
         } else if (updateError.message.indexOf('No updates are to be performed') >= 0) {
             gutil.log('[cloudformation]', 'CloudFormation stack is up-to-date');
+            callback(null, updateData);
         } else {
             callback(updateError, updateData);
         }
