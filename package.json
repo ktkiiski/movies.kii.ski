@@ -8,8 +8,8 @@
     "build:dev": "gulp build --debug",
     "build:prod": "gulp build",
     "deploy": "gulp deploy",
-    "deploy:dev": "gulp cloudformation:dev",
-    "deploy:prod": "gulp cloudformation:prod",
+    "deploy:dev": "gulp cloudformation --stage=dev",
+    "deploy:prod": "gulp cloudformation --stage=prod",
     "watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -44,6 +44,7 @@
     "typescript": "2.4.1",
     "url-loader": "0.5.9",
     "webpack": "3.0.0",
-    "webpack-dev-server": "2.5.0"
+    "webpack-dev-server": "2.5.0",
+    "yargs": "8.0.2"
   }
 }

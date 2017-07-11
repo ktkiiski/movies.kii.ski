@@ -1,3 +1,4 @@
+const argv = require('yargs').argv;
 const fs = require('fs');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
@@ -78,17 +79,15 @@ gulp.task('serve', callback => {
 });
 
 /**
- * Create or update the development CloudFormation stack.
+ * Create or update the CloudFormation stack.
  */
-gulp.task('cloudformation:dev', [], (callback) => {
-    deployCloudFormationStack('dev', callback);
-});
-
-/**
- * Create or update the production CloudFormation stack.
- */
-gulp.task('cloudformation:prod', [], (callback) => {
-    deployCloudFormationStack('prod', callback);
+gulp.task('cloudformation', [], (callback) => {
+    const stage = argv.stage;
+    if (!stage) {
+        throw new Error('The --stage parameter is required');
+    }
+    gutil.log('[cloudformation]', `Preparing deployment for the stage "${stage}"`);
+    deployCloudFormationStack(stage, callback);
 });
 
 /**
