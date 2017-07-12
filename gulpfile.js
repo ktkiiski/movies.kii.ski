@@ -48,12 +48,17 @@ gulp.task('build', ['clean'], callback => {
     const webpackConfig = createWebpackConfig({ debug: debug });
     webpack(webpackConfig).run((err, stats) => {
         if (err) {
-            throw new gutil.PluginError('build', err);
+            callback(err, stats);
+        } else {
+            gutil.log('[build]', stats.toString({
+                colors: true,
+            }));
+            if (stats.hasErrors()) {
+                callback(new Error(stats.toString('errors-only')), stats);
+            } else {
+                callback(null, stats);
+            }
         }
-        gutil.log('[build]', stats.toString({
-            colors: true,
-        }));
-        callback();
     });
 });
 
@@ -82,10 +87,7 @@ gulp.task('serve', callback => {
  * Create or update the CloudFormation stack.
  */
 gulp.task('cloudformation', [], (callback) => {
-    const stage = argv.stage;
-    if (!stage) {
-        throw new Error('The --stage parameter is required');
-    }
+    const stage = getStage();
     gutil.log('[cloudformation]', `Preparing deployment for the stage "${stage}"`);
     deployCloudFormationStack(stage, callback);
 });
@@ -93,24 +95,36 @@ gulp.task('cloudformation', [], (callback) => {
 /**
  * Upload the static assets to Amazon S3.
  */
-gulp.task('deploy:assets', ['build'], () =>
-    gulp.src(['dist/**/*', '!dist/**/*.html']).pipe(s3({
-        Bucket: siteConfig.bucket,
-        ACL: 'public-read',
-        CacheControl: `max-age=${staticAssetsCacheDuration}`,
-    }))
-);
+gulp.task('deploy:assets', ['build', 'cloudformation'], (callback) => {
+    const stage = getStage();
+    const appStageName = `${siteConfig.appName}-${stage}`;
+    getCloudFormationStackOutput(appStageName, (err, output) => {
+        if (err) {
+            callback(err, output);
+        } else {
+            const bucketName = output.AssetsS3BucketName;
+            gutil.log('[deploy:assets]', `Uploading static assets for stage "${stage}" to S3 bucket "${bucketName}"`);
+            uploadFilesToS3Bucket(bucketName, ['dist/**/*', '!dist/**/*.html'], staticAssetsCacheDuration, callback);
+        }
+    });
+});
 
 /**
  * Upload the HTML files to Amazon S3.
  */
-gulp.task('deploy:html', ['deploy:assets'], () =>
-    gulp.src(['dist/**/*.html']).pipe(s3({
-        Bucket: siteConfig.bucket,
-        ACL: 'public-read',
-        CacheControl: `max-age=${staticHtmlCacheDuration}`,
-    }))
-);
+gulp.task('deploy:html', ['deploy:assets'], callback => {
+    const stage = getStage();
+    const appStageName = `${siteConfig.appName}-${stage}`;
+    getCloudFormationStackOutput(appStageName, (err, output) => {
+        if (err) {
+            callback(err, output);
+        } else {
+            const bucketName = output.SiteS3BucketName;
+            gutil.log('[deploy:assets]', `Uploading HTML pages for stage "${stage}" to S3 bucket "${bucketName}"`);
+            uploadFilesToS3Bucket(bucketName, ['dist/**/*.html'], staticHtmlCacheDuration, callback);
+        }
+    });
+});
 
 /**
  * Deploy the static website to Amazon S3.
@@ -151,13 +165,44 @@ function waitForCloudFormation(state, stackName, callback) {
 }
 
 /**
+ * Describes the given stack.
+ * @param {string} stackName Name of the CloudFormation stack
+ * @param {Function} callback Function to be called with the result
+ */
+function describeCloudFormationStack(stackName, callback) {
+    cloudFormation.describeStacks({ StackName: stackName }, (err, data) =>
+        callback(err, err ? data : data && data.Stacks[0])
+    );
+}
+
+/**
+ * Retrieves the outputs of the given CloudFormation stack.
+ * The outputs are represented as an object, where keys are the
+ * output keys, and values are the output values.
+ * @param {string} stackName Name of the CloudFormation stack
+ * @param {Function} callback Function to be called with the result
+ */
+function getCloudFormationStackOutput(stackName, callback) {
+    describeCloudFormationStack(stackName, (err, data) => {
+        if (err) {
+            callback(err, data);
+        } else {
+            const outputs = _.fromPairs(data.Outputs.map(
+                ({OutputKey, OutputValue}) => [OutputKey, OutputValue])
+            );
+            callback(null, outputs);
+        }
+    })
+}
+
+/**
  * Checks whether or not a CloudFormation stack with the given name
  * exists, calling the given callback with a boolean value as a result.
  * @param {string} stackName Name of the CloudFormation stack to check
  * @param {Function} callback Function to be called with the result
  */
 function checkCloudFormationStackExists(stackName, callback) {
-    cloudFormation.describeStacks({ StackName: stackName }, (describeErr) => {
+    describeCloudFormationStack(stackName, (describeErr) => {
         if (describeErr) {
             if (describeErr.message.indexOf('does not exist') > -1) {
                 callback(null, false);
@@ -248,4 +293,29 @@ function updateStack(stage, appStageName, callback) {
             callback(updateError, updateData);
         }
     });
+}
+
+/**
+ * Uploads files matching the given patterns to a Amazon S3 bucket.
+ * @param {string} bucketName Name of the S3 bucket to uplaod the files
+ * @param {string[]} patterns Glob patters matching the files to upload (passed to gulp.src)
+ * @param {number} cacheDuration Number of seconds for caching the files
+ * @param {Function} callback Function to call after the upload
+ */
+function uploadFilesToS3Bucket(bucketName, patterns, cacheDuration, callback) {
+    const stream = gulp.src(patterns).pipe(s3({
+        Bucket: bucketName,
+        ACL: 'public-read',
+        CacheControl: `max-age=${cacheDuration}`,
+    }));
+    stream.on('end', event => callback(null, event));
+    stream.on('error', error => callback(error, null));
+}
+
+function getStage() {
+    const stage = argv.stage;
+    if (!stage) {
+        throw new Error('The --stage parameter is required');
+    }
+    return stage;
 }

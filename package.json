@@ -7,9 +7,8 @@
     "build": "echo 'Please run either `build:dev` or `build:production`'",
     "build:dev": "gulp build --debug",
     "build:prod": "gulp build",
-    "deploy": "gulp deploy",
-    "deploy:dev": "gulp cloudformation --stage=dev",
-    "deploy:prod": "gulp cloudformation --stage=prod",
+    "deploy:dev": "gulp deploy --stage=dev",
+    "deploy:prod": "gulp deploy --stage=prod",
     "watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
