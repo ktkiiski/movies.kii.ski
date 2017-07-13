@@ -45,7 +45,11 @@ gulp.task('watch', ['build'], () => {
  * using the Webpack 2.
  */
 gulp.task('build', ['clean'], callback => {
-    const webpackConfig = createWebpackConfig({ debug: debug });
+    const stage = getStage();
+    const stageConfig = siteConfig.stages[stage];
+    const assetsDomain = stageConfig.assetsDomain;
+    const baseUrl = `http://${assetsDomain}/`;
+    const webpackConfig = createWebpackConfig({ baseUrl, debug });
     webpack(webpackConfig).run((err, stats) => {
         if (err) {
             callback(err, stats);
@@ -129,7 +133,12 @@ gulp.task('deploy:html', ['deploy:assets'], callback => {
 /**
  * Deploy the static website to Amazon S3.
  */
-gulp.task('deploy', ['deploy:html']);
+gulp.task('deploy', ['deploy:html'], () => {
+    const stage = getStage();
+    const stageConfig = siteConfig.stages[stage];
+    const siteDomain = stageConfig.siteDomain;
+    gutil.log('[deploy]', `The website is successfully deployed! It is available at: http://${siteDomain}/`);
+});
 
 // By default run the webpack-dev-server
 gulp.task('default', ['serve']);
@@ -223,9 +232,6 @@ function checkCloudFormationStackExists(stackName, callback) {
  */
 function createStack(stage, appStageName, callback) {
     const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
-    const stageConfig = siteConfig.stages[stage];
-    const siteDomain = stageConfig.siteDomain;
-    const assetsDomain = stageConfig.assetsDomain;
     cloudFormation.createStack({
         StackName: appStageName,
         TemplateBody: cloudFormationTemplate,
@@ -234,16 +240,7 @@ function createStack(stage, appStageName, callback) {
             'CAPABILITY_IAM',
             'CAPABILITY_NAMED_IAM',
         ],
-        Parameters: [{
-            ParameterKey: 'ServiceName',
-            ParameterValue: appStageName,
-        }, {
-            ParameterKey: 'SiteDomainName',
-            ParameterValue: siteDomain,
-        }, {
-            ParameterKey: 'AssetsDomainName',
-            ParameterValue: assetsDomain,
-        }],
+        Parameters: getCloudFrontDeploymentParameters(stage, appStageName),
     }, (createError, createData) => {
         if (createError) {
             callback(createError, createData);
@@ -262,9 +259,6 @@ function createStack(stage, appStageName, callback) {
  */
 function updateStack(stage, appStageName, callback) {
     const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
-    const stageConfig = siteConfig.stages[stage];
-    const siteDomain = stageConfig.siteDomain;
-    const assetsDomain = stageConfig.assetsDomain;
     cloudFormation.updateStack({
         StackName: appStageName,
         TemplateBody: cloudFormationTemplate,
@@ -272,16 +266,7 @@ function updateStack(stage, appStageName, callback) {
             'CAPABILITY_IAM',
             'CAPABILITY_NAMED_IAM',
         ],
-        Parameters: [{
-            ParameterKey: 'ServiceName',
-            ParameterValue: appStageName,
-        }, {
-            ParameterKey: 'SiteDomainName',
-            ParameterValue: siteDomain,
-        }, {
-            ParameterKey: 'AssetsDomainName',
-            ParameterValue: assetsDomain,
-        }],
+        Parameters: getCloudFrontDeploymentParameters(stage, appStageName),
     }, (updateError, updateData) => {
         if (!updateError) {
             gutil.log('[cloudformation]', 'Updating the CloudFormation stack...');
@@ -310,6 +295,25 @@ function uploadFilesToS3Bucket(bucketName, patterns, cacheDuration, callback) {
     }));
     stream.on('end', event => callback(null, event));
     stream.on('error', error => callback(error, null));
+}
+
+/**
+ * Returns the parameters for a CloudFormation deployment.
+ */
+function getCloudFrontDeploymentParameters(stage, appStageName) {
+    const stageConfig = siteConfig.stages[stage];
+    const siteDomain = stageConfig.siteDomain;
+    const assetsDomain = stageConfig.assetsDomain;
+    const siteHostedZoneName = /([^.]+\.[^.]+)$/.exec(siteDomain)[0];
+    const assetsHostedZoneName = /([^.]+\.[^.]+)$/.exec(assetsDomain)[0];
+    const parameters = {
+        ServiceName: appStageName,
+        SiteDomainName: siteDomain,
+        SiteHostedZoneName: siteHostedZoneName,
+        AssetsDomainName: assetsDomain,
+        AssetsHostedZoneName: assetsHostedZoneName,
+    };
+    return _.map(parameters, (ParameterValue, ParameterKey) => ({ParameterKey, ParameterValue}));
 }
 
 function getStage() {

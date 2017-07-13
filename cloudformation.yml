@@ -7,8 +7,14 @@ Parameters:
   # Domain for the website HTML files
   SiteDomainName:
     Type: String
+  # Hosted zone name of the domain for the website HTML files
+  SiteHostedZoneName:
+    Type: String
   # Domain for the static asset files
   AssetsDomainName:
+    Type: String
+  # Hosted zone name of the domain for the static asset files
+  AssetsHostedZoneName:
     Type: String
 Resources:
   # S3 bucket for storing the website HTML files
@@ -53,7 +59,78 @@ Resources:
             Principal: '*'
             Action: 's3:GetObject'
             Resource: !Sub "${AssetsS3Bucket.Arn}/*"
-
+  # CloudFront distribution for the static asset files cached forever
+  AssetsCloudFrontDistribution:
+    Type: "AWS::CloudFront::Distribution"
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref AssetsDomainName
+        Origins:
+          - DomainName:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                  - "/"
+                  - !GetAtt AssetsS3Bucket.WebsiteURL
+            Id: AssetsS3BucketOrigin
+            CustomOriginConfig:
+              OriginProtocolPolicy: "http-only"
+        Comment: "CloudFront distribution serving static asset files from a cookieless domain"
+        Enabled: true
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: AssetsS3BucketOrigin
+          ViewerProtocolPolicy: "allow-all"
+  # CloudFront distribution for the website HTML files
+  SiteCloudFrontDistribution:
+    Type: "AWS::CloudFront::Distribution"
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - !Ref SiteDomainName
+        Origins:
+          - DomainName:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                  - "/"
+                  - !GetAtt SiteS3Bucket.WebsiteURL
+            Id: SiteS3BucketOrigin
+            CustomOriginConfig:
+              OriginProtocolPolicy: "http-only"
+        Comment: "CloudFront distribution serving static asset files from a cookieless domain"
+        Enabled: true
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: SiteS3BucketOrigin
+          ViewerProtocolPolicy: "allow-all"
+  # DNS domain name for the host of the static asset files
+  AssetsDNS:
+    Type: "AWS::Route53::RecordSetGroup"
+    Properties:
+      HostedZoneName: !Sub "${AssetsHostedZoneName}."
+      Comment: "Domain for the CloudFront distribution of the static asset files"
+      RecordSets:
+        - Name: !Sub "${AssetsDomainName}."
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt AssetsCloudFrontDistribution.DomainName
+  # DNS domain name for the host of the website HTML files
+  SiteDNS:
+    Type: "AWS::Route53::RecordSetGroup"
+    Properties:
+      HostedZoneName: !Sub "${SiteHostedZoneName}."
+      Comment: "Domain for the CloudFront distribution of the HTML website files"
+      RecordSets:
+        - Name: !Sub "${SiteDomainName}."
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt SiteCloudFrontDistribution.DomainName
 Outputs:
   SiteS3BucketName:
     Value: !Ref SiteS3Bucket

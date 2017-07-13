@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 const webpack = require('webpack');
 
 // Webpack plugins
@@ -30,14 +31,16 @@ const modulesDirPath = path.resolve(__dirname, 'node_modules');
  *
  * The following --env parameters are supported:
  *
+ * --env.baseUrl : The base URL for the static assets. Must end with '/'
  * --env.devServer : Include the dev server host to the public URLs.
  * --env.debug : Disable compression and make the bundle easier to debug.
  */
 module.exports = (env) => {
     // Read configuration from environment variables
-    const devServerHost = env.host || '0.0.0.0';
-    const devServerPort = env.port || 1111;
-    const devServerBaseUrl = `http://${devServerHost}:${devServerPort}/`;
+    const baseUrl = env.baseUrl || 'http://0.0.0.0:1111/';
+    const baseUrlObj = new url.URL(env.baseUrl);
+    const serverHostName = baseUrlObj.hostname;
+    const serverPort = parseInt(baseUrlObj.port, 10);
     const debug = env.debug;
     const devServer = env.devServer;
     // Generate the plugins
@@ -92,7 +95,7 @@ module.exports = (env) => {
             // The file name template for the entry chunks
             filename: debug ? '[name].js' : '[name].[chunkhash].js',
             // The URL to the output directory resolved relative to the HTML page
-            publicPath: devServer ? devServerBaseUrl : '/',
+            publicPath: baseUrl,
             // The name of the exported library, e.g. the global variable name
             library: 'app',
             // How the library is exported? E.g. 'var', 'this'
@@ -234,8 +237,8 @@ module.exports = (env) => {
             watchOptions: {
                 poll: 1000,
             },
-            host: devServerHost,
-            port: devServerPort,
+            host: serverHostName,
+            port: serverPort,
         },
 
         // Plugins
