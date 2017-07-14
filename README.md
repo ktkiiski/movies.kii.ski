@@ -23,7 +23,9 @@ git pull template master
 
 Remember to add your project metadata to the [`package.json`](./package.json), for example, `name`, `author`, `description`.
 
-## Setup
+## Running locally
+
+### Prerequisities
 
 You need to install the required node packages:
 
@@ -34,7 +36,7 @@ npm install
 If installing fails on OSX [you may try to install libpng with Homebrew](https://github.com/tcoopman/image-webpack-loader#libpng-issues).
 
 
-## Run locally
+### Running development server
 
 To run the app locally, start the local HTTP server and the build watch process:
 
@@ -61,9 +63,13 @@ To build for production:
 npm run build:prod
 ```
 
-## Deploy
+## Deployment
 
-To deploy the static website to Amazon S3, you first need to set up your Amazon S3 credentials.
+### Prerequisities
+
+#### Set up AWS credentials
+
+To deploy the web app, you first need to set up your AWS credentials.
 This can be done with [`aws-cli` command line tool](https://github.com/aws/aws-cli):
 
 ```bash
@@ -75,22 +81,36 @@ complete -C aws_completer aws
 aws configure
 ```
 
-You also need to create the [Amazon S3 **bucket** and configure it for the static website](http://docs.aws.amazon.com/gettingstarted/latest/swh/getting-started-hosting-your-website.html).
-The bucket name must be configured in the [`website.config.js`](./website.config.js).
+#### Create a Hosted Zone
 
-You can deploy the production version of your static website:
+NOTE: You need to [create a Hosted Zone for Amazon Route53](http://docs.aws.amazon.com/AmazonS3/latest/dev/website-hosting-custom-domain-walkthrough.html#root-domain-walkthrough-switch-to-route53-as-dnsprovider) first for your custom domain first! Also, if you are using other domain name provider, such as GoDaddy, then you need to set up the DNS records for your domain.
 
-```bash
-npm run deploy
-```
+#### Configure stages
 
-**NOTE:** This will clean the build directory (`dist`), removing its contents, build your app with the production version, and then upload it to S3.
+You should change the configuration in [`site.config.json`](./site.config.json) according to your website's needs.
+
+- `appName`: A distinct name of your app. Recommended to be in lower case and separate words with dashes. This will become the name of the service in the Serverless configuration and it will be used in Amazon resource names.
+- `stages`: Configuration for each different stage that your app has. By default there are `dev` stage for a development version and `prod` stage for the production version. You should change the `siteDomain` and `assetsDomain` to the domain names that you would like to use for each stage.
+
+### Running deployment
+
+Deploy the development version to the `dev` stage:
+
+    npm run deploy:dev
+
+Deploy the production version to the `prod` stage:
+
+    npm run deploy:prod
+
+**IMPORTANT:** When deploying for the first time, you will receive email for confirming the certificate for the domain names!
+The deployment continues only after you approve the certificate!
+
+The deployment will clean the build directory (`dist`), removing its contents, build your app files, and then upload it to S3.
 
 The assets (JavaScript, CSS, images) are uploaded first. Their names will contain hashes, so they won't conflict with existing files.
 They will be cached infinitely with HTTP headers.
 The HTML files are uploaded last and they are cached for a short time.
 
-
-## Upgrade packages
+## Upgrading node packages
 
 Pro-tip: Use [`npm-check-updates`](https://github.com/tjunnone/npm-check-updates) command line utility to upgrade the npm packages.
