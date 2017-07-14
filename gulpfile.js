@@ -48,7 +48,7 @@ gulp.task('build', ['clean'], callback => {
     const stage = getStage();
     const stageConfig = siteConfig.stages[stage];
     const assetsDomain = stageConfig.assetsDomain;
-    const baseUrl = `http://${assetsDomain}/`;
+    const baseUrl = `https://${assetsDomain}/`;
     const webpackConfig = createWebpackConfig({ baseUrl, debug });
     webpack(webpackConfig).run((err, stats) => {
         if (err) {
@@ -71,19 +71,19 @@ gulp.task('build', ['clean'], callback => {
  */
 // eslint-disable-next-line no-unused-vars
 gulp.task('serve', callback => {
-    const webpackConfig = createWebpackConfig(({ debug: debug, devServer: true }));
+    const baseUrl = `http://${host}:${port}/`;
+    const webpackConfig = createWebpackConfig(({ debug, baseUrl, devServer: true }));
     const serverConfig = webpackConfig.devServer;
     const host = serverConfig.host;
     const port = serverConfig.port;
-    const url = `http://${host}:${port}/`;
     // Modify the configuration so that the inline livereloading is enabled.
     // See: https://webpack.github.io/docs/webpack-dev-server.html#inline-mode-with-node-js-api
-    _.each(webpackConfig.entry, entries => entries.unshift(`webpack-dev-server/client?${url}`));
+    _.each(webpackConfig.entry, entries => entries.unshift(`webpack-dev-server/client?${baseUrl}`));
     new WebpackDevServer(webpack(webpackConfig), serverConfig).listen(port, host, err => {
         if (err) {
             throw new gutil.PluginError('serve', err);
         }
-        gutil.log('[serve]', url);
+        gutil.log('[serve]', baseUrl);
     });
 });
 
@@ -137,7 +137,7 @@ gulp.task('deploy', ['deploy:html'], () => {
     const stage = getStage();
     const stageConfig = siteConfig.stages[stage];
     const siteDomain = stageConfig.siteDomain;
-    gutil.log('[deploy]', `The website is successfully deployed! It is available at: http://${siteDomain}/`);
+    gutil.log('[deploy]', `The website is successfully deployed! It is available at: https://${siteDomain}`);
 });
 
 // By default run the webpack-dev-server

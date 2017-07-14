@@ -82,7 +82,10 @@ Resources:
           ForwardedValues:
             QueryString: false
           TargetOriginId: AssetsS3BucketOrigin
-          ViewerProtocolPolicy: "allow-all"
+          ViewerProtocolPolicy: "redirect-to-https"
+        ViewerCertificate:
+          AcmCertificateArn: !Ref DomainCertificate
+          SslSupportMethod: "sni-only"
   # CloudFront distribution for the website HTML files
   SiteCloudFrontDistribution:
     Type: "AWS::CloudFront::Distribution"
@@ -106,7 +109,10 @@ Resources:
           ForwardedValues:
             QueryString: false
           TargetOriginId: SiteS3BucketOrigin
-          ViewerProtocolPolicy: "allow-all"
+          ViewerProtocolPolicy: "redirect-to-https"
+        ViewerCertificate:
+          AcmCertificateArn: !Ref DomainCertificate
+          SslSupportMethod: "sni-only"
   # DNS domain name for the host of the static asset files
   AssetsDNS:
     Type: "AWS::Route53::RecordSetGroup"
@@ -131,6 +137,13 @@ Resources:
           AliasTarget:
             HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !GetAtt SiteCloudFrontDistribution.DomainName
+  # Certificate for the domains
+  DomainCertificate:
+    Type: "AWS::CertificateManager::Certificate"
+    Properties:
+      DomainName: !Ref SiteDomainName
+      SubjectAlternativeNames:
+        - !Ref AssetsDomainName
 Outputs:
   SiteS3BucketName:
     Value: !Ref SiteS3Bucket
