@@ -18,7 +18,7 @@ To apply this template:
 
 ```bash
 git remote add template https://github.com/ktkiiski/broilerplate.git
-git pull template master
+git pull template master --allow-unrelated-histories
 ```
 
 Remember to add your project metadata to the [`package.json`](./package.json), for example, `name`, `author`, `description`.
