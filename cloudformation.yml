@@ -76,7 +76,7 @@ Resources:
             Id: AssetsS3BucketOrigin
             CustomOriginConfig:
               OriginProtocolPolicy: "http-only"
-        Comment: "CloudFront distribution serving static asset files from a cookieless domain"
+        Comment: !Sub "${ServiceName} static assets CloudFront distribution (cookieless)"
         Enabled: true
         DefaultCacheBehavior:
           Compress: true
@@ -104,7 +104,7 @@ Resources:
             Id: SiteS3BucketOrigin
             CustomOriginConfig:
               OriginProtocolPolicy: "http-only"
-        Comment: "CloudFront distribution serving static asset files from a cookieless domain"
+        Comment: !Sub "${ServiceName} website CloudFront distribution"
         Enabled: true
         DefaultCacheBehavior:
           Compress: true
