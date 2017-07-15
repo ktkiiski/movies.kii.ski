@@ -79,6 +79,7 @@ Resources:
         Comment: "CloudFront distribution serving static asset files from a cookieless domain"
         Enabled: true
         DefaultCacheBehavior:
+          Compress: true
           ForwardedValues:
             QueryString: false
           TargetOriginId: AssetsS3BucketOrigin
@@ -106,6 +107,7 @@ Resources:
         Comment: "CloudFront distribution serving static asset files from a cookieless domain"
         Enabled: true
         DefaultCacheBehavior:
+          Compress: true
           ForwardedValues:
             QueryString: false
           TargetOriginId: SiteS3BucketOrigin
