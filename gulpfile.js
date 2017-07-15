@@ -11,9 +11,13 @@ const siteConfig = require('./site.config.js');
 const path = require('path');
 const s3 = require('gulp-s3-upload')({ signatureVersion: 'v4' });
 const AWS = require('aws-sdk');
-// TODO: Lock API versions?
 const cloudFormation = new AWS.CloudFormation({
     region: siteConfig.region,
+    apiVersion: '2010-05-15',
+});
+const cloudFront = new AWS.CloudFront({
+    region: siteConfig.region,
+    apiVersion: '2017-03-25',
 });
 
 // Where the CloudFormation template is located
@@ -90,16 +94,44 @@ gulp.task('serve', callback => {
 /**
  * Create or update the CloudFormation stack.
  */
-gulp.task('cloudformation', [], (callback) => {
+gulp.task('cloudformation:deploy', [], (callback) => {
     const stage = getStage();
     gutil.log('[cloudformation]', `Preparing deployment for the stage "${stage}"`);
     deployCloudFormationStack(stage, callback);
 });
 
 /**
+ * Invalidate cached HTML items from the CloudFront distributions.
+ */
+gulp.task('cloudformation:invalidate', ['cloudformation:deploy'], (callback) => {
+    const stage = getStage();
+    const appStageName = `${siteConfig.appName}-${stage}`;
+    getCloudFormationStackOutput(appStageName, (err, output) => {
+        if (err) {
+            callback(err, output);
+        } else {
+            const siteCloudFrontDistributionId = output.SiteCloudFrontDistributionId;
+            gutil.log('[cloudformation]', `Invalidating cached items from the CloudFront distribution ${siteCloudFrontDistributionId}`);
+            cloudFront.createInvalidation({
+                DistributionId: siteCloudFrontDistributionId,
+                InvalidationBatch: { /* required */
+                    CallerReference: new Date().toISOString(),
+                    Paths: {
+                        Quantity: 1,
+                        Items: [
+                            '/*', // Invalidate everything
+                        ],
+                    },
+                }
+            }, callback);
+        }
+    });
+});
+
+/**
  * Upload the static assets to Amazon S3.
  */
-gulp.task('deploy:assets', ['build', 'cloudformation'], (callback) => {
+gulp.task('deploy:assets', ['build', 'cloudformation:deploy', 'cloudformation:invalidate'], (callback) => {
     const stage = getStage();
     const appStageName = `${siteConfig.appName}-${stage}`;
     getCloudFormationStackOutput(appStageName, (err, output) => {

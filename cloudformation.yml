@@ -149,3 +149,7 @@ Outputs:
     Value: !Ref SiteS3Bucket
   AssetsS3BucketName:
     Value: !Ref AssetsS3Bucket
+  SiteCloudFrontDistributionId:
+    Value: !Ref SiteCloudFrontDistribution
+  AssetsCloudFrontDistributionId:
+    Value: !Ref AssetsCloudFrontDistribution
