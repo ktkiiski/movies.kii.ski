@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const webpack = require('webpack');
+const childProcess = require('child_process');
 
 // Webpack plugins
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
@@ -44,6 +45,9 @@ module.exports = (env) => {
     const debug = env.debug;
     const devServer = env.devServer;
     const iconFile = env.iconFile;
+    const gitCommitHash = childProcess.execSync('git rev-parse HEAD').toString().trim();
+    const gitVersion = childProcess.execSync('git describe --always').toString().trim();
+    const gitBranch = childProcess.execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
     // Generate the plugins
     const plugins = [
         // Extract stylesheets to separate files in production
@@ -64,11 +68,20 @@ module.exports = (env) => {
                 hash: false,
             })
         ),
-        // This will strip out development features from React when building for production
+        /**
+         * Replace "global variables" from the scripts with the constant values.
+         */
         new webpack.DefinePlugin({
+            // This will strip out development features from React when building for production
             'process.env': {
                 NODE_ENV: JSON.stringify(debug ? 'development' : 'production'),
             },
+            // Allow using the GIT commit hash ID
+            '__COMMIT_HASH__': JSON.stringify(gitCommitHash),
+            // Allow using the GIT version
+            '__VERSION__': JSON.stringify(gitVersion),
+            // Allow using the GIT branch name
+            '__BRANCH__': JSON.stringify(gitBranch),
         }),
     ];
     /**
