@@ -2,17 +2,31 @@
 
 ![Broilerplate](./src/images/broilerplate.png)
 
-This is a boilerplate for creating projects that use Webpack 2 to compile a TypeScript application and SASS stylesheets into a ES5 JavaScript and CSS.
+This is a boilerplate for quickly bootstrapping a static web app with modern technologies, deployed to a scalable, production-ready environment! You can write your scripts in [TypeScript](http://www.typescriptlang.org/) and stylesheets in [SASS](http://sass-lang.com/), and they will be compiled into ES5 JavaScript and CSS using [Webpack](https://webpack.js.org/).
 
-Features:
+The boilerplate includes scripts to deploy your production-ready web app to [Amazon Web Services cloud platform](https://aws.amazon.com/), with minimal setup and very low costs! The hosting is almost free on low-traffic sites.
+
+(**Disclaimer:** By using this utility you are taking the responsibility for any incurring expenses.)
+
+### Development features
 
 - Write your scripts in [TypeScript](http://www.typescriptlang.org/)
 - Write your stylesheets in [SASS](http://sass-lang.com/)
 - Lint your JavaScript code style with [ESLint](http://eslint.org/)
 - Lint your TypeScript code style with [TSLint](https://palantir.github.io/tslint/)
 - Generate static HTML pages from [Pug](https://pugjs.org/) templates
-- Automatically include any images from your HTML, Pug, or Markdown files.
+- Automatically bundle any images from your HTML, Pug, or Markdown files.
+- Automatically **optimize images losslessly** for minimal size
 - Include Markdown to your Pug templates. You may [include with filters](https://pugjs.org/language/includes.html#including-filtered-text) but `!= require("foo.md")` is preferred because it will also require any images.
+
+### Deployment features
+
+- Deploy your compressed, production-ready web app to [AWS platform](https://aws.amazon.com/), hosted on [S3](https://aws.amazon.com/s3/), served globally through [CloudFront](https://aws.amazon.com/cloudfront/), and managed with [CloudFormation](https://aws.amazon.com/cloudformation/)
+- Make your app available on your **custom domain** (_required_)
+- Host static assets on separate cookieless domain with infinite caching, for maximum performance scoring and reliability
+- Separate **stages** for your released production version (`prod`) and the development version (`dev`)
+
+## Installing
 
 To apply this template:
 
