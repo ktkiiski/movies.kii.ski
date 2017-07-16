@@ -129,6 +129,22 @@ gulp.task('cloudformation:invalidate', ['cloudformation:deploy'], (callback) => 
 });
 
 /**
+ * Outputs a link to the AWS Simple Monthly Calculator URL estimating
+ * the costs for the deployed website.
+ */
+gulp.task('cloudformation:estimate', [], (callback) => {
+    const stage = getStage();
+    const appStageName = `${siteConfig.appName}-${stage}`;
+    estimateCost(stage, appStageName, (error, url) => {
+        if (error) {
+            callback(error, url);
+        } else {
+            gutil.log('[cloudformation]', `Check the estimated monthly costs for the website: ${url}`);
+        }
+    })
+})
+
+/**
  * Upload the static assets to Amazon S3.
  */
 gulp.task('deploy:assets', ['build', 'cloudformation:deploy', 'cloudformation:invalidate'], (callback) => {
@@ -165,7 +181,7 @@ gulp.task('deploy:html', ['deploy:assets'], callback => {
 /**
  * Deploy the static website to Amazon S3.
  */
-gulp.task('deploy', ['deploy:html'], () => {
+gulp.task('deploy', ['deploy:html', 'cloudformation:estimate'], () => {
     const stage = getStage();
     const stageConfig = siteConfig.stages[stage];
     const siteDomain = stageConfig.siteDomain;
@@ -308,6 +324,27 @@ function updateStack(stage, appStageName, callback) {
             callback(null, updateData);
         } else {
             callback(updateError, updateData);
+        }
+    });
+}
+
+/**
+ * Retrieves an URL to a AWS Simple Monthly Calculator describing the estimated
+ * monthly costs for your hosted website.
+ * @param {string} stage Stage of the deployment
+ * @param {string} appStageName Name of the CloudFormation stack
+ * @param {Function} callback Function to be called with the URL
+ */
+function estimateCost(stage, appStageName, callback) {
+    const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
+    cloudFormation.estimateTemplateCost({
+        TemplateBody: cloudFormationTemplate,
+        Parameters: getCloudFrontDeploymentParameters(stage, appStageName),
+    }, (error, data) => {
+        if (error) {
+            callback(error, data);
+        } else {
+            callback(null, data.Url);
         }
     });
 }
