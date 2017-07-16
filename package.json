@@ -9,7 +9,6 @@
     "build:prod": "gulp build",
     "deploy:dev": "gulp deploy --stage=dev",
     "deploy:prod": "gulp deploy --stage=prod",
-    "watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {},

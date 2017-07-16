@@ -35,16 +35,6 @@ const debug = process.argv.indexOf('--debug') >= 0;
 gulp.task('clean', () => del(['dist/**/*']));
 
 /**
- * Build and watch cycle (another option for development)
- * Advantage: No server required, can run app from filesystem.
- * Disadvantage: Requests are not blocked until bundle is available,
- * can serve an old app on refresh.
- */
-gulp.task('watch', ['build'], () => {
-    gulp.watch(['src/**/*'], ['build']);
-});
-
-/**
  * Build the JavaScript and stylesheet assets by
  * using the Webpack 2.
  */
