@@ -103,6 +103,35 @@ module.exports = (env) => {
                 persistentCache: true,
                 // Inject the html into the html-webpack-plugin
                 inject: true,
+                /**
+                 * Which icons should be generated.
+                 * See: https://github.com/haydenbleasel/favicons#usage
+                 * Platform Options:
+                 * - offset - offset in percentage
+                 * - shadow - drop shadow for Android icons, available online only
+                 * - background:
+                 *   * false - use default
+                 *   * true - force use default, e.g. set background for Android icons
+                 *   * color - set background for the specified icons
+                 */
+                icons: {
+                    // Create Android homescreen icon. `boolean` or `{ offset, background, shadow }`
+                    android: !debug,
+                    // Create Apple touch icons. `boolean` or `{ offset, background }`
+                    appleIcon: !debug,
+                    // Create Apple startup images. `boolean` or `{ offset, background }`
+                    appleStartup: !debug,
+                    // Create Opera Coast icon with offset 25%. `boolean` or `{ offset, background }`
+                    coast: !debug,
+                    // Create regular favicons. `boolean`
+                    favicons: true,
+                    // Create Firefox OS icons. `boolean` or `{ offset, background }`
+                    firefox: !debug,
+                    // Create Windows 8 tile icons. `boolean` or `{ background }`
+                    windows: !debug,
+                    // Create Yandex browser icon. `boolean` or `{ background }`
+                    yandex: !debug,
+                }
             })
         );
     }
