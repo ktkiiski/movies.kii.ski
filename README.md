@@ -61,17 +61,25 @@ The web page is automatically reloaded when the app is re-built.
 
 ## Build
 
-The built files are placed to a `dist` folder, located at the root of your project.
-To build the files for development, run:
+You can compile all the files as they would be built for the deployments. The built files are placed to a `dist` folder, located at the root of your project.
+
+To build the files for development (the `dev` stage), run:
 
 ```bash
 npm run build:dev
 ```
 
-To build for production:
+To build for production (the `prod` stage):
 
 ```bash
 npm run build:prod
+```
+
+You may optionally add the `:debug` suffixes to the commands. In this case, the files are compiled faster, skipping any minification, compression and some other additional steps.
+
+```bash
+npm run build:dev:debug
+npm run build:prod:debug
 ```
 
 ## Deployment

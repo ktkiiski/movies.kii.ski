@@ -27,7 +27,7 @@ const staticAssetsCacheDuration = 31556926;
 // HTML pages are cached for an hour
 const staticHtmlCacheDuration = 3600;
 // Whether or not running in debug mode
-const debug = process.argv.indexOf('--debug') >= 0;
+const debug = !!argv.debug;
 
 /**
  * Clean the build folder.
@@ -40,6 +40,7 @@ gulp.task('clean', () => del(['dist/**/*']));
  */
 gulp.task('build', ['clean'], callback => {
     const stage = getStage();
+    gutil.log('[build]', `Building the app stage '${stage}' for ${debug ? 'debugging' : 'release'}...`);
     const iconFile = siteConfig.iconFile;
     const stageConfig = siteConfig.stages[stage];
     const assetsDomain = stageConfig.assetsDomain;

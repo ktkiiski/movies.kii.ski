@@ -4,9 +4,11 @@
   "scripts": {
     "start": "gulp serve",
     "clean": "gulp clean",
-    "build": "echo 'Please run either `build:dev` or `build:production`'",
-    "build:dev": "gulp build --debug",
-    "build:prod": "gulp build",
+    "build": "echo 'Please run either `build:dev` or `build:prod`, optionally with `:debug` suffix!' && exit 1",
+    "build:dev": "gulp build --stage=dev",
+    "build:dev:debug": "gulp build --stage=dev --debug",
+    "build:prod": "gulp build --stage=prod",
+    "build:prod:debug": "gulp build --stage=prod --debug",
     "deploy:dev": "gulp deploy --stage=dev",
     "deploy:prod": "gulp deploy --stage=prod",
     "test": "echo \"Error: no test specified\" && exit 1"
