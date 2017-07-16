@@ -18,6 +18,7 @@ The boilerplate includes scripts to deploy your production-ready web app to [Ama
 - Automatically bundle any images from your HTML, Pug, or Markdown files.
 - Automatically **optimize images losslessly** for minimal size
 - Include Markdown to your Pug templates. You may [include with filters](https://pugjs.org/language/includes.html#including-filtered-text) but `!= require("foo.md")` is preferred because it will also require any images.
+- Generate favicons and related asset files from a single icon image file, and insert references to the HTML pages
 
 ### Deployment features
 

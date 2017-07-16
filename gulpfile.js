@@ -50,10 +50,11 @@ gulp.task('watch', ['build'], () => {
  */
 gulp.task('build', ['clean'], callback => {
     const stage = getStage();
+    const iconFile = siteConfig.iconFile;
     const stageConfig = siteConfig.stages[stage];
     const assetsDomain = stageConfig.assetsDomain;
     const baseUrl = `https://${assetsDomain}/`;
-    const webpackConfig = createWebpackConfig({ baseUrl, debug });
+    const webpackConfig = createWebpackConfig({ baseUrl, debug, iconFile });
     webpack(webpackConfig).run((err, stats) => {
         if (err) {
             callback(err, stats);
@@ -75,7 +76,8 @@ gulp.task('build', ['clean'], callback => {
  */
 // eslint-disable-next-line no-unused-vars
 gulp.task('serve', callback => {
-    const webpackConfig = createWebpackConfig(({ debug, devServer: true }));
+    const iconFile = siteConfig.iconFile;
+    const webpackConfig = createWebpackConfig(({ debug, iconFile, devServer: true }));
     const serverConfig = webpackConfig.devServer;
     const host = serverConfig.host;
     const port = serverConfig.port;

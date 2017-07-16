@@ -12,6 +12,15 @@ module.exports = {
      * The AWS region to which the web app will be deployed.
      */
     region: 'us-east-1',
+    /**
+     * The folder containing all the source files for your app.
+     */
+    sourceDir: 'src',
+    /**
+     * Icon file for your app that is used to generate favicons and mobile-compatible
+     * icons. The path is relative to the source directory.
+     */
+    iconFile: 'images/broilerplate.png',
     // Available stages and their configuration
     stages: {
         /**
@@ -33,10 +42,6 @@ module.exports = {
             assetsDomain: 'broilerplate-dev.static.kii.ski',
         }
     },
-    // Amazon S3 bucket to which the static website is deployed
-    bucket: 'broilerplate',
-    // The source folder
-    sourceDir: 'src',
     // Web page configuration
     pages: [{
         title: 'Broilerplate',

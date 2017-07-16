@@ -43,6 +43,7 @@ module.exports = (env) => {
     const serverPort = parseInt(baseUrlObj.port, 10);
     const debug = env.debug;
     const devServer = env.devServer;
+    const iconFile = env.iconFile;
     // Generate the plugins
     const plugins = [
         // Extract stylesheets to separate files in production
@@ -70,6 +71,28 @@ module.exports = (env) => {
             },
         }),
     ];
+    /**
+     * If icon source file is provided, generate icons for the app.
+     * For configuration, see https://github.com/jantimon/favicons-webpack-plugin
+     */
+    if (iconFile) {
+        const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
+        plugins.push(
+            new FaviconsWebpackPlugin({
+                // Your source logo
+                logo: iconFile,
+                // The prefix for all image files (might be a folder or a name)
+                prefix: debug ? 'icons/' : 'icons/[hash]/',
+                // Emit all stats of the generated icons
+                emitStats: true,
+                // Generate a cache file with control hashes and
+                // don't rebuild the favicons until those hashes change
+                persistentCache: true,
+                // Inject the html into the html-webpack-plugin
+                inject: true,
+            })
+        );
+    }
     // If building for the production, minimize the JavaScript
     if (!debug) {
         plugins.push(
