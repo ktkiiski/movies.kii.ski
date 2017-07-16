@@ -38,7 +38,7 @@ const modulesDirPath = path.resolve(__dirname, 'node_modules');
 module.exports = (env) => {
     // Read configuration from environment variables
     const baseUrl = env.baseUrl || 'http://0.0.0.0:1111/';
-    const baseUrlObj = new url.URL(env.baseUrl);
+    const baseUrlObj = new url.URL(baseUrl);
     const serverHostName = baseUrlObj.hostname;
     const serverPort = parseInt(baseUrlObj.port, 10);
     const debug = env.debug;

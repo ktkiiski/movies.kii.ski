@@ -75,11 +75,11 @@ gulp.task('build', ['clean'], callback => {
  */
 // eslint-disable-next-line no-unused-vars
 gulp.task('serve', callback => {
-    const baseUrl = `http://${host}:${port}/`;
-    const webpackConfig = createWebpackConfig(({ debug, baseUrl, devServer: true }));
+    const webpackConfig = createWebpackConfig(({ debug, devServer: true }));
     const serverConfig = webpackConfig.devServer;
     const host = serverConfig.host;
     const port = serverConfig.port;
+    const baseUrl = `http://${host}:${port}/`;
     // Modify the configuration so that the inline livereloading is enabled.
     // See: https://webpack.github.io/docs/webpack-dev-server.html#inline-mode-with-node-js-api
     _.each(webpackConfig.entry, entries => entries.unshift(`webpack-dev-server/client?${baseUrl}`));
