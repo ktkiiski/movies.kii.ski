@@ -37,10 +37,6 @@ git pull template master --allow-unrelated-histories
 
 Remember to add your project metadata to the [`package.json`](./package.json), for example, `name`, `author`, `description`.
 
-## Running locally
-
-### Prerequisities
-
 You need to install the required node packages:
 
 ```bash
@@ -49,8 +45,7 @@ npm install
 
 If installing fails on OSX [you may try to install libpng with Homebrew](https://github.com/tcoopman/image-webpack-loader#libpng-issues).
 
-
-### Running development server
+## Running locally
 
 To run the app locally, start the local HTTP server and the build watch process:
 
@@ -103,7 +98,7 @@ NOTE: You need to [create a Hosted Zone for Amazon Route53](http://docs.aws.amaz
 
 You should change the configuration in [`site.config.json`](./site.config.json) according to your website's needs.
 
-- `appName`: A distinct name of your app. Recommended to be in lower case and separate words with dashes. This will become the name of the service in the Serverless configuration and it will be used in Amazon resource names.
+- `appName`: A distinct name of your app. Recommended to be in lower case and separate words with dashes, because the name will be used in Amazon resource names and internal host names.
 - `stages`: Configuration for each different stage that your app has. By default there are `dev` stage for a development version and `prod` stage for the production version. You should change the `siteDomain` and `assetsDomain` to the domain names that you would like to use for each stage.
 
 ### Running deployment
