@@ -45,9 +45,12 @@ module.exports = (env) => {
     const debug = env.debug;
     const devServer = env.devServer;
     const iconFile = env.iconFile;
-    const gitCommitHash = childProcess.execSync('git rev-parse HEAD').toString().trim();
-    const gitVersion = childProcess.execSync('git describe --always').toString().trim();
-    const gitBranch = childProcess.execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+    const gitCommitHashCmd = 'git rev-parse HEAD';
+    const gitCommitHash = childProcess.execSync(gitCommitHashCmd).toString().trim();
+    const gitVersionCmd = 'git describe --always --dirty="-$(git diff-tree HEAD | md5 -q | head -c 8)"';
+    const gitVersion = childProcess.execSync(gitVersionCmd).toString().trim();
+    const gitBranchCmd = 'git rev-parse --abbrev-ref HEAD';
+    const gitBranch = childProcess.execSync(gitBranchCmd).toString().trim();
     // Generate the plugins
     const plugins = [
         // Extract stylesheets to separate files in production
