@@ -17,6 +17,7 @@
   "devDependencies": {
     "awesome-typescript-loader": "3.2.1",
     "bootstrap": "4.0.0-alpha.6",
+    "broiling": "0.0.0",
     "css-loader": "0.28.4",
     "del": "3.0.0",
     "eslint": "4.1.1",
@@ -28,7 +29,6 @@
     "font-awesome": "4.7.0",
     "gulp": "3.9.1",
     "gulp-cli": "1.3.0",
-    "gulp-s3-upload": "1.6.4",
     "html-loader": "0.4.5",
     "html-webpack-plugin": "2.29.0",
     "image-webpack-loader": "3.3.1",

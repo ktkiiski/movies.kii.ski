@@ -1,4 +1,4 @@
-const argv = require('yargs').argv;
+const { argv } = require('yargs');
 const fs = require('fs');
 const gulp = require('gulp');
 const gutil = require('gulp-util');
@@ -9,16 +9,8 @@ const WebpackDevServer = require('webpack-dev-server');
 const createWebpackConfig = require('./webpack.config.js');
 const siteConfig = require('./site.config.js');
 const path = require('path');
-const s3 = require('gulp-s3-upload')({ signatureVersion: 'v4' });
-const AWS = require('aws-sdk');
-const cloudFormation = new AWS.CloudFormation({
-    region: siteConfig.region,
-    apiVersion: '2010-05-15',
-});
-const cloudFront = new AWS.CloudFront({
-    region: siteConfig.region,
-    apiVersion: '2017-03-25',
-});
+const { Broiler, src$ } = require('broiling');
+const broiler = new Broiler({ region: siteConfig.region });
 
 // Where the CloudFormation template is located
 const cloudFormationTemplatePath = path.resolve(__dirname, 'cloudformation.yml');
@@ -87,94 +79,65 @@ gulp.task('serve', callback => {
 /**
  * Create or update the CloudFormation stack.
  */
-gulp.task('cloudformation:deploy', [], (callback) => {
+gulp.task('cloudformation:deploy', [], () => {
     const stage = getStage();
+    const appStageName = `${siteConfig.appName}-${stage}`;
+    const parameters = getCloudFrontDeploymentParameters(stage, appStageName);
+    const template = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
     gutil.log('[cloudformation]', `Preparing deployment for the stage "${stage}"`);
-    deployCloudFormationStack(stage, callback);
+    return broiler.deployStack$(appStageName, parameters, template).toPromise();
 });
 
 /**
  * Invalidate cached HTML items from the CloudFront distributions.
  */
-gulp.task('cloudformation:invalidate', ['cloudformation:deploy'], (callback) => {
+gulp.task('cloudformation:invalidate', ['cloudformation:deploy'], () => {
     const stage = getStage();
     const appStageName = `${siteConfig.appName}-${stage}`;
-    getCloudFormationStackOutput(appStageName, (err, output) => {
-        if (err) {
-            callback(err, output);
-        } else {
-            const siteCloudFrontDistributionId = output.SiteCloudFrontDistributionId;
-            gutil.log('[cloudformation]', `Invalidating cached items from the CloudFront distribution ${siteCloudFrontDistributionId}`);
-            cloudFront.createInvalidation({
-                DistributionId: siteCloudFrontDistributionId,
-                InvalidationBatch: { /* required */
-                    CallerReference: new Date().toISOString(),
-                    Paths: {
-                        Quantity: 1,
-                        Items: [
-                            '/*', // Invalidate everything
-                        ],
-                    },
-                }
-            }, callback);
-        }
-    });
+    return broiler.getStackOutput$(appStageName)
+        .map(output => output.SiteCloudFrontDistributionId)
+        .do(distributionId => gutil.log(
+            '[cloudformation]', `Invalidating cached items from the CloudFront distribution ${distributionId}`
+        ))
+        .switchMap(distributionId => broiler.invalidateCloudFront$(distributionId))
+        .toPromise()
+    ;
 });
-
-/**
- * Outputs a link to the AWS Simple Monthly Calculator URL estimating
- * the costs for the deployed website.
- */
-gulp.task('cloudformation:estimate', [], (callback) => {
-    const stage = getStage();
-    const appStageName = `${siteConfig.appName}-${stage}`;
-    estimateCost(stage, appStageName, (error, url) => {
-        if (error) {
-            callback(error, url);
-        } else {
-            gutil.log('[cloudformation]', `Check the estimated monthly costs for the website: ${url}`);
-        }
-    })
-})
 
 /**
  * Upload the static assets to Amazon S3.
  */
-gulp.task('deploy:assets', ['build', 'cloudformation:deploy', 'cloudformation:invalidate'], (callback) => {
+gulp.task('deploy:assets', ['build', 'cloudformation:deploy', 'cloudformation:invalidate'], () => {
     const stage = getStage();
     const appStageName = `${siteConfig.appName}-${stage}`;
-    getCloudFormationStackOutput(appStageName, (err, output) => {
-        if (err) {
-            callback(err, output);
-        } else {
-            const bucketName = output.AssetsS3BucketName;
-            gutil.log('[deploy:assets]', `Uploading static assets for stage "${stage}" to S3 bucket "${bucketName}"`);
-            uploadFilesToS3Bucket(bucketName, ['dist/**/*', '!dist/**/*.html'], staticAssetsCacheDuration, callback);
-        }
-    });
+    return broiler.getStackOutput$(appStageName)
+        .map(output => output.AssetsS3BucketName)
+        .switchMap(bucketName => uploadFilesToS3Bucket$(
+            bucketName, src$(['dist/**/*', '!dist/**/*.html']), staticAssetsCacheDuration
+        ))
+        .toPromise()
+    ;
 });
 
 /**
  * Upload the HTML files to Amazon S3.
  */
-gulp.task('deploy:html', ['deploy:assets'], callback => {
+gulp.task('deploy:html', ['deploy:assets'], () => {
     const stage = getStage();
     const appStageName = `${siteConfig.appName}-${stage}`;
-    getCloudFormationStackOutput(appStageName, (err, output) => {
-        if (err) {
-            callback(err, output);
-        } else {
-            const bucketName = output.SiteS3BucketName;
-            gutil.log('[deploy:assets]', `Uploading HTML pages for stage "${stage}" to S3 bucket "${bucketName}"`);
-            uploadFilesToS3Bucket(bucketName, ['dist/**/*.html'], staticHtmlCacheDuration, callback);
-        }
-    });
+    return broiler.getStackOutput$(appStageName)
+        .map(output => output.SiteS3BucketName)
+        .switchMap(bucketName => uploadFilesToS3Bucket$(
+            bucketName, src$(['dist/**/*.html']), staticHtmlCacheDuration
+        ))
+        .toPromise()
+    ;
 });
 
 /**
  * Deploy the static website to Amazon S3.
  */
-gulp.task('deploy', ['deploy:html', 'cloudformation:estimate'], () => {
+gulp.task('deploy', ['deploy:html'], () => {
     const stage = getStage();
     const stageConfig = siteConfig.stages[stage];
     const siteDomain = stageConfig.siteDomain;
@@ -185,181 +148,6 @@ gulp.task('deploy', ['deploy:html', 'cloudformation:estimate'], () => {
 gulp.task('default', ['serve']);
 
 /**
- * Creates or updates a CloudFormation stack for the given stage.
- * @param {string} stage name of the stage to be deployed
- * @param {Function} callback function to be called when finished
- */
-function deployCloudFormationStack(stage, callback) {
-    const appStageName = `${siteConfig.appName}-${stage}`;
-    checkCloudFormationStackExists(appStageName, (checkError, stackExists) => {
-        if (checkError) {
-            callback(checkError, stackExists);
-        } else if (stackExists) {
-            // Stack already exists => update the stack
-            updateStack(stage, appStageName, callback);
-        } else {
-            // Stack does not exist => create the stack
-            createStack(stage, appStageName, callback);
-        }
-    })
-}
-
-/**
- * Waits for the Cloudformation for the specific state.
- * @param {string} state The CloudFormation state to wait for
- * @param {string} stackName Name of the CloudFormation stack
- * @param {Function} callback Function to call when ready
- */
-function waitForCloudFormation(state, stackName, callback) {
-    cloudFormation.waitFor(state, { StackName: stackName }, callback);
-}
-
-/**
- * Describes the given stack.
- * @param {string} stackName Name of the CloudFormation stack
- * @param {Function} callback Function to be called with the result
- */
-function describeCloudFormationStack(stackName, callback) {
-    cloudFormation.describeStacks({ StackName: stackName }, (err, data) =>
-        callback(err, err ? data : data && data.Stacks[0])
-    );
-}
-
-/**
- * Retrieves the outputs of the given CloudFormation stack.
- * The outputs are represented as an object, where keys are the
- * output keys, and values are the output values.
- * @param {string} stackName Name of the CloudFormation stack
- * @param {Function} callback Function to be called with the result
- */
-function getCloudFormationStackOutput(stackName, callback) {
-    describeCloudFormationStack(stackName, (err, data) => {
-        if (err) {
-            callback(err, data);
-        } else {
-            const outputs = _.fromPairs(data.Outputs.map(
-                ({OutputKey, OutputValue}) => [OutputKey, OutputValue])
-            );
-            callback(null, outputs);
-        }
-    })
-}
-
-/**
- * Checks whether or not a CloudFormation stack with the given name
- * exists, calling the given callback with a boolean value as a result.
- * @param {string} stackName Name of the CloudFormation stack to check
- * @param {Function} callback Function to be called with the result
- */
-function checkCloudFormationStackExists(stackName, callback) {
-    describeCloudFormationStack(stackName, (describeErr) => {
-        if (describeErr) {
-            if (describeErr.message.indexOf('does not exist') > -1) {
-                callback(null, false);
-            } else {
-                callback(describeErr, null);
-            }
-        } else {
-            callback(null, true);
-        }
-    });
-}
-
-/**
- * Creates the CloudFormation stack.
- * @param {string} stage Stage of the deployment
- * @param {string} appStageName Name of the CloudFormation stack
- * @param {Function} callback Function to be called after creation
- */
-function createStack(stage, appStageName, callback) {
-    const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
-    cloudFormation.createStack({
-        StackName: appStageName,
-        TemplateBody: cloudFormationTemplate,
-        OnFailure: 'ROLLBACK',
-        Capabilities: [
-            'CAPABILITY_IAM',
-            'CAPABILITY_NAMED_IAM',
-        ],
-        Parameters: getCloudFrontDeploymentParameters(stage, appStageName),
-    }, (createError, createData) => {
-        if (createError) {
-            callback(createError, createData);
-        } else {
-            gutil.log('[cloudformation]', 'Creating the CloudFormation stack...');
-            waitForCloudFormation('stackCreateComplete', appStageName, callback);
-        }
-    });
-}
-
-/**
- * Updates the CloudFormation stack.
- * @param {string} stage Stage of the deployment
- * @param {string} appStageName Name of the CloudFormation stack
- * @param {Function} callback Function to be called after creation
- */
-function updateStack(stage, appStageName, callback) {
-    const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
-    cloudFormation.updateStack({
-        StackName: appStageName,
-        TemplateBody: cloudFormationTemplate,
-        Capabilities: [
-            'CAPABILITY_IAM',
-            'CAPABILITY_NAMED_IAM',
-        ],
-        Parameters: getCloudFrontDeploymentParameters(stage, appStageName),
-    }, (updateError, updateData) => {
-        if (!updateError) {
-            gutil.log('[cloudformation]', 'Updating the CloudFormation stack...');
-            waitForCloudFormation('stackUpdateComplete', appStageName, callback);
-        } else if (updateError.message.indexOf('No updates are to be performed') >= 0) {
-            gutil.log('[cloudformation]', 'CloudFormation stack is up-to-date');
-            callback(null, updateData);
-        } else {
-            callback(updateError, updateData);
-        }
-    });
-}
-
-/**
- * Retrieves an URL to a AWS Simple Monthly Calculator describing the estimated
- * monthly costs for your hosted website.
- * @param {string} stage Stage of the deployment
- * @param {string} appStageName Name of the CloudFormation stack
- * @param {Function} callback Function to be called with the URL
- */
-function estimateCost(stage, appStageName, callback) {
-    const cloudFormationTemplate = fs.readFileSync(cloudFormationTemplatePath, 'utf8');
-    cloudFormation.estimateTemplateCost({
-        TemplateBody: cloudFormationTemplate,
-        Parameters: getCloudFrontDeploymentParameters(stage, appStageName),
-    }, (error, data) => {
-        if (error) {
-            callback(error, data);
-        } else {
-            callback(null, data.Url);
-        }
-    });
-}
-
-/**
- * Uploads files matching the given patterns to a Amazon S3 bucket.
- * @param {string} bucketName Name of the S3 bucket to uplaod the files
- * @param {string[]} patterns Glob patters matching the files to upload (passed to gulp.src)
- * @param {number} cacheDuration Number of seconds for caching the files
- * @param {Function} callback Function to call after the upload
- */
-function uploadFilesToS3Bucket(bucketName, patterns, cacheDuration, callback) {
-    const stream = gulp.src(patterns).pipe(s3({
-        Bucket: bucketName,
-        ACL: 'public-read',
-        CacheControl: `max-age=${cacheDuration}`,
-    }));
-    stream.on('end', event => callback(null, event));
-    stream.on('error', error => callback(error, null));
-}
-
-/**
  * Returns the parameters for a CloudFormation deployment.
  */
 function getCloudFrontDeploymentParameters(stage, appStageName) {
@@ -368,14 +156,13 @@ function getCloudFrontDeploymentParameters(stage, appStageName) {
     const assetsDomain = stageConfig.assetsDomain;
     const siteHostedZoneName = /([^.]+\.[^.]+)$/.exec(siteDomain)[0];
     const assetsHostedZoneName = /([^.]+\.[^.]+)$/.exec(assetsDomain)[0];
-    const parameters = {
+    return {
         ServiceName: appStageName,
         SiteDomainName: siteDomain,
         SiteHostedZoneName: siteHostedZoneName,
         AssetsDomainName: assetsDomain,
         AssetsHostedZoneName: assetsHostedZoneName,
     };
-    return _.map(parameters, (ParameterValue, ParameterKey) => ({ParameterKey, ParameterValue}));
 }
 
 function getStage() {
@@ -384,4 +171,16 @@ function getStage() {
         throw new Error('The --stage parameter is required');
     }
     return stage;
+}
+
+function uploadFilesToS3Bucket$(bucketName, file$, cacheDuration) {
+    return file$
+        .filter(file => !file.isDirectory())
+        .mergeMap(file => {
+            gutil.log('[deploy:assets]', `Uploading file ${file.relative}...`);
+            return broiler.uploadFileToS3Bucket$(
+                bucketName, file, 'public-read', cacheDuration
+            ).do(() => gutil.log('[deploy:assets]', gutil.colors.green(`Successfully uploaded ${file.relative}`)));
+        }, 3)
+    ;
 }
