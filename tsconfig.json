@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/",
         "sourceMap": true,
         "noImplicitAny": true,
         "noImplicitThis": true,
@@ -14,6 +13,7 @@
         "jsx": "react"
     },
     "include": [
-        "./src"
+        "./node_modules/broilerkit/types/**/*",
+        "./src/**/*"
     ]
 }

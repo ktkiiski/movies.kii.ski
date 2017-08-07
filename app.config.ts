@@ -1,13 +1,17 @@
+import { IAppConfig } from 'broilerkit';
 /**
- * Configuration for all the HTML web pages
- * that will be generated.
+ * Configuration for the web app.
  */
-module.exports = {
+const appConfig: IAppConfig = {
     /**
      * The name of the web app. Should include only
      * letters, number, and dashes.
      */
     appName: 'broilerplate',
+    /**
+     * Which version of BroilerKit is this app using?
+     */
+    broilerKitVersion: '0',
     /**
      * The AWS region to which the web app will be deployed.
      */
@@ -26,7 +30,7 @@ module.exports = {
         /**
          * The primary public production version of the app.
          */
-        'prod': {
+        prod: {
             // Domain where the HTML pages are hosted
             siteDomain: 'broilerplate.kii.ski',
             // Domain where all the indefinitely-cached static assets are hosted
@@ -35,12 +39,12 @@ module.exports = {
         /**
          * The development version of the app.
          */
-        'dev': {
+        dev: {
             // Domain where the HTML pages are hosted
             siteDomain: 'broilerplate-dev.kii.ski',
             // Domain where all the indefinitely-cached static assets are hosted
             assetsDomain: 'broilerplate-dev.static.kii.ski',
-        }
+        },
     },
     // Web page configuration
     pages: [{
@@ -53,3 +57,5 @@ module.exports = {
         scripts: ['index.ts'],
     }],
 };
+
+export = appConfig;
