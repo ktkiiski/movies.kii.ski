@@ -52,9 +52,9 @@ const appConfig: IAppConfig = {
          */
         local: {
             // Domain where the HTML pages are hosted
-            siteOrigin: 'https://localhost:1111',
+            siteOrigin: 'http://localhost:1111',
             // Domain where all the indefinitely-cached static assets are hosted
-            assetsOrigin: 'https://localhost:1111',
+            assetsOrigin: 'http://localhost:1111',
         },
     },
     // Web page configuration
