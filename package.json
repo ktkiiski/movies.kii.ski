@@ -8,7 +8,7 @@
   "dependencies": {},
   "devDependencies": {
     "bootstrap": "4.0.0-alpha.6",
-    "broilerkit": "0.0.2",
+    "broilerkit": "^0.1.0",
     "eslint": "4.1.1",
     "font-awesome": "4.7.0",
     "lodash": "4.17.4",

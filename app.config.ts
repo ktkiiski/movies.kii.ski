@@ -7,7 +7,7 @@ const appConfig: IAppConfig = {
      * The name of the web app. Should include only
      * letters, number, and dashes.
      */
-    appName: 'broilerplate',
+    name: 'broilerplate',
     /**
      * Which version of BroilerKit is this app using?
      */
@@ -32,18 +32,29 @@ const appConfig: IAppConfig = {
          */
         prod: {
             // Domain where the HTML pages are hosted
-            siteDomain: 'broilerplate.kii.ski',
+            siteOrigin: 'https://broilerplate.kii.ski',
             // Domain where all the indefinitely-cached static assets are hosted
-            assetsDomain: 'broilerplate.static.kii.ski',
+            assetsOrigin: 'https://broilerplate.static.kii.ski',
         },
         /**
          * The development version of the app.
          */
         dev: {
             // Domain where the HTML pages are hosted
-            siteDomain: 'broilerplate-dev.kii.ski',
+            siteOrigin: 'https://broilerplate-dev.kii.ski',
             // Domain where all the indefinitely-cached static assets are hosted
-            assetsDomain: 'broilerplate-dev.static.kii.ski',
+            assetsOrigin: 'https://broilerplate-dev.static.kii.ski',
+        },
+        /**
+         * The locally run development server.
+         * NOTE: If you change them, you also must ensure, that your /etc/hosts
+         * file defines the corresponding aliases for 127.0.0.1
+         */
+        local: {
+            // Domain where the HTML pages are hosted
+            siteOrigin: 'https://localhost:1111',
+            // Domain where all the indefinitely-cached static assets are hosted
+            assetsOrigin: 'https://localhost:1111',
         },
     },
     // Web page configuration
