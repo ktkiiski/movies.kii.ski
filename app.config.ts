@@ -1,4 +1,5 @@
 import { IAppConfig } from 'broilerkit';
+
 /**
  * Configuration for the web app.
  */
@@ -35,6 +36,8 @@ const appConfig: IAppConfig = {
             siteOrigin: 'https://broilerplate.kii.ski',
             // Domain where all the indefinitely-cached static assets are hosted
             assetsOrigin: 'https://broilerplate.static.kii.ski',
+            // Domain where the API is served
+            apiOrigin: 'https://api.broilerplate.kii.ski',
         },
         /**
          * The development version of the app.
@@ -44,6 +47,8 @@ const appConfig: IAppConfig = {
             siteOrigin: 'https://broilerplate-dev.kii.ski',
             // Domain where all the indefinitely-cached static assets are hosted
             assetsOrigin: 'https://broilerplate-dev.static.kii.ski',
+            // Domain where the API is served
+            apiOrigin: 'https://api.broilerplate-dev.kii.ski',
         },
         /**
          * The locally run development server.
@@ -55,8 +60,14 @@ const appConfig: IAppConfig = {
             siteOrigin: 'http://localhost:1111',
             // Domain where all the indefinitely-cached static assets are hosted
             assetsOrigin: 'http://localhost:1111',
+            // Domain where the API is served
+            apiOrigin: 'http://localhost:1112',
         },
     },
+    /**
+     * The API endpoints for this app.
+     */
+    apiPath: './backend/endpoints.ts',
     // Web page configuration
     pages: [{
         title: 'Broilerplate',

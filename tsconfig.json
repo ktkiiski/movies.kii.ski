@@ -7,6 +7,7 @@
         "noUnusedParameters": true,
         "strictNullChecks": true,
         "importHelpers": true,
+        "lib": ["dom", "dom.iterable", "es2015"],
         "module": "commonjs",
         "target": "es5",
         "types": [],
@@ -14,6 +15,7 @@
     },
     "include": [
         "./node_modules/broilerkit/types/**/*",
+        "./backend/**/*",
         "./src/**/*"
     ]
 }
