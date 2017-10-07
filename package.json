@@ -7,7 +7,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/lodash": "^4.14.74",
+    "@types/lodash": "^4.14.77",
     "bootstrap": "4.0.0-alpha.6",
     "broilerkit": "^0.2.0",
     "eslint": "4.1.1",
@@ -16,7 +16,7 @@
     "moment": "^2.18.1",
     "rxjs": "^5.4.3",
     "tslib": "1.7.1",
-    "tslint": "^5.6.0",
-    "typescript": "^2.4.2"
+    "tslint": "^5.7.0",
+    "typescript": "^2.5.3"
   }
 }
