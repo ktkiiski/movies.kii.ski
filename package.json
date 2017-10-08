@@ -5,11 +5,10 @@
     "broil": "broil",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/lodash": "^4.14.77",
     "bootstrap": "4.0.0-alpha.6",
-    "broilerkit": "^0.2.2",
+    "broilerkit": "^0.3.1",
     "eslint": "4.1.1",
     "font-awesome": "4.7.0",
     "lodash": "4.17.4",
