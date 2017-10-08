@@ -9,7 +9,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.77",
     "bootstrap": "4.0.0-alpha.6",
-    "broilerkit": "^0.2.0",
+    "broilerkit": "^0.2.2",
     "eslint": "4.1.1",
     "font-awesome": "4.7.0",
     "lodash": "4.17.4",
