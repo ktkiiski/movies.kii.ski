@@ -1,6 +1,11 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "eslint.autoFixOnSave": true,
+    "search.exclude": {
+        ".broiler": true,
+        "**/node_modules": true,
+        "**/bower_components": true
+    },
     "files.associations": {
         "*.tmpl": "html"
     },
