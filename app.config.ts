@@ -67,7 +67,7 @@ const appConfig: IAppConfig = {
     /**
      * The API endpoints for this app.
      */
-    apiPath: './backend/endpoints.ts',
+    apiPath: './src/server.ts',
     // Web page configuration
     pages: [{
         title: 'Broilerplate',

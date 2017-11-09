@@ -1,4 +1,4 @@
-import {createExample, deleteExample, listExamples, retrieveExample, updateExample} from '../backend/examples/api';
+import {createExample, destroyExample, listExamples, retrieveExample, updateExample} from './examples/api';
 
 import './index.scss';
 
@@ -18,7 +18,10 @@ retrieveExample.get({id: '1'}).subscribe((example) => {
     console.log(`Retrieved an example:`, example);
 });
 
-listExamples.list({}).toArray().subscribe((examples) => {
+listExamples.list({
+    ordering: 'createdAt',
+    direction: 'asc',
+}).toArray().subscribe((examples) => {
     console.log(`Listed examples:`, examples);
 });
 
@@ -39,7 +42,7 @@ updateExample.put({
     console.log(`Updated example:`, example);
 });
 
-deleteExample.delete({id: '1'}).subscribe({complete: () => {
+destroyExample.delete({id: '1'}).subscribe({complete: () => {
     console.log(`Deleted example!`);
 }});
 // tslint:enable:no-console

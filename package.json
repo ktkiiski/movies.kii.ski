@@ -5,13 +5,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.77",
     "bootstrap": "4.0.0-alpha.6",
-    "broilerkit": "^0.3.1",
+    "broilerkit": "^0.4.0",
     "eslint": "4.1.1",
     "font-awesome": "4.7.0",
-    "lodash": "4.17.4",
-    "moment": "^2.18.1",
     "rxjs": "^5.4.3",
     "tslib": "1.7.1",
     "tslint": "^5.7.0",
