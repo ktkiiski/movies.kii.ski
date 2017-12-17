@@ -1,9 +1,10 @@
 import { create, destroy, list, retrieve, update } from 'broilerkit/api';
-import { boolean, choice, datetime, integer, string } from 'broilerkit/fields';
+import { boolean, choice, datetime, integer, string, ulid, uuid } from 'broilerkit/fields';
 import { resource } from 'broilerkit/resources';
 
 const example = resource({
-    id: string(),
+    id: uuid(1),
+    version: ulid(),
     name: string(),
     age: integer(),
     isFine: boolean(),
@@ -24,14 +25,14 @@ export const listExamples = list(example)
 export const createExample = create(example)
     .url `/examples`
     .payload('name', 'age')
-    .optional('gender')
+    .defaults('gender', 'male')
     .defaults('isFine', true)
 ;
 
 export const updateExample = update(example)
     .url `/examples/${'id'}`
     .payload('name', 'age')
-    .optional('gender')
+    .defaults('gender', 'male')
     .defaults('isFine', true)
 ;
 

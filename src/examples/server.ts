@@ -1,79 +1,67 @@
-import { order } from 'broilerkit/collections';
 import { Created, NoContent, NotFound, OK } from 'broilerkit/http';
 import { implementApi, implementList } from 'broilerkit/server';
+import { ulid } from 'ulid';
+import uuid1 = require('uuid/v1');
 import * as api from './api';
-
-const MOCK_EXAMPLES = [{
-    id: '1',
-    name: 'John Smith',
-    age: 29,
-    isFine: true,
-    gender: 'male' as 'male',
-    createdAt: new Date(Date.UTC(2017, 8, 19, 16, 41, 35, 592)),
-    updatedAt: new Date(Date.UTC(2017, 8, 19, 16, 41, 35, 592)),
-}, {
-    id: '2',
-    name: 'Mary Smith',
-    age: 25,
-    isFine: false,
-    gender: 'female' as 'female',
-    createdAt: new Date(Date.UTC(2017, 8, 23, 18, 59, 3, 287)),
-    updatedAt: new Date(Date.UTC(2017, 8, 23, 19, 3, 27, 701)),
-}];
+import * as db from './db';
 
 /**
  * API function that retrieves an example resource from mock data.
  */
-export const retrieveExample = implementApi(api.retrieveExample, async ({id}) => {
-    const item = MOCK_EXAMPLES.find((example) => example.id === id);
-    if (item) {
-        return new OK(item);
-    }
-    throw new NotFound('Example was not found.');
+export const retrieveExample = implementApi(api.retrieveExample, db, async ({id}, _, {examples}) => {
+    const item = await examples.retrieve({id}, new NotFound('Example was not found.'));
+    return new OK(item);
 });
 
 /**
  * API function that lists the example resources from mock data.
  */
-export const listExamples = implementList(api.listExamples, async ({ordering, since, direction}) => {
-    return order(MOCK_EXAMPLES, ordering, direction, since);
-});
-
-/**
- * API function that pretends to create a new resource.
- */
-export const createExample = implementApi(api.createExample, async (input, payload) => {
-    return new Created({
-        ...input,
-        ...payload,
-        id: '3',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+export const listExamples = implementList(api.listExamples, db, async ({ordering, since, direction}, {examples}) => {
+    return await examples.list({
+        ordering, direction, since,
+        minCount: 1,
+        maxCount: 100,
     });
 });
 
 /**
- * API function that pretends to update a new resource.
+ * API function that creates a new resource.
  */
-export const updateExample = implementApi(api.updateExample, async ({id}, changes) => {
-    const item = MOCK_EXAMPLES.find((example) => example.id === id);
-    if (item) {
-        return new OK({
-            ...item,
-            ...changes,
-            updatedAt: new Date(),
-        });
-    }
-    throw new NotFound('Example was not found.');
+export const createExample = implementApi(api.createExample, db, async (input, payload, {examples}) => {
+    const now = new Date();
+    const item = {
+        ...input,
+        ...payload,
+        id: uuid1(),
+        version: ulid(+now),
+        createdAt: now,
+        updatedAt: now,
+        // TODO: Fix serializing
+        isFine: payload.isFine == null ? false : payload.isFine,
+        gender: (payload.gender == null ? 'male' : payload.gender) as 'male' | 'female',
+    };
+    await examples.create(item);
+    return new Created(item);
 });
 
 /**
- * API function that pretends to delete a resource.
+ * API function that updates a new resource.
  */
-export const destroyExample = implementApi(api.destroyExample, async ({id}) => {
-    const item = MOCK_EXAMPLES.find((example) => example.id === id);
-    if (item) {
-        return new NoContent();
-    }
-    throw new NotFound('Example was not found.');
+export const updateExample = implementApi(api.updateExample, db, async ({id}, changes, {examples}) => {
+    const now = new Date();
+    const itemChanges = {
+        ...changes,
+        version: ulid(+now),
+        updatedAt: now,
+    };
+    const item = await examples.patch({id}, itemChanges, new NotFound('Example was not found.'));
+    return new OK(item);
+});
+
+/**
+ * API function that deletes a resource.
+ */
+export const destroyExample = implementApi(api.destroyExample, db, async ({id}, _, {examples}) => {
+    await examples.destroy({id}, new NotFound('Example was not found.'));
+    return new NoContent();
 });

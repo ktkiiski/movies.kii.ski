@@ -1,3 +1,4 @@
+import 'rxjs';
 import {createExample, destroyExample, listExamples, retrieveExample, updateExample} from './examples/api';
 
 import './index.scss';
@@ -14,35 +15,27 @@ console.log(`Version: ${__VERSION__}`);
 console.log(`Branch: ${__BRANCH__}`);
 console.log(`Example image URL: ${imageUrl}`);
 
-retrieveExample.get({id: '1'}).subscribe((example) => {
-    console.log(`Retrieved an example:`, example);
-});
-
-listExamples.list({
-    ordering: 'createdAt',
-    direction: 'asc',
-}).toArray().subscribe((examples) => {
-    console.log(`Listed examples:`, examples);
-});
-
-createExample.post({
-    name: 'John Doe',
-    age: 31,
-    isFine: true,
-}).subscribe((example) => {
+async function main() {
+    const example = await createExample.post({
+        name: 'John Doe',
+        age: 31,
+        isFine: true,
+    }).toPromise();
     console.log(`Created example:`, example);
-});
-
-updateExample.put({
-    id: '1',
-    name: 'John Doe',
-    age: 31,
-    isFine: false,
-}).subscribe((example) => {
-    console.log(`Updated example:`, example);
-});
-
-destroyExample.delete({id: '1'}).subscribe({complete: () => {
+    const {id} = example;
+    console.log(`Retrieved an example:`, await retrieveExample.get({id}).toPromise());
+    console.log(`Listed examples:`, await listExamples.list({
+        ordering: 'createdAt',
+        direction: 'asc',
+    }).toArray().toPromise());
+    console.log(`Updated example:`, await updateExample.put({
+        id,
+        name: 'John Doe',
+        age: 32,
+        isFine: false,
+    }).toPromise());
+    await destroyExample.delete({id});
     console.log(`Deleted example!`);
-}});
+}
 // tslint:enable:no-console
+main();
