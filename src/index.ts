@@ -1,4 +1,3 @@
-import 'rxjs';
 import {createExample, destroyExample, listExamples, retrieveExample, updateExample} from './examples/api';
 
 import './index.scss';
@@ -20,20 +19,20 @@ async function main() {
         name: 'John Doe',
         age: 31,
         isFine: true,
-    }).toPromise();
+    });
     console.log(`Created example:`, example);
     const {id} = example;
-    console.log(`Retrieved an example:`, await retrieveExample.get({id}).toPromise());
+    console.log(`Retrieved an example:`, await retrieveExample.get({id}));
     console.log(`Listed examples:`, await listExamples.list({
         ordering: 'createdAt',
         direction: 'asc',
-    }).toArray().toPromise());
+    }));
     console.log(`Updated example:`, await updateExample.put({
         id,
         name: 'John Doe',
         age: 32,
         isFine: false,
-    }).toPromise());
+    }));
     await destroyExample.delete({id});
     console.log(`Deleted example!`);
 }
