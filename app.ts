@@ -1,24 +1,21 @@
-import { IAppConfig } from 'broilerkit';
+import { app } from 'broilerkit';
 
 /**
  * Configuration for the web app.
  */
-const appConfig: IAppConfig = {
+export default app({
     /**
      * The name of the web app. Should include only
      * letters, number, and dashes.
      */
     name: 'broilerplate',
     /**
-     * Which version of BroilerKit is this app using?
-     */
-    broilerKitVersion: '0',
-    /**
      * The AWS region to which the web app will be deployed.
      */
     region: 'us-east-1',
     /**
      * The folder containing all the source files for your app.
+     * Other paths in this configuration are relative to this.
      */
     sourceDir: 'src',
     /**
@@ -32,23 +29,23 @@ const appConfig: IAppConfig = {
          * The primary public production version of the app.
          */
         prod: {
-            // Domain where the HTML pages are hosted
-            siteOrigin: 'https://broilerplate.kii.ski',
-            // Domain where all the indefinitely-cached static assets are hosted
-            assetsOrigin: 'https://broilerplate.static.kii.ski',
-            // Domain where the API is served
-            apiOrigin: 'https://api.broilerplate.kii.ski',
+            // Root URL where the HTML pages are hosted
+            siteRoot: 'https://broilerplate.kii.ski',
+            // Root URL where all the indefinitely-cached static assets are hosted
+            assetsRoot: 'https://broilerplate.static.kii.ski',
+            // Root URL where the API is served
+            apiRoot: 'https://api.broilerplate.kii.ski',
         },
         /**
          * The development version of the app.
          */
         dev: {
-            // Domain where the HTML pages are hosted
-            siteOrigin: 'https://broilerplate-dev.kii.ski',
-            // Domain where all the indefinitely-cached static assets are hosted
-            assetsOrigin: 'https://broilerplate-dev.static.kii.ski',
-            // Domain where the API is served
-            apiOrigin: 'https://api.broilerplate-dev.kii.ski',
+            // Root URL where the HTML pages are hosted
+            siteRoot: 'https://broilerplate-dev.kii.ski',
+            // Root URL where all the indefinitely-cached static assets are hosted
+            assetsRoot: 'https://broilerplate-dev.static.kii.ski',
+            // Root URL where the API is served
+            apiRoot: 'https://api.broilerplate-dev.kii.ski',
         },
         /**
          * The locally run development server.
@@ -56,18 +53,18 @@ const appConfig: IAppConfig = {
          * file defines the corresponding aliases for 127.0.0.1
          */
         local: {
-            // Domain where the HTML pages are hosted
-            siteOrigin: 'http://localhost:1111',
-            // Domain where all the indefinitely-cached static assets are hosted
-            assetsOrigin: 'http://localhost:1111',
-            // Domain where the API is served
-            apiOrigin: 'http://localhost:1112',
+            // Root URL where the HTML pages are hosted
+            siteRoot: 'http://localhost:1111',
+            // Root URL where all the indefinitely-cached static assets are hosted
+            assetsRoot: 'http://localhost:1111',
+            // Root URL where the API is served
+            apiRoot: 'http://localhost:1112',
         },
     },
     /**
      * The API endpoints for this app.
      */
-    apiPath: './src/server.ts',
+    serverFile: 'server.ts',
     // Web page configuration
     pages: [{
         title: 'Broilerplate',
@@ -78,6 +75,4 @@ const appConfig: IAppConfig = {
         file: 'error.pug',
         scripts: ['index.ts'],
     }],
-};
-
-export = appConfig;
+});

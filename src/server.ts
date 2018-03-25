@@ -1,9 +1,9 @@
 import { ApiService } from 'broilerkit/server';
-import * as examplesDB from './examples/db';
-import * as examples from './examples/server';
+import * as pollsDB from './polls/db';
+import * as pollServer from './polls/server';
 
 /**
  * Create an API server instance using the
  * implemented API endpoint functions.
  */
-export = new ApiService({...examples}, {...examplesDB});
+export = new ApiService({...pollServer}, {...pollsDB});
