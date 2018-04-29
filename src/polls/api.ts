@@ -3,8 +3,12 @@ import { poll, suggestion, vote } from './resources';
 
 export const pollCollection = endpoint(poll)
     .url `/polls`
-    .listable(['createdAt'])
+    .listable({
+        orderingKeys: ['createdAt'],
+        auth: 'admin',
+    })
     .creatable({
+        auth: 'admin',
         required: ['title', 'urlKey'],
         optional: ['description'],
         defaults: {
@@ -16,8 +20,11 @@ export const pollCollection = endpoint(poll)
 export const pollResource = endpoint(poll)
     .url `/polls/${'id'}`
     .retrievable()
-    .destroyable()
+    .destroyable({
+        auth: 'user',
+    })
     .updateable({
+        auth: 'user',
         required: ['title'],
         optional: ['description'],
         defaults: {
@@ -30,6 +37,7 @@ export const pollSuggestionCollection = endpoint(suggestion)
     .url `/polls/${'pollId'}/suggestions`
     .listable(['createdAt'])
     .creatable({
+        auth: 'user',
         required: ['title'],
         optional: [],
         defaults: {},
@@ -40,17 +48,21 @@ export const pollSuggestionResource = endpoint(suggestion)
     .url `/polls/${'pollId'}/suggestions/${'id'}`
     .retrievable()
     .updateable({
+        auth: 'user',
         required: ['title'],
         optional: [],
         defaults: {},
     })
-    .destroyable()
+    .destroyable({
+        auth: 'user',
+    })
 ;
 
 export const pollSuggestionVoteCollection = endpoint(vote)
     .url `/polls/${'pollId'}/suggestions/${'suggestionId'}/votes`
     .listable(['createdAt'])
     .creatable({
+        auth: 'user',
         required: ['value'],
         optional: [],
         defaults: {},
@@ -60,7 +72,9 @@ export const pollSuggestionVoteCollection = endpoint(vote)
 export const pollSuggestionVoteResource = endpoint(vote)
     .url `/polls/${'pollId'}/suggestions/${'suggestionId'}/votes/${'id'}`
     .retrievable()
-    .destroyable()
+    .destroyable({
+        auth: 'user',
+    })
 ;
 
 export const pollVoteCollection = endpoint(vote)

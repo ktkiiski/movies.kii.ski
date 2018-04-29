@@ -1,11 +1,11 @@
-import {init} from 'broilerkit/api';
+import {initApi} from 'broilerkit/api';
+import {AuthClient} from 'broilerkit/auth';
 import * as pollsApi from './polls/api';
 
 import './index.scss';
 
-// Write your code here!
-
 import imageUrl = require('./images/broilerplate.png');
+
 // tslint:disable:no-console
 console.log(`Web site root URL: ${__SITE_ROOT__}`);
 console.log(`Static assets root URL: ${__ASSETS_ROOT__}`);
@@ -15,7 +15,33 @@ console.log(`Version: ${__VERSION__}`);
 console.log(`Branch: ${__BRANCH__}`);
 console.log(`Example image URL: ${imageUrl}`);
 
-init(__API_ROOT__, pollsApi, async ({pollCollection, pollResource}) => {
+const authClient = new AuthClient(__AUTH_OPTIONS__);
+const loginLink = document.getElementById('login-link');
+const logoutLink = document.getElementById('logout-link');
+if (loginLink) {
+    loginLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        authClient.authenticate();
+    });
+}
+if (logoutLink) {
+    logoutLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        authClient.signOut();
+    });
+}
+
+authClient.observeAuthentication((auth) => {
+    if (auth) {
+        console.log(`User is logged in:`, auth);
+        main();
+    } else {
+        console.log(`User is not logged in`);
+    }
+});
+
+async function main() {
+    const {pollCollection, pollResource} = initApi(__API_ROOT__, pollsApi, authClient);
     // Create an example poll resource
     let poll = await pollCollection.post({
         title: 'Example Poll',
@@ -40,5 +66,5 @@ init(__API_ROOT__, pollsApi, async ({pollCollection, pollResource}) => {
     // Destroy the example poll
     await pollResource.delete({id});
     console.log(`Deleted example!`);
-});
+}
 // tslint:enable:no-console

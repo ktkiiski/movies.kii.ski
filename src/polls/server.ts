@@ -5,7 +5,9 @@ import * as api from './api';
 import * as db from './db';
 
 export const pollCollection = implement(api.pollCollection, db)
-    .list(async ({ordering, since, direction}, {polls}) => {
+    .list(async ({ordering, since, direction}, {polls, users}, {auth}) => {
+        // tslint:disable-next-line:no-console
+        console.log(`Listing with user:`, await users.retrieve({id: auth.id}));
         const items = await polls.list({
             ordering, direction, since,
             minCount: 1,
@@ -13,7 +15,9 @@ export const pollCollection = implement(api.pollCollection, db)
         });
         return items;
     })
-    .create(async (input, {polls}) => {
+    .create(async (input, {polls, users}, {auth}) => {
+        // tslint:disable-next-line:no-console
+        console.log(`Creating with user:`, await users.retrieve({id: auth.id}));
         const now = new Date();
         const poll = {
             description: '',
@@ -29,10 +33,14 @@ export const pollCollection = implement(api.pollCollection, db)
 ;
 
 export const pollResource = implement(api.pollResource, db)
-    .retrieve(async ({id}, {polls}) => {
+    .retrieve(async ({id}, {polls}, {auth}) => {
+        // tslint:disable-next-line:no-console
+        console.log(`Retrieving with user:`, auth);
         return await polls.retrieve({id});
     })
-    .update(async ({id, ...changes}, {polls}) => {
+    .update(async ({id, ...changes}, {polls, users}, {auth}) => {
+        // tslint:disable-next-line:no-console
+        console.log(`Updating with user:`, await users.retrieve({id: auth.id}));
         const now = new Date();
         const pollChanges = {
             ...changes,
@@ -42,7 +50,9 @@ export const pollResource = implement(api.pollResource, db)
         const poll = await polls.update({id}, pollChanges);
         return new OK(poll);
     })
-    .destroy(async ({id}, {polls}) => {
+    .destroy(async ({id}, {polls, users}, {auth}) => {
+        // tslint:disable-next-line:no-console
+        console.log(`Destroying with user:`, await users.retrieve({id: auth.id}));
         await polls.destroy({id});
     })
 ;

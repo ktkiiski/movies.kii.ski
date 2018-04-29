@@ -62,6 +62,21 @@ export default app({
         },
     },
     /**
+     * Configuration for the user registry.
+     */
+    auth: {
+        /**
+         * The Facebook client ID for sign in.
+         * Enabling this will enable Facebook login possibility.
+         */
+        facebookClientId: '384663901694196',
+        /**
+         * The Google client ID for sign in.
+         * Enabling this will enable Facebook login possibility.
+         */
+        googleClientId: '431731426517-ifl7gufshhv9e0f12nf3m0h3ck8ivomp.apps.googleusercontent.com',
+    },
+    /**
      * The API endpoints for this app.
      */
     serverFile: 'server.ts',
