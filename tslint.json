@@ -1,4 +1,5 @@
 {
+    "defaultSeverity": "warn",
     "extends": "tslint:recommended",
     "rules": {
         "await-promise": true,

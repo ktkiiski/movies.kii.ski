@@ -8,7 +8,7 @@ export default app({
      * The name of the web app. Should include only
      * letters, number, and dashes.
      */
-    name: 'broilerplate',
+    name: 'movie-polls',
     /**
      * The AWS region to which the web app will be deployed.
      */
@@ -22,7 +22,7 @@ export default app({
      * Icon file for your app that is used to generate favicons and mobile-compatible
      * icons. The path is relative to the source directory.
      */
-    iconFile: 'images/broilerplate.png',
+    iconFile: 'images/icon.png',
     // Available stages and their configuration
     stages: {
         /**
@@ -30,22 +30,22 @@ export default app({
          */
         prod: {
             // Root URL where the HTML pages are hosted
-            siteRoot: 'https://broilerplate.kii.ski',
+            siteRoot: 'https://movies.kii.ski',
             // Root URL where all the indefinitely-cached static assets are hosted
-            assetsRoot: 'https://broilerplate.static.kii.ski',
+            assetsRoot: 'https://movies.static.kii.ski',
             // Root URL where the API is served
-            apiRoot: 'https://api.broilerplate.kii.ski',
+            apiRoot: 'https://api.movies.kii.ski',
         },
         /**
          * The development version of the app.
          */
         dev: {
             // Root URL where the HTML pages are hosted
-            siteRoot: 'https://broilerplate-dev.kii.ski',
+            siteRoot: 'https://movies-dev.kii.ski',
             // Root URL where all the indefinitely-cached static assets are hosted
-            assetsRoot: 'https://broilerplate-dev.static.kii.ski',
+            assetsRoot: 'https://movies-dev.static.kii.ski',
             // Root URL where the API is served
-            apiRoot: 'https://api.broilerplate-dev.kii.ski',
+            apiRoot: 'https://api.movies-dev.kii.ski',
         },
         /**
          * The locally run development server.
@@ -77,17 +77,34 @@ export default app({
         googleClientId: '431731426517-ifl7gufshhv9e0f12nf3m0h3ck8ivomp.apps.googleusercontent.com',
     },
     /**
+     * Additional parameters your backend requires to work.
+     * You will be asked to set up these for each environment.
+     */
+    parameters: {
+        TMDBApiKey: {
+            description: 'API key for the The Movie Database',
+        },
+    },
+    /**
      * The API endpoints for this app.
      */
     serverFile: 'server.ts',
     // Web page configuration
     pages: [{
-        title: 'Broilerplate',
+        title: 'Movie polls',
         file: 'index.pug',
-        scripts: ['index.ts'],
+        scripts: ['index.tsx'],
     }, {
         title: 'Page not found!',
         file: 'error.pug',
-        scripts: ['index.ts'],
+        scripts: ['index.tsx'],
     }],
+    /**
+     * Optional default web page that will be served when no web page file
+     * is found by the requested URL. If null or undefined, an 404 error page will be
+     * shown. Otherwise, the defined file will be served with 200 response.
+     *
+     * This is useful for single page apps using HTML5 History API.
+     */
+    defaultPage: 'index.html',
 });
