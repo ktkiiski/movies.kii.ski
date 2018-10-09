@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, FormGroup, withStyles } from '@material-ui/core';
+import { Checkbox, FormControlLabel, FormGroup, Hidden, withStyles } from '@material-ui/core';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
 import { of } from 'rxjs';
@@ -7,7 +7,10 @@ import { api, authClient } from '../client';
 
 const stylize = withStyles(({spacing}) => ({
     root: {
-        paddingLeft: spacing.unit * 3,
+        paddingLeft: spacing.unit * 2,
+    },
+    labelText: {
+        whiteSpace: 'nowrap',
     },
 }));
 
@@ -15,6 +18,7 @@ interface HasSeenMovieSelectionProps {
     movieId: number;
     classes: {
         root: string,
+        labelText: string;
     };
 }
 
@@ -66,7 +70,9 @@ class HasSeenMovieSelection extends ObserverComponent<HasSeenMovieSelectionProps
                         onChange={this.onChange}
                     />
                 }
-                label={`I've seen this movie`}
+                label={<span className={classes.labelText}>
+                    I've seen this <Hidden xsDown>movie</Hidden>
+                </span>}
             />
         </FormGroup>;
     }

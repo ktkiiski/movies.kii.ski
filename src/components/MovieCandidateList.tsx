@@ -87,18 +87,20 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
         if (!candidates) {
             return <LoadingIndicator />;
         }
-        return candidates.map(({movie, movieId, profileId}) => (
-            <MovieCard movie={movie} key={movieId} content={
+        return candidates.map(({movie, movieId, profileId, profile}) => (
+            <MovieCard movie={movie} key={movieId} profile={profile} content={
                 <VoteResult pollId={pollId} movieId={movieId} />
             }>
-                <CardActions>
+                <CardActions style={{flexFlow: 'row wrap', justifyContent: 'stretch'}}>
                     <VoteButtonSet pollId={pollId} movieId={movieId} />
-                    <HasSeenMovieSelection movieId={movieId} />
-                    {profileId !== userId ? null : <Dropdown button={menuButton} align='right'>
-                        <MenuItem onClick={() => this.onRemoveItemClick(pollId, movieId)}>
-                            Remove the movie suggestion
-                        </MenuItem>
-                    </Dropdown>}
+                    <div style={{display: 'flex', flexFlow: 'row nowrap', flex: 1}}>
+                        <HasSeenMovieSelection movieId={movieId} />
+                        {profileId !== userId ? null : <Dropdown button={menuButton} align='right'>
+                            <MenuItem onClick={() => this.onRemoveItemClick(pollId, movieId)}>
+                                Remove the movie suggestion
+                            </MenuItem>
+                        </Dropdown>}
+                    </div>
                 </CardActions>
             </MovieCard>
         ));

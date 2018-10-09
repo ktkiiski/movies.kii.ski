@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Hidden, Typography } from '@material-ui/core';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
 import { combineLatest } from 'rxjs';
@@ -42,9 +42,18 @@ class VoteResult extends ObserverComponent<VoteTableProps, VoteTableState> {
         if (score == null || movieVotes == null || participantIds == null || movieRatings == null) {
             return null;
         }
-        return <VotePie size={120} votes={movieVotes} maxCount={participantIds.length} ratings={movieRatings}>
-            {isFinite(score) ? <Typography style={{fontSize: 24}}>{score}%</Typography> : null}
-        </VotePie>;
+        return <>
+            <Hidden xsDown implementation='js'>
+                <VotePie size={120} votes={movieVotes} maxCount={participantIds.length} ratings={movieRatings}>
+                {isFinite(score) ? <Typography style={{fontSize: 24}}>{score}%</Typography> : null}
+                </VotePie>
+            </Hidden>
+            <Hidden smUp implementation='js'>
+                <VotePie size={75} votes={movieVotes} maxCount={participantIds.length} ratings={movieRatings}>
+                {isFinite(score) ? <Typography style={{fontSize: 20}}>{score}%</Typography> : null}
+                </VotePie>
+            </Hidden>
+        </>;
     }
 }
 

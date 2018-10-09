@@ -1,12 +1,15 @@
 import CardMedia from '@material-ui/core/CardMedia';
+import IconButton from '@material-ui/core/IconButton';
 import { MuiThemeProvider, withStyles } from '@material-ui/core/styles';
+import InfoIcon from '@material-ui/icons/Info';
 import * as React from 'react';
 import { darkTheme } from '../themes';
 
 const ratio = `${(100 * 9 / 16).toFixed(2)}%`; // 16:9
-const stylize = withStyles({
+const stylize = withStyles<'backdrop' | 'content' | 'heading' | 'linkButton', {}>(({spacing}) => ({
     backdrop: {
         height: 0,
+        minHeight: 256,
         paddingTop: ratio,
         position: 'relative',
     },
@@ -16,7 +19,7 @@ const stylize = withStyles({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: 'linear-gradient(to bottom, rgba(10,10,10,0.1), rgba(10,10,10,0.7))',
+        backgroundImage: 'linear-gradient(to bottom, rgba(20,20,20,0.3), rgba(20,20,20,0.8))',
     },
     heading: {
         position: 'absolute',
@@ -25,17 +28,25 @@ const stylize = withStyles({
         bottom: 0,
         padding: '3em 1em 1em 1em',
     },
-});
+    linkButton: {
+        position: 'absolute',
+        top: spacing.unit,
+        right: spacing.unit,
+        zIndex: 1,
+    },
+}));
 
 interface MovieCardProps {
     backdropPath: string | null | undefined;
+    linkUrl: string | null | undefined;
 }
 
-const MovieCardBackdrop = stylize<MovieCardProps>(({classes, backdropPath, children}) => {
+const MovieCardBackdrop = stylize<MovieCardProps>(({classes, backdropPath, children, linkUrl}) => {
     const backdropUrl = backdropPath && `https://image.tmdb.org/t/p/w1280${backdropPath}` || undefined;
     return (
         <MuiThemeProvider theme={darkTheme}>
             <CardMedia image={backdropUrl} className={classes.backdrop}>
+            {linkUrl && <IconButton href={linkUrl} target='_blank' className={classes.linkButton}><InfoIcon /></IconButton>}
             {!React.Children.count(children) ? null : <div className={classes.content}>
                 <div className={classes.heading}>{children}</div>
             </div>}

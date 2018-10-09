@@ -91,7 +91,7 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
                 </Grid>
                 <Grid item md={9} sm={10} xs={12}>
                     <MovieSearch pollId={pollId} key={pollId}>
-                        <HorizontalLayout right={
+                        <HorizontalLayout align='bottom' right={
                             <Select displayEmpty value={sorting} onChange={this.onOrderingChange}>
                                 <MenuItem value={'unvoted'}>Unvoted first</MenuItem>
                                 <MenuItem value={'top'}>Top voted first</MenuItem>
