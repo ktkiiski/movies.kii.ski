@@ -4,6 +4,8 @@ import { withStyles } from '@material-ui/core/styles';
 import SelectedNegativeIcon from '@material-ui/icons/ThumbDown';
 import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
+import { AuthUser } from 'broilerkit/auth';
+import { identifier } from 'broilerkit/id';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
 import { combineLatest, from } from 'rxjs';
@@ -52,7 +54,7 @@ interface VoteButtonSetProps {
 
 interface VoteButtonSetState {
     votes: Vote[];
-    userId: string | null;
+    user: AuthUser | null;
 }
 
 class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetState> {
@@ -60,15 +62,27 @@ class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetS
     public votes$ = api.pollVoteCollection.observeSwitch(from(this.props$).pipe(
         map((props) => ({...props, ordering: 'createdAt' as 'createdAt', direction: 'asc' as 'asc'})),
     ));
-    public state$ = combineLatest(this.votes$, authClient.userId$, (voteCollection, userId) => ({
-        votes: voteCollection.items, userId,
+    public state$ = combineLatest(this.votes$, authClient.user$, (voteCollection, user) => ({
+        votes: voteCollection.items, user,
     }));
 
     public onSelect = (value: VoteValue, oldValue?: VoteValue | null) => {
         const {movieId, pollId} = this.props;
+        const {user} = this.state;
+        if (!user) {
+            return;
+        }
         if (oldValue == null) {
             // Create a new vote
-            api.pollVoteCollection.post({movieId, pollId, value});
+            const now = new Date();
+            api.pollVoteCollection.postOptimistically({
+                movieId, pollId, value,
+                profileId: user.id,
+                profile: user,
+                version: identifier(),
+                createdAt: now,
+                updatedAt: now,
+            });
         } else if (value === oldValue) {
             // Remove old value
             api.pollVoteResource.deleteWithUser({movieId, pollId});
@@ -80,7 +94,8 @@ class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetS
 
     public render() {
         const {movieId} = this.props;
-        const {votes, userId} = this.state;
+        const {votes, user} = this.state;
+        const userId = user && user.id;
         const currentVote = votes && votes.find((vote) => vote.movieId === movieId && vote.profileId === userId);
         const value = currentVote && currentVote.value;
         return <div>

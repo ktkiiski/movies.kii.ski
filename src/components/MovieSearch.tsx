@@ -9,7 +9,6 @@ import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
 import { api } from '../client';
 import MovieSearchResultList from './MovieSearchResultList';
-import Panel from './Panel';
 import VerticalFlow from './VerticalFlow';
 
 interface MovieSearchState {
@@ -37,9 +36,6 @@ class MovieSearch extends ObserverComponent<MovieSearchProps, MovieSearchState> 
         </IconButton>
     </InputAdornment>;
 
-    public addMovieCandidate = (pollId: string, movieId: number) => {
-        api.pollCandidateCollection.postWithUser({movieId, pollId});
-    }
     public onMovieSearchResultSelect = async (movieId: number) => {
         const {pollId} = this.props;
         // tslint:disable-next-line:no-console
@@ -51,20 +47,18 @@ class MovieSearch extends ObserverComponent<MovieSearchProps, MovieSearchState> 
         const {query = '', search = ''} = this.state;
         const {pollId, children} = this.props;
         return <VerticalFlow>
-            <Panel>
-                <TextField
-                    style={{marginTop: -8}}
-                    label='Search for a movie'
-                    placeholder='Type a movie name'
-                    fullWidth
-                    margin='none'
-                    onChange={this.onChange}
-                    value={query || ''}
-                    InputProps={query ? {
-                        endAdornment: this.clearButton,
-                    } : undefined}
-                />
-            </Panel>
+            <TextField
+                style={{marginTop: -8}}
+                label='Search for a movie'
+                placeholder='Type a movie name'
+                fullWidth
+                margin='none'
+                onChange={this.onChange}
+                value={query || ''}
+                InputProps={query ? {
+                    endAdornment: this.clearButton,
+                } : undefined}
+            />
             {!search ? children : <>
                 <Typography variant='headline'>Search results</Typography>
                 <MovieSearchResultList

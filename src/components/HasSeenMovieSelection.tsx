@@ -1,4 +1,5 @@
 import { Checkbox, FormControlLabel, FormGroup, Hidden, withStyles } from '@material-ui/core';
+import { identifier } from 'broilerkit/id';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
 import { of } from 'rxjs';
@@ -50,7 +51,14 @@ class HasSeenMovieSelection extends ObserverComponent<HasSeenMovieSelectionProps
     public onChange = (_: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
         const {movieId} = this.props;
         if (checked) {
-            api.userRatingCollection.postWithUser({movieId, value: null});
+            const now = new Date();
+            api.userRatingCollection.postWithUserOptimistically({
+                movieId,
+                value: null,
+                createdAt: now,
+                updatedAt: now,
+                version: identifier(),
+            });
         } else {
             api.userRatingResource.deleteWithUser({movieId});
         }

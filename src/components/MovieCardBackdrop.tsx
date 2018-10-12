@@ -42,7 +42,7 @@ interface MovieCardProps {
 }
 
 const MovieCardBackdrop = stylize<MovieCardProps>(({classes, backdropPath, children, linkUrl}) => {
-    const backdropUrl = backdropPath && `https://image.tmdb.org/t/p/w1280${backdropPath}` || undefined;
+    const backdropUrl = backdropPath && `https://image.tmdb.org/t/p/w1280${backdropPath}` || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOMi439DwAEUgIZT0JltgAAAABJRU5ErkJggg==';
     return (
         <MuiThemeProvider theme={darkTheme}>
             <CardMedia image={backdropUrl} className={classes.backdrop}>

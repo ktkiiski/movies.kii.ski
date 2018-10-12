@@ -45,12 +45,12 @@ class VoteResult extends ObserverComponent<VoteTableProps, VoteTableState> {
         return <>
             <Hidden xsDown implementation='js'>
                 <VotePie size={120} votes={movieVotes} maxCount={participantIds.length} ratings={movieRatings}>
-                {isFinite(score) ? <Typography style={{fontSize: 24}}>{score}%</Typography> : null}
+                {isFinite(score) ? <Typography style={{fontSize: 24}}>{Math.round(score)}%</Typography> : null}
                 </VotePie>
             </Hidden>
             <Hidden smUp implementation='js'>
                 <VotePie size={75} votes={movieVotes} maxCount={participantIds.length} ratings={movieRatings}>
-                {isFinite(score) ? <Typography style={{fontSize: 20}}>{score}%</Typography> : null}
+                {isFinite(score) ? <Typography style={{fontSize: 20}}>{Math.round(score)}%</Typography> : null}
                 </VotePie>
             </Hidden>
         </>;

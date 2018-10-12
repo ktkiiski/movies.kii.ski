@@ -3,11 +3,11 @@ import { ObserverComponent } from 'broilerkit/react/observer';
 import { order } from 'broilerkit/utils/arrays';
 import { isNotNully } from 'broilerkit/utils/compare';
 import * as React from 'react';
-import { combineLatest, from, merge } from 'rxjs';
+import { combineLatest, merge } from 'rxjs';
 import { distinct, filter, map, switchMap, toArray } from 'rxjs/operators';
 import { api } from '../client';
 import { PublicProfile } from '../resources';
-import ProfileAvatar from './ProfileAvatar';
+import ProfileVoteAvatar from './ProfileVoteAvatar';
 
 interface ParticipantListProps {
     pollId: string;
@@ -35,22 +35,18 @@ const stylize = withStyles(({spacing}) => ({
 
 class ParticipantList extends ObserverComponent<ParticipantListProps, ParticipantListState> {
 
-    public state$ = from(this.pluckProp('pollId')).pipe(
+    public state$ = this.pluckProp('pollId').pipe(
         switchMap((pollId) => {
-            const candidate$$ = from(
-                api.pollCandidateCollection.observeObservable({pollId, ordering: 'createdAt', direction: 'asc'}),
-            );
-            const vote$$ = from(
-                api.pollVoteCollection.observeObservable({pollId, ordering: 'createdAt', direction: 'asc'}),
-            );
+            const candidate$$ = api.pollCandidateCollection.observeObservable({pollId, ordering: 'createdAt', direction: 'asc'});
+            const vote$$ = api.pollVoteCollection.observeObservable({pollId, ordering: 'createdAt', direction: 'asc'});
             return combineLatest(
                 candidate$$.pipe(
-                    map((candidate$) => from(candidate$).pipe(
+                    map((candidate$) => candidate$.pipe(
                         map((candidate) => candidate.profile),
                     )),
                 ),
                 vote$$.pipe(
-                    map((vote$) => from(vote$).pipe(
+                    map((vote$) => vote$.pipe(
                         map((vote) => vote.profile),
                     )),
                 ),
@@ -68,14 +64,16 @@ class ParticipantList extends ObserverComponent<ParticipantListProps, Participan
     );
 
     public render() {
-        const {classes} = this.props;
+        const {classes, pollId} = this.props;
         const {participants} = this.state;
         if (!participants) {
             return null;
         }
         return <div className={classes.container}>{
             participants.map((participant) => (
-                <ProfileAvatar size={24} user={participant} key={participant.id} className={classes.avatar} />
+                <div className={classes.avatar} key={participant.id}>
+                    <ProfileVoteAvatar pollId={pollId} user={participant} />
+                </div>
             ))}
         </div>;
     }

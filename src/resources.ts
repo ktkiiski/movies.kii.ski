@@ -95,13 +95,13 @@ export const vote = resource({
 });
 
 export const detailedVote = vote.extend({
-    movie: nullable(nested(movie)),
     profile: nullable(nested(
         profile.pick(['id', 'name', 'picture']),
     )),
 });
 
 export type Vote = Deserialization<typeof vote>;
+export type DetailedVote = Deserialization<typeof detailedVote>;
 
 export const rating = resource({
     version: id(),

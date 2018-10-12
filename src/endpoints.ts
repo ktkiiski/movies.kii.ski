@@ -114,7 +114,7 @@ export const pollCandidateResource = implement(api.pollCandidateResource, db)
 ;
 
 export const pollVoteCollection = implement(api.pollVoteCollection, db)
-    .list(async ({pollId, ordering, since, direction}, {votes, movies, profiles}) => {
+    .list(async ({pollId, ordering, since, direction}, {votes, profiles}) => {
         const results = await votes.list({
             key: 'pollId',
             value: pollId,
@@ -122,27 +122,23 @@ export const pollVoteCollection = implement(api.pollVoteCollection, db)
             minCount: 1,
             maxCount: 100,
         });
-        const nestedMoviesPromise = movies.batchRetrieve(
-            results.map(({movieId}) => ({id: movieId})),
-        );
-        const nestedProfilesPromise = profiles.batchRetrieve(
+        const nestedProfiles = await profiles.batchRetrieve(
             results.map(({profileId}) => ({id: profileId})),
         );
-        const [nestedMovies, nestedProfiles] = await Promise.all([nestedMoviesPromise, nestedProfilesPromise]);
         return results.map((item, index) => ({
             ...item,
-            movie: nestedMovies[index],
             profile: nestedProfiles[index],
         }));
     })
     .create(async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
         const now = new Date();
         const profileId = auth.id;
-        const [profile, movie] = await Promise.all([
+        const [profile] = await Promise.all([
             profiles.write({
                 ...auth,
                 version: identifier(now),
             }),
+            // Also ensure that the movie exists
             movies.retrieve({id: input.movieId}),
         ]);
         const version = identifier(now);
@@ -158,7 +154,7 @@ export const pollVoteCollection = implement(api.pollVoteCollection, db)
                     updatedAt: now,
                     createdAt: now,
                 }, alreadyExists),
-                profile, movie,
+                profile,
             });
         } catch (error) {
             if (error === alreadyExists) {
@@ -167,7 +163,7 @@ export const pollVoteCollection = implement(api.pollVoteCollection, db)
                     ...await votes.update(id, {
                         value, version, updatedAt: now,
                     }),
-                    profile, movie,
+                    profile,
                 });
             }
             // Raise through

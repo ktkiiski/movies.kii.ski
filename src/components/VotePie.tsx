@@ -21,7 +21,7 @@ function VotePie({size, votes, maxCount, ratings, children}: VotePieProps) {
     }, {
         name: '±0',
         value: votes.filter(({value}) => value === 0).length,
-        color: yellow[400],
+        color: yellow[600],
     }, {
         name: '-1',
         value: votes.filter(({value}) => value === -1).length,
@@ -34,7 +34,7 @@ function VotePie({size, votes, maxCount, ratings, children}: VotePieProps) {
     const ratingsData = [{
         name: 'Seen',
         value: ratings.length,
-        color: 'rgba(128,80,80,0.7)',
+        color: 'rgba(200,150,150,0.7)',
     }, {
         name: 'Not seen',
         value: maxCount - ratings.length,
@@ -42,7 +42,7 @@ function VotePie({size, votes, maxCount, ratings, children}: VotePieProps) {
     }];
     return <Stack>
         <PieChart width={size} height={size}>
-            <Pie innerRadius={size * 0.37} outerRadius={size * 0.4} data={ratingsData} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
+            <Pie innerRadius={size * 0.32} outerRadius={size * 0.4} data={ratingsData} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
                 {ratingsData.map(({name, color}) => <Cell fill={color} key={name} />)}
             </Pie>
             <Pie innerRadius={size * 0.4} outerRadius={size * 0.5} data={data} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>

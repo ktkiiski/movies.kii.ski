@@ -1,6 +1,5 @@
 import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
 import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import { ObserverComponent } from 'broilerkit/react/observer';
@@ -15,7 +14,6 @@ import MovieCandidateList from './MovieCandidateList';
 import MovieSearch from './MovieSearch';
 import ParticipantList from './ParticipantList';
 import PromptModal from './PromptModal';
-import Spacer from './Spacer';
 import VerticalFlow from './VerticalFlow';
 
 type CandidateSorting = 'unvoted' | 'top';
@@ -78,16 +76,12 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
         const pollId = this.props.id;
         const menu = poll && userId && userId === poll.profileId ? this.menu : null;
         return <Layout title={poll && poll.title || ''} menu={menu}>
-            <Grid container direction='row-reverse' justify='center' spacing={8}>
+            <Grid container direction='row-reverse' justify='center' spacing={16}>
                 <Grid item md={3} sm={10} xs={12}>
-                    <Paper>
-                        <Spacer>
-                            <VerticalFlow>
-                                <Typography variant='subheading'>Participants</Typography>
-                                <ParticipantList pollId={pollId} />
-                            </VerticalFlow>
-                        </Spacer>
-                    </Paper>
+                    <VerticalFlow>
+                        <Typography variant='subheading'>Participants</Typography>
+                        <ParticipantList pollId={pollId} />
+                    </VerticalFlow>
                 </Grid>
                 <Grid item md={9} sm={10} xs={12}>
                     <MovieSearch pollId={pollId} key={pollId}>
