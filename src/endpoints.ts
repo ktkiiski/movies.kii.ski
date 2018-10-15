@@ -7,12 +7,8 @@ import * as db from './db';
 import { retrieveMovie, searchMovies } from './tmdb';
 
 export const userPollCollection = implement(api.userPollCollection, db)
-    .list(async ({ordering, since, direction}, {polls}) => {
-        return await polls.list({
-            ordering, direction, since,
-            minCount: 1,
-            maxCount: 100,
-        });
+    .list(async (query, {polls}) => {
+        return await polls.list(query);
     })
     .create(async (input, {polls, profiles}, {auth}) => {
         const now = new Date();
@@ -65,13 +61,8 @@ export const pollResource = implement(api.pollResource, db)
 ;
 
 export const pollCandidateCollection = implement(api.pollCandidateCollection, db)
-    .list(async ({pollId, ordering, since, direction}, {candidates, movies, profiles}) => {
-        const results = await candidates.list({
-            key: 'pollId', value: pollId,
-            ordering, direction, since,
-            minCount: 1,
-            maxCount: 100,
-        });
+    .list(async (query, {candidates, movies, profiles}) => {
+        const {results, next} = await candidates.list(query);
         const nestedMoviesPromise = movies.batchRetrieve(
             results.map(({movieId}) => ({id: movieId})),
         );
@@ -79,11 +70,14 @@ export const pollCandidateCollection = implement(api.pollCandidateCollection, db
             results.map(({profileId}) => ({id: profileId})),
         );
         const [nestedMovies, nestedUsers] = await Promise.all([nestedMoviesPromise, nestedUsersPromise]);
-        return results.map((item, index) => ({
-            ...item,
-            movie: nestedMovies[index],
-            profile: nestedUsers[index],
-        }));
+        return {
+            next,
+            results: results.map((item, index) => ({
+                ...item,
+                movie: nestedMovies[index],
+                profile: nestedUsers[index],
+            })),
+        };
     })
     .create(async (input, {candidates, movies, profiles}, {auth}) => {
         const now = new Date();
@@ -114,21 +108,18 @@ export const pollCandidateResource = implement(api.pollCandidateResource, db)
 ;
 
 export const pollVoteCollection = implement(api.pollVoteCollection, db)
-    .list(async ({pollId, ordering, since, direction}, {votes, profiles}) => {
-        const results = await votes.list({
-            key: 'pollId',
-            value: pollId,
-            ordering, direction, since,
-            minCount: 1,
-            maxCount: 100,
-        });
+    .list(async (query, {votes, profiles}) => {
+        const {results, next} = await votes.list(query);
         const nestedProfiles = await profiles.batchRetrieve(
             results.map(({profileId}) => ({id: profileId})),
         );
-        return results.map((item, index) => ({
-            ...item,
-            profile: nestedProfiles[index],
-        }));
+        return {
+            next,
+            results: results.map((item, index) => ({
+                ...item,
+                profile: nestedProfiles[index],
+            })),
+        };
     })
     .create(async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
         const now = new Date();
@@ -175,11 +166,7 @@ export const pollVoteCollection = implement(api.pollVoteCollection, db)
 export const userRatingCollection = implement(api.userRatingCollection, db)
     .list(async ({profileId, ordering, since, direction}, {ratings}) => {
         return ratings.list({
-            key: 'profileId',
-            value: profileId,
-            ordering, since, direction,
-            minCount: 1,
-            maxCount: 100,
+            profileId, ordering, since, direction,
         });
     })
     .create(async (input, {ratings, movies}) => {
@@ -243,6 +230,9 @@ export const queryMovieSearchResultCollection = implement(api.queryMovieSearchRe
             throw error;
         });
         // Limit the number of search results for throttling the TMDb API usage
-        return order(items.slice(0, 6), ordering, direction, since);
+        return {
+            results: order(items.slice(0, 6), ordering, direction, since),
+            next: null,
+        };
     })
 ;
