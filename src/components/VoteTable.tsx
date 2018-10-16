@@ -128,7 +128,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.positiveColumn}>
                         {positiveVotes && positiveVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
-                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={18} fade={green[400]} />
+                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={green[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.positiveColumn} numeric>
@@ -142,7 +142,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.neutralColumn}>
                         {neutralVotes && neutralVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
-                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={18} fade={yellow[400]} />
+                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={yellow[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.neutralColumn} numeric>
@@ -156,7 +156,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.negativeColumn}>
                         {negativeVotes && negativeVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
-                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={18} fade={red[400]} />
+                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={red[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.negativeColumn} numeric>
@@ -170,7 +170,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn}>
                         {ratings && ratings.map((rating) => (
                             rating.profile && rating.profile.picture &&
-                                <ProfileAvatar className={classes.avatar} key={rating.profileId} user={rating.profile} size={18} />
+                                <ProfileAvatar className={classes.avatar} key={rating.profileId} user={rating.profile} size={22} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn} numeric>

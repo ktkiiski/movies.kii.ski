@@ -7,7 +7,7 @@ import * as React from 'react';
 
 const stylize = withStyles({
     fadedImg: {
-        opacity: 0.2,
+        opacity: 0.7,
     },
 });
 
