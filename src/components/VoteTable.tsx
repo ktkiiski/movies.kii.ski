@@ -19,6 +19,10 @@ import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
 
 const stylize = withStyles({
+    avatar: {
+        float: 'left',
+        marginRight: 5,
+    },
     positiveColumn: {
         color: green[400],
         height: 'auto',
@@ -51,6 +55,7 @@ interface VoteTableProps {
     pollId: string;
     movieId: number;
     classes: {
+        avatar: string;
         positiveColumn: string;
         neutralColumn: string;
         negativeColumn: string;
@@ -123,7 +128,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.positiveColumn}>
                         {positiveVotes && positiveVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
-                                <ProfileAvatar key={vote.profileId} user={vote.profile} size={18} fade={green[400]} />
+                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={18} fade={green[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.positiveColumn} numeric>
@@ -137,7 +142,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.neutralColumn}>
                         {neutralVotes && neutralVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
-                                <ProfileAvatar key={vote.profileId} user={vote.profile} size={18} fade={yellow[400]} />
+                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={18} fade={yellow[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.neutralColumn} numeric>
@@ -151,7 +156,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.negativeColumn}>
                         {negativeVotes && negativeVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
-                                <ProfileAvatar key={vote.profileId} user={vote.profile} size={18} fade={red[400]} />
+                                <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={18} fade={red[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.negativeColumn} numeric>
@@ -165,7 +170,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                     <TableCell padding={'none'} className={classes.votesColumn}>
                         {ratings && ratings.map((rating) => (
                             rating.profile && rating.profile.picture &&
-                                <ProfileAvatar key={rating.profileId} user={rating.profile} size={18} />
+                                <ProfileAvatar className={classes.avatar} key={rating.profileId} user={rating.profile} size={18} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn} numeric>
@@ -175,7 +180,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
             </TableBody>
             <TableFooter>
                 <TableRow>
-                    <TableCell padding={'dense'} className={classes.footer} numeric>
+                    <TableCell padding={'dense'} className={`${classes.headerColumn} ${classes.footer}`}>
                         Score
                     </TableCell>
                     <TableCell colSpan={2} padding={'dense'} className={classes.footer} numeric>
