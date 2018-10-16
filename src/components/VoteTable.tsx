@@ -12,12 +12,11 @@ import PositiveIcon from '@material-ui/icons/ThumbUp';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import { isEqual } from 'broilerkit/utils/compare';
 import * as React from 'react';
-import { combineLatest, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
+import { combineLatest, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { api } from '../client';
 import { DetailedRating, DetailedVote } from '../resources';
-import { getPollRatings$ } from '../scoring';
+import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
-import VoteSum from './VoteSum';
 
 const stylize = withStyles({
     positiveColumn: {
@@ -67,6 +66,8 @@ interface VoteTableState {
     negativeVotes: DetailedVote[];
     neutralVotes: DetailedVote[];
     ratings: DetailedRating[];
+    score: number;
+    sum: number;
 }
 
 class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
@@ -79,26 +80,40 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
         ),
         distinctUntilChanged(isEqual),
     );
-
-    public state$ = this.pluckProp('pollId').pipe(
-        switchMap((pollId) => api.pollVoteCollection.observe({pollId, ordering: 'createdAt', direction: 'asc'})),
-        map(({items}) => items),
+    public candidates$ = this.pluckProp('pollId').pipe(
+        switchMap((pollId) => api.pollCandidateCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'})),
+    );
+    public votes$ = this.pluckProp('pollId').pipe(
+        switchMap((pollId) => api.pollVoteCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'})),
+    );
+    public score$ = this.pluckProp('movieId').pipe(
+        combineLatest(
+            this.candidates$, this.votes$,
+            (movieId, candidates, votes) => getMovieScore(movieId, votes, getParticipantIds(candidates, votes)),
+        ),
+    );
+    public state$ = this.votes$.pipe(
         combineLatest(
             this.pluckProp('movieId'),
             (votes, movieId) => votes.filter((vote) => vote.movieId === movieId),
         ),
         distinctUntilChanged(isEqual),
-        combineLatest(this.ratings$, (votes, ratings) => ({
-            ratings,
-            positiveVotes: votes.filter((vote) => vote.value === 1),
-            neutralVotes: votes.filter((vote) => vote.value === 0),
-            negativeVotes: votes.filter((vote) => vote.value === -1),
-        })),
+        combineLatest(
+            this.ratings$,
+            this.score$,
+            (votes, ratings, score) => ({
+                ratings, score,
+                positiveVotes: votes.filter((vote) => vote.value === 1),
+                neutralVotes: votes.filter((vote) => vote.value === 0),
+                negativeVotes: votes.filter((vote) => vote.value === -1),
+                sum: votes.reduce((sum, vote) => vote.value + sum, 0),
+            }),
+        ),
     );
 
     public render() {
-        const {movieId, classes, pollId} = this.props;
-        const {positiveVotes, neutralVotes, negativeVotes, ratings} = this.state;
+        const {classes} = this.props;
+        const {positiveVotes, neutralVotes, negativeVotes, ratings, sum, score} = this.state;
         return <Table>
             <TableBody>
                 <TableRow>
@@ -164,7 +179,7 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
                         Score
                     </TableCell>
                     <TableCell colSpan={2} padding={'dense'} className={classes.footer} numeric>
-                        <VoteSum movieId={movieId} pollId={pollId} />
+                        {sum}{typeof score === 'number' ? ` = ${Math.round(score)}%` : null}
                     </TableCell>
                 </TableRow>
             </TableFooter>
