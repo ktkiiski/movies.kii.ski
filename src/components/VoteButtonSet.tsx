@@ -8,8 +8,8 @@ import { AuthUser } from 'broilerkit/auth';
 import { identifier } from 'broilerkit/id';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
-import { combineLatest, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
 import { Vote } from '../resources';
 import NegativeIcon from './icons/ThumbDownOutline';
@@ -53,17 +53,27 @@ interface VoteButtonSetProps {
 }
 
 interface VoteButtonSetState {
-    votes: Vote[];
+    currentVoteValue: Vote['value'] | null;
     user: AuthUser | null;
 }
 
 class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetState> {
 
-    public votes$ = api.pollVoteCollection.observeSwitch(from(this.props$).pipe(
-        map((props) => ({...props, ordering: 'createdAt' as 'createdAt', direction: 'asc' as 'asc'})),
-    ));
-    public state$ = combineLatest(this.votes$, authClient.user$, (voteCollection, user) => ({
-        votes: voteCollection.items, user,
+    public votes$ = this.pluckProp('pollId').pipe(
+        switchMap((pollId) => api.pollVoteCollection.observeAll({
+            pollId, ordering: 'createdAt', direction: 'asc',
+        })),
+    );
+    public currentVote$ = combineLatest(
+        this.votes$, authClient.userId$, this.pluckProp('movieId'),
+        (votes, userId, movieId) => votes.find((vote) => vote.movieId === movieId && vote.profileId === userId),
+    );
+    public currentVoteValue$ = this.currentVote$.pipe(
+        map((vote) => vote ? vote.value : null),
+        distinctUntilChanged(),
+    );
+    public state$ = combineLatest(this.currentVoteValue$, authClient.user$, (currentVoteValue, user) => ({
+        currentVoteValue, user,
     }));
 
     public onSelect = (value: VoteValue, oldValue?: VoteValue | null) => {
@@ -93,11 +103,7 @@ class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetS
     }
 
     public render() {
-        const {movieId} = this.props;
-        const {votes, user} = this.state;
-        const userId = user && user.id;
-        const currentVote = votes && votes.find((vote) => vote.movieId === movieId && vote.profileId === userId);
-        const value = currentVote && currentVote.value;
+        const value = this.state.currentVoteValue;
         return <div>
             <Grid container spacing={0} item direction='row'>
                 <Grid item>
