@@ -5,14 +5,18 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableFooter from '@material-ui/core/TableFooter';
 import TableRow from '@material-ui/core/TableRow';
-import NeutralIcon from '@material-ui/icons/SentimentNeutral';
-import NegativeIcon from '@material-ui/icons/SentimentVeryDissatisfied';
-import PositiveIcon from '@material-ui/icons/SentimentVerySatisfied';
-import { renderCollection } from 'broilerkit/react/api';
+import SeenIcon from '@material-ui/icons/CheckBox';
+import NegativeIcon from '@material-ui/icons/ThumbDown';
+import NeutralIcon from '@material-ui/icons/ThumbsUpDown';
+import PositiveIcon from '@material-ui/icons/ThumbUp';
+import { ObserverComponent } from 'broilerkit/react/observer';
+import { isEqual } from 'broilerkit/utils/compare';
 import * as React from 'react';
+import { combineLatest, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { api } from '../client';
+import { DetailedRating, DetailedVote } from '../resources';
+import { getPollRatings$ } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
-import VoteResult from './VoteResult';
 import VoteSum from './VoteSum';
 
 const stylize = withStyles({
@@ -36,16 +40,16 @@ const stylize = withStyles({
     },
     sumColumn: {
         width: '3em',
+        fontSize: '16px',
     },
-    footer: {},
-});
-
-const VoteTableBase = renderCollection(api.pollVoteCollection, {
-    ordering: 'createdAt',
-    direction: 'asc',
+    footer: {
+        fontSize: '16px',
+        fontWeight: 'bold',
+    },
 });
 
 interface VoteTableProps {
+    pollId: string;
     movieId: number;
     classes: {
         positiveColumn: string;
@@ -58,14 +62,43 @@ interface VoteTableProps {
     };
 }
 
-class VoteTable extends VoteTableBase<VoteTableProps> {
+interface VoteTableState {
+    positiveVotes: DetailedVote[];
+    negativeVotes: DetailedVote[];
+    neutralVotes: DetailedVote[];
+    ratings: DetailedRating[];
+}
+
+class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
+
+    public ratings$ = this.pluckProp('pollId').pipe(
+        switchMap((pollId) => getPollRatings$(pollId)),
+        combineLatest(
+            this.pluckProp('movieId'),
+            (ratings, movieId) => ratings.filter((rating) => rating.movieId === movieId),
+        ),
+        distinctUntilChanged(isEqual),
+    );
+
+    public state$ = this.pluckProp('pollId').pipe(
+        switchMap((pollId) => api.pollVoteCollection.observe({pollId, ordering: 'createdAt', direction: 'asc'})),
+        map(({items}) => items),
+        combineLatest(
+            this.pluckProp('movieId'),
+            (votes, movieId) => votes.filter((vote) => vote.movieId === movieId),
+        ),
+        distinctUntilChanged(isEqual),
+        combineLatest(this.ratings$, (votes, ratings) => ({
+            ratings,
+            positiveVotes: votes.filter((vote) => vote.value === 1),
+            neutralVotes: votes.filter((vote) => vote.value === 0),
+            negativeVotes: votes.filter((vote) => vote.value === -1),
+        })),
+    );
+
     public render() {
         const {movieId, classes, pollId} = this.props;
-        const votes = this.state.items;
-        const movieVotes = votes && votes.filter((vote) => vote.movieId === movieId) || [];
-        const positiveVotes = movieVotes.filter((vote) => vote.value === 1);
-        const neutralVotes = movieVotes.filter((vote) => vote.value === 0);
-        const negativeVotes = movieVotes.filter((vote) => vote.value === -1);
+        const {positiveVotes, neutralVotes, negativeVotes, ratings} = this.state;
         return <Table>
             <TableBody>
                 <TableRow>
@@ -73,13 +106,13 @@ class VoteTable extends VoteTableBase<VoteTableProps> {
                         <PositiveIcon />
                     </TableCell>
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.positiveColumn}>
-                        {positiveVotes.map((vote) => (
+                        {positiveVotes && positiveVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
                                 <ProfileAvatar key={vote.profileId} user={vote.profile} size={18} fade={green[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.positiveColumn} numeric>
-                        {positiveVotes.length}
+                        {positiveVotes && positiveVotes.length}
                     </TableCell>
                 </TableRow>
                 <TableRow>
@@ -87,13 +120,13 @@ class VoteTable extends VoteTableBase<VoteTableProps> {
                         <NeutralIcon />
                     </TableCell>
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.neutralColumn}>
-                        {neutralVotes.map((vote) => (
+                        {neutralVotes && neutralVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
                                 <ProfileAvatar key={vote.profileId} user={vote.profile} size={18} fade={yellow[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.neutralColumn} numeric>
-                        {neutralVotes.length}
+                        {neutralVotes && neutralVotes.length}
                     </TableCell>
                 </TableRow>
                 <TableRow>
@@ -101,21 +134,36 @@ class VoteTable extends VoteTableBase<VoteTableProps> {
                         <NegativeIcon />
                     </TableCell>
                     <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.negativeColumn}>
-                        {negativeVotes.map((vote) => (
+                        {negativeVotes && negativeVotes.map((vote) => (
                             vote.profile && vote.profile.picture &&
                                 <ProfileAvatar key={vote.profileId} user={vote.profile} size={18} fade={red[400]} />
                         ))}
                     </TableCell>
                     <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.negativeColumn} numeric>
-                        {negativeVotes.length}
+                        {negativeVotes && negativeVotes.length}
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell padding={'dense'} className={classes.headerColumn} component='th'>
+                        <SeenIcon />
+                    </TableCell>
+                    <TableCell padding={'none'} className={classes.votesColumn}>
+                        {ratings && ratings.map((rating) => (
+                            rating.profile && rating.profile.picture &&
+                                <ProfileAvatar key={rating.profileId} user={rating.profile} size={18} />
+                        ))}
+                    </TableCell>
+                    <TableCell padding={'dense'} className={classes.sumColumn} numeric>
+                        {ratings && ratings.length}
                     </TableCell>
                 </TableRow>
             </TableBody>
             <TableFooter>
                 <TableRow>
-                    <TableCell colSpan={3} padding={'dense'} className={classes.footer} numeric>
-                        <VoteResult movieId={movieId} pollId={pollId} />
-                        {' / '}
+                    <TableCell padding={'dense'} className={classes.footer} numeric>
+                        Score
+                    </TableCell>
+                    <TableCell colSpan={2} padding={'dense'} className={classes.footer} numeric>
                         <VoteSum movieId={movieId} pollId={pollId} />
                     </TableCell>
                 </TableRow>

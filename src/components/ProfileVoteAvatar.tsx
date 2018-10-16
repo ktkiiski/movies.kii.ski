@@ -1,7 +1,7 @@
 import {ObserverComponent} from 'broilerkit/react/observer';
 import * as React from 'react';
 import { combineLatest } from 'rxjs';
-import { filter, switchMap, toArray } from '../../node_modules/rxjs/operators';
+import { filter, switchMap, toArray } from 'rxjs/operators';
 import { api } from '../client';
 import { Rating, Vote } from '../resources';
 import ProfileAvatar from './ProfileAvatar';

@@ -116,3 +116,6 @@ export const rating = resource({
 });
 
 export type Rating = Deserialization<typeof rating>;
+export type DetailedRating = Rating & {
+    profile: PublicProfile;
+};

@@ -7,7 +7,7 @@ const stylize = withStyles<'spacer', {}>((theme) => ({
     },
 }));
 
-const Spacer = stylize(({classes, children = 1}) => (
+const Spacer = stylize(({classes, children}) => (
     <div className={classes.spacer}>{children}</div>
 ));
 

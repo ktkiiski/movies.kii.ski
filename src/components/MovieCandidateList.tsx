@@ -1,4 +1,4 @@
-import { IconButton, MenuItem } from '@material-ui/core';
+import { Collapse, Divider, IconButton, MenuItem } from '@material-ui/core';
 import CardActions from '@material-ui/core/CardActions';
 import MenuIcon from '@material-ui/icons/MoreVert';
 import { ObserverComponent } from 'broilerkit/react/observer';
@@ -11,10 +11,12 @@ import { DetailedCandidate, Vote } from '../resources';
 import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
 import Dropdown from './Dropdown';
 import HasSeenMovieSelection from './HasSeenMovieSelection';
+import ExpandIcon from './icons/ExpandIcon';
 import LoadingIndicator from './LoadingIndicator';
 import MovieCard from './MovieCard';
 import VoteButtonSet from './VoteButtonSet';
 import VoteResult from './VoteResult';
+import VoteTable from './VoteTable';
 
 interface MovieCandidateListProps {
     pollId: string;
@@ -32,16 +34,24 @@ interface MovieCandidateListState {
     userId: string | null;
 }
 
+interface MovieCandidateListUIStage {
+    isExpanded: boolean;
+}
+
 const menuButton = <IconButton style={{marginLeft: 'auto'}}><MenuIcon/></IconButton>;
 
-class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, MovieCandidateListState> {
+class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, MovieCandidateListState, MovieCandidateListUIStage> {
+
+    public state: Partial<MovieCandidateListState> & MovieCandidateListUIStage = {
+        isExpanded: false,
+    };
 
     public state$ = combineLatest(this.props$, authClient.userId$).pipe(
         switchMap(([{pollId, sorting}, userId]) => combineLatest(
             api.pollCandidateCollection.observeAll({
                 pollId,
                 ordering: 'createdAt',
-                direction: 'desc',
+                direction: 'asc',
             }),
             getPollRatings$(pollId),
             // Only the latest votes affect the ordering
@@ -81,9 +91,14 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
         api.pollCandidateResource.deleteWithUser({movieId, pollId});
     }
 
+    public onToggle = () => {
+        const {isExpanded} = this.state;
+        this.setState({isExpanded: !isExpanded});
+    }
+
     public render() {
         const {pollId} = this.props;
-        const {candidates, userId} = this.state;
+        const {candidates, userId, isExpanded} = this.state;
         if (!candidates) {
             return <LoadingIndicator />;
         }
@@ -100,8 +115,15 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
                                 Remove the movie suggestion
                             </MenuItem>
                         </Dropdown>}
+                        <IconButton onClick={this.onToggle}>
+                            <ExpandIcon up={isExpanded} />
+                        </IconButton>
                     </div>
                 </CardActions>
+                <Collapse in={isExpanded}>
+                    <Divider />
+                    <VoteTable movieId={movieId} pollId={pollId} />
+                </Collapse>
             </MovieCard>
         ));
     }
