@@ -38,7 +38,7 @@ interface MovieCandidateListUIStage {
     isExpanded: boolean;
 }
 
-const menuButton = <IconButton style={{marginLeft: 'auto'}}><MenuIcon/></IconButton>;
+const menuButton = <IconButton><MenuIcon/></IconButton>;
 
 class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, MovieCandidateListState, MovieCandidateListUIStage> {
 
@@ -109,7 +109,7 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
                 <CardActions style={{flexFlow: 'row wrap', justifyContent: 'stretch'}}>
                     <VoteButtonSet pollId={pollId} movieId={movieId} />
                     <div style={{display: 'flex', flexFlow: 'row nowrap', flex: 1}}>
-                        <HasSeenMovieSelection movieId={movieId} />
+                        <HasSeenMovieSelection style={{flex: 1}} movieId={movieId} />
                         {profileId !== userId ? null : <Dropdown button={menuButton} align='right'>
                             <MenuItem onClick={() => this.onRemoveItemClick(pollId, movieId)}>
                                 Remove the movie suggestion

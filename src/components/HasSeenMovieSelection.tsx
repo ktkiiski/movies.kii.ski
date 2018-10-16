@@ -16,6 +16,7 @@ const stylize = withStyles(({spacing}) => ({
 }));
 
 interface HasSeenMovieSelectionProps {
+    style?: React.CSSProperties;
     movieId: number;
     classes: {
         root: string,
@@ -65,12 +66,12 @@ class HasSeenMovieSelection extends ObserverComponent<HasSeenMovieSelectionProps
     }
 
     public render() {
-        const {classes} = this.props;
+        const {classes, ...props} = this.props;
         const {hasSeen} = this.state;
         if (hasSeen == null) {
             return null;
         }
-        return <FormGroup className={classes.root}>
+        return <FormGroup className={classes.root} {...props}>
             <FormControlLabel
                 control={
                     <Checkbox
