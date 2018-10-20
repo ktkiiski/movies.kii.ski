@@ -1,9 +1,18 @@
-# Broilerplate
+# The Movie Poll Web App
 
-![Broilerplate](./src/images/broilerplate.png)
+<img src="./src/images/icon.png" style="max-width: 100px;">
 
-This is a boilerplate for quickly bootstrapping a web app with modern technologies, deployed to a scalable, production-ready environment!
+**What movies should we watch on our next all-day movie marathon?**
 
-**Apply this template and deploy your application using the [BroilerKit command line utility](https://github.com/ktkiiski/broilerkit)**!
+This web app helps with that decision! Participants can suggest any movies and vote them! Then let's watch the ones with the top scores!
 
-More information about the features of this template can be found at [the BroilerKit GitHub repository](https://github.com/ktkiiski/broilerkit#README.md).
+The web app has the following features:
+
+- Sign in with your Facebook or Google account
+- Create a movie poll and share the URL with your friends
+- Search for movies from [The Movie Database](https://www.themoviedb.org/) and suggest them
+- Vote for movies with +1, ±0, or -1
+- Mark movies that you have already seen
+- See details about how others have voted
+
+**This app is built on top of the [Broilerplate](https://github.com/ktkiiski/broilerplate) and is powered by the [BroilerKit framework](https://github.com/ktkiiski/broilerkit)**!
