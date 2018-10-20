@@ -1,6 +1,4 @@
-import { Collapse, Divider, IconButton, MenuItem, Typography } from '@material-ui/core';
-import CardActions from '@material-ui/core/CardActions';
-import MenuIcon from '@material-ui/icons/MoreVert';
+import { Typography } from '@material-ui/core';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import { order, sort } from 'broilerkit/utils/arrays';
 import * as React from 'react';
@@ -10,14 +8,8 @@ import { api, authClient } from '../client';
 import { DetailedCandidate, Vote } from '../resources';
 import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
 import Center from './Center';
-import Dropdown from './Dropdown';
-import HasSeenMovieSelection from './HasSeenMovieSelection';
-import ExpandIcon from './icons/ExpandIcon';
 import LoadingIndicator from './LoadingIndicator';
-import MovieCard from './MovieCard';
-import VoteButtonSet from './VoteButtonSet';
-import VoteResult from './VoteResult';
-import VoteTable from './VoteTable';
+import MovieCandidate from './MovieCandidate';
 
 interface MovieCandidateListProps {
     pollId: string;
@@ -35,17 +27,7 @@ interface MovieCandidateListState {
     userId: string | null;
 }
 
-interface MovieCandidateListUIStage {
-    isExpanded: boolean;
-}
-
-const menuButton = <IconButton><MenuIcon/></IconButton>;
-
-class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, MovieCandidateListState, MovieCandidateListUIStage> {
-
-    public state: Partial<MovieCandidateListState> & MovieCandidateListUIStage = {
-        isExpanded: false,
-    };
+class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, MovieCandidateListState> {
 
     public state$ = combineLatest(this.props$, authClient.userId$).pipe(
         switchMap(([{pollId, sorting}, userId]) => combineLatest(
@@ -92,14 +74,9 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
         api.pollCandidateResource.deleteWithUser({movieId, pollId});
     }
 
-    public onToggle = () => {
-        const {isExpanded} = this.state;
-        this.setState({isExpanded: !isExpanded});
-    }
-
     public render() {
         const {pollId} = this.props;
-        const {candidates, userId, isExpanded} = this.state;
+        const {candidates} = this.state;
         if (!candidates) {
             return <LoadingIndicator />;
         }
@@ -111,29 +88,8 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
                 </Center>
             );
         }
-        return candidates.map(({movie, movieId, profileId, profile}) => (
-            <MovieCard movie={movie} key={movieId} profile={profile} content={
-                <VoteResult pollId={pollId} movieId={movieId} />
-            }>
-                <CardActions style={{flexFlow: 'row wrap', justifyContent: 'stretch'}}>
-                    <VoteButtonSet pollId={pollId} movieId={movieId} />
-                    <div style={{display: 'flex', flexFlow: 'row nowrap', flex: 1}}>
-                        <HasSeenMovieSelection style={{flex: 1}} movieId={movieId} />
-                        {profileId !== userId ? null : <Dropdown button={menuButton} align='right'>
-                            <MenuItem onClick={() => this.onRemoveItemClick(pollId, movieId)}>
-                                Remove the movie suggestion
-                            </MenuItem>
-                        </Dropdown>}
-                        <IconButton onClick={this.onToggle}>
-                            <ExpandIcon up={isExpanded} />
-                        </IconButton>
-                    </div>
-                </CardActions>
-                <Collapse in={isExpanded}>
-                    <Divider />
-                    <VoteTable movieId={movieId} pollId={pollId} />
-                </Collapse>
-            </MovieCard>
+        return candidates.map((candidate) => (
+            <MovieCandidate key={candidate.movieId} pollId={pollId} candidate={candidate} />
         ));
     }
 }
