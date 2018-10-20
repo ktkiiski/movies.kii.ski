@@ -1,6 +1,6 @@
 # The Movie Poll Web App
 
-<img src="./src/images/icon.png" style="max-width: 100px;">
+![Movies](./src/images/icon.png)
 
 **What movies should we watch on our next all-day movie marathon?**
 
