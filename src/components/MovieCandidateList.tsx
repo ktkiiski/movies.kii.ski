@@ -1,4 +1,4 @@
-import { Collapse, Divider, IconButton, MenuItem } from '@material-ui/core';
+import { Collapse, Divider, IconButton, MenuItem, Typography } from '@material-ui/core';
 import CardActions from '@material-ui/core/CardActions';
 import MenuIcon from '@material-ui/icons/MoreVert';
 import { ObserverComponent } from 'broilerkit/react/observer';
@@ -9,6 +9,7 @@ import { first, switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
 import { DetailedCandidate, Vote } from '../resources';
 import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
+import Center from './Center';
 import Dropdown from './Dropdown';
 import HasSeenMovieSelection from './HasSeenMovieSelection';
 import ExpandIcon from './icons/ExpandIcon';
@@ -101,6 +102,14 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
         const {candidates, userId, isExpanded} = this.state;
         if (!candidates) {
             return <LoadingIndicator />;
+        }
+        if (!candidates.length) {
+            return (
+                <Center>
+                    <Typography>You are ready to suggest movies to this poll!</Typography>
+                    <Typography>Start typing the movie name to the search field above!</Typography>
+                </Center>
+            );
         }
         return candidates.map(({movie, movieId, profileId, profile}) => (
             <MovieCard movie={movie} key={movieId} profile={profile} content={

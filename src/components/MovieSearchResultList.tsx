@@ -1,10 +1,13 @@
 import Button from '@material-ui/core/Button';
 import CardActions from '@material-ui/core/CardActions';
+import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import CheckIcon from '@material-ui/icons/Check';
 import { renderCollection, renderResources } from 'broilerkit/react/api';
 import * as React from 'react';
 import { api } from '../client';
+import Center from './Center';
+import LoadingIndicator from './LoadingIndicator';
 import MovieCard from './MovieCard';
 
 const MovieSearchResultListItemBase = renderResources({
@@ -60,8 +63,18 @@ interface MovieSearchResultListProps {
 class MovieSearchResultList extends MovieSearchResultListBase<MovieSearchResultListProps> {
     public render() {
         const {pollId} = this.props;
-        const {items} = this.state;
-        return items && items.map((result) => (
+        const {items, isComplete} = this.state;
+        if (!isComplete || !items) {
+            return <LoadingIndicator />;
+        }
+        if (!items.length) {
+            return (
+                <Center>
+                    <Typography>No results matching "{this.props.query}"!</Typography>
+                </Center>
+            );
+        }
+        return items.map((result) => (
             <MovieSearchResultListItem movie={result} key={result.id}>
                 <CardActions>
                     <AddMovieCandidateButton movieId={result.id} pollId={pollId} onClick={() => {
@@ -69,7 +82,7 @@ class MovieSearchResultList extends MovieSearchResultListBase<MovieSearchResultL
                     }} />
                 </CardActions>
             </MovieSearchResultListItem>
-        )) || null;
+        ));
     }
 }
 

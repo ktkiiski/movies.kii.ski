@@ -1,4 +1,3 @@
-import CircularProgress from '@material-ui/core/CircularProgress';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -8,6 +7,7 @@ import { order } from 'broilerkit/utils/arrays';
 import * as React from 'react';
 import { api } from '../client';
 import { router } from '../router';
+import LoadingIndicator from './LoadingIndicator';
 
 const PollListBase = renderUserCollection(api.userPollCollection, {
     ordering: 'createdAt',
@@ -39,7 +39,7 @@ class PollList extends PollListBase {
                     </ListItem>
                 ))}
             </List>
-            {isComplete ? null : <CircularProgress />}
+            {isComplete ? null : <LoadingIndicator />}
         </>;
     }
 }

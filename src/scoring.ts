@@ -33,7 +33,7 @@ export function getPollRatings$(pollId: string) {
         )),
         map((participants) => order(participants, 'id', 'asc')),
         distinctUntilChanged(isEqual),
-        switchMap((participants) => combineLatest(
+        switchMap((participants) => !participants.length ? [[]] : combineLatest(
             participants.map((profile) => api.userRatingCollection.observeAll({
                 profileId: profile.id,
                 ordering: 'createdAt',
