@@ -7,7 +7,7 @@ import { first, switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
 import { DetailedCandidate, Vote } from '../resources';
 import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
-import Center from './Center';
+import Center from './layout/Center';
 import LoadingIndicator from './LoadingIndicator';
 import MovieCandidate from './MovieCandidate';
 

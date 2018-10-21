@@ -6,7 +6,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import { renderCollection, renderResources } from 'broilerkit/react/api';
 import * as React from 'react';
 import { api } from '../client';
-import Center from './Center';
+import Center from './layout/Center';
 import LoadingIndicator from './LoadingIndicator';
 import MovieCard from './MovieCard';
 

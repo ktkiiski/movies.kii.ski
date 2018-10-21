@@ -2,8 +2,8 @@ import { green, red, yellow } from '@material-ui/core/colors';
 import * as React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 import { Rating, Vote } from '../resources';
-import Center from './Center';
-import Stack from './Stack';
+import Center from './layout/Center';
+import Stack from './layout/Stack';
 
 interface VotePieProps {
     size: number;

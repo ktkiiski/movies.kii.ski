@@ -1,6 +1,6 @@
 import Paper from '@material-ui/core/Paper';
 import * as React from 'react';
-import Spacer from './Spacer';
+import Spacer from './layout/Spacer';
 
 interface PanelProps {
     children?: React.ReactNode;

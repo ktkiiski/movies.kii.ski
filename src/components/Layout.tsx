@@ -16,7 +16,7 @@ import PromptModal from './PromptModal';
 import SignOutListItem from './SignOutListItem';
 import TopBar from './TopBar';
 
-const stylizeRoot = withStyles<'root', {}>(({spacing}) => ({
+const stylize = withStyles<'root', {}>(({spacing}) => ({
     root: {
         padding: spacing.unit * 2,
         marginLeft: 'auto',
@@ -25,13 +25,12 @@ const stylizeRoot = withStyles<'root', {}>(({spacing}) => ({
     },
 }));
 
-const Root = stylizeRoot(({classes, children}) => (
-    <div className={classes.root}>{children}</div>
-));
-
 interface LayoutProps {
     title: string;
     menu?: React.ReactNode;
+    classes: {
+        root: string;
+    };
 }
 
 interface LayoutState {
@@ -69,7 +68,7 @@ class Layout extends React.Component<LayoutProps, LayoutState> {
         router.push('showPoll', {pollId: poll.id});
     }
     public render() {
-        const {title, children, menu} = this.props;
+        const {title, children, menu, classes} = this.props;
         return <>
             <TopBar title={title} onMenuButtonClick={this.openDrawer} menu={menu} />
             <AppDrawer
@@ -94,7 +93,7 @@ class Layout extends React.Component<LayoutProps, LayoutState> {
                     </SignOutListItem>
                 </List>
             </AppDrawer>
-            <Root>{children}</Root>
+            <div className={classes.root}>{children}</div>
             <PromptModal
                 open={this.state.isCreateModalOpen}
                 onClose={this.closeCreateModal}
@@ -108,4 +107,4 @@ class Layout extends React.Component<LayoutProps, LayoutState> {
     }
 }
 
-export default Layout;
+export default stylize(Layout);

@@ -8,8 +8,8 @@ import * as React from 'react';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
 import { api } from '../client';
+import VerticalFlow from './layout/VerticalFlow';
 import MovieSearchResultList from './MovieSearchResultList';
-import VerticalFlow from './VerticalFlow';
 
 interface MovieSearchState {
     query: string;

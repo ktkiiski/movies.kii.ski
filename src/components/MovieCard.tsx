@@ -7,7 +7,7 @@ import ScheduleIcon from '@material-ui/icons/Schedule';
 import { shortenSentences } from 'broilerkit/utils/strings';
 import * as React from 'react';
 import { Movie, PublicProfile } from '../resources';
-import HorizontalLayout from './HorizontalLayout';
+import HorizontalLayout from './layout/HorizontalLayout';
 import MovieCardBackdrop from './MovieCardBackdrop';
 import RatingBar from './RatingBar';
 

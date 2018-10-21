@@ -1,7 +1,7 @@
 import Typography from '@material-ui/core/Typography';
 import * as React from 'react';
-import Center from './Center';
 import Layout from './Layout';
+import Center from './layout/Center';
 
 class Home extends React.Component<{}, {}> {
     public render() {

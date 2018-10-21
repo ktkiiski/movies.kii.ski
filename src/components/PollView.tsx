@@ -8,13 +8,13 @@ import { combineLatest } from 'rxjs';
 import { api, authClient } from '../client';
 import { Poll } from '../resources';
 import { router } from '../router';
-import HorizontalLayout from './HorizontalLayout';
 import Layout from './Layout';
+import HorizontalLayout from './layout/HorizontalLayout';
+import VerticalFlow from './layout/VerticalFlow';
 import MovieCandidateList from './MovieCandidateList';
 import MovieSearch from './MovieSearch';
 import ParticipantList from './ParticipantList';
 import PromptModal from './PromptModal';
-import VerticalFlow from './VerticalFlow';
 
 type CandidateSorting = 'unvoted' | 'top';
 
