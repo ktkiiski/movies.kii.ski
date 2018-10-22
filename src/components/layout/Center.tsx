@@ -1,7 +1,7 @@
-import { withStyles } from '@material-ui/core';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core';
 import * as React from 'react';
 
-const stylize = withStyles({
+const styles = createStyles({
     center: {
         display: 'flex',
         flexFlow: 'column nowrap',
@@ -11,8 +11,10 @@ const stylize = withStyles({
     },
 });
 
-const Center = stylize<React.HTMLAttributes<HTMLElement>>(({classes, children, className, ...props}) => (
-    <div className={className ? `${classes.center} ${classes}` : classes.center} {...props}>{children}</div>
-));
+interface CenterProps extends React.HTMLAttributes<HTMLElement>, WithStyles<typeof styles> {}
 
-export default Center;
+const Center = ({classes, children, className, ...props}: CenterProps) => (
+    <div className={className ? `${classes.center} ${classes}` : classes.center} {...props}>{children}</div>
+);
+
+export default withStyles(styles)(Center);

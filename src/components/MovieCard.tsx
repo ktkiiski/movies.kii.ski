@@ -1,7 +1,7 @@
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Hidden from '@material-ui/core/Hidden';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { shortenSentences } from 'broilerkit/utils/strings';
@@ -11,7 +11,7 @@ import HorizontalLayout from './layout/HorizontalLayout';
 import MovieCardBackdrop from './MovieCardBackdrop';
 import RatingBar from './RatingBar';
 
-const stylize = withStyles({
+const styles = createStyles({
     poster: {
         width: 100,
         height: 150,
@@ -28,13 +28,14 @@ const stylize = withStyles({
     },
 });
 
-interface MovieCardProps {
+interface MovieCardProps extends WithStyles<typeof styles> {
     movie: Movie | null;
     profile?: PublicProfile | null;
     content?: React.ReactNode;
+    children?: React.ReactNode;
 }
 
-const MovieCard = stylize<MovieCardProps>(({movie, profile, children, content}) => {
+const MovieCard = withStyles(styles)(({movie, profile, children, content}: MovieCardProps) => {
     const year = movie && movie.releasedOn && movie.releasedOn.getFullYear();
     const genres = movie && [''].concat(movie.genres).join(', ');
     const runtime = movie && getRuntime(movie.runtime);
@@ -43,11 +44,11 @@ const MovieCard = stylize<MovieCardProps>(({movie, profile, children, content}) 
     const backdropPath = movie && movie.backdropPath;
     const backdrop = <MovieCardBackdrop backdropPath={backdropPath} linkUrl={linkUrl}>
         <HorizontalLayout right={content} align='bottom'>
-            <Typography variant='headline'>{movie && movie.title}</Typography>
+            <Typography variant='h5'>{movie && movie.title}</Typography>
             {movie && movie.originalTitle !== movie.title
-                ? <Typography variant='subheading'><em>{movie.originalTitle}</em></Typography>
+                ? <Typography variant='subtitle1'><em>{movie.originalTitle}</em></Typography>
                 : null}
-            <Typography variant='subheading'>
+            <Typography variant='subtitle1'>
                 {year}{genres}{' '}{runtime && <Hidden smUp><br/></Hidden>}{runtime}
             </Typography>
             {rating == null ? null : <RatingBar rating={rating} />}

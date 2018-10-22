@@ -1,7 +1,7 @@
-import { withStyles } from '@material-ui/core';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core';
 import * as React from 'react';
 
-const stylize = withStyles({
+const styles = createStyles({
     stack: {
         'position': 'relative',
         '& > *': {
@@ -14,8 +14,10 @@ const stylize = withStyles({
     },
 });
 
-const Stack = stylize<React.HTMLAttributes<HTMLElement>>(({classes, children, className, ...props}) => (
-    <div className={className ? `${classes.stack} ${classes}` : classes.stack} {...props}>{children}</div>
-));
+interface StackProps extends React.HTMLAttributes<HTMLElement>, WithStyles<typeof styles> {}
 
-export default Stack;
+const Stack = ({classes, children, className, ...props}: StackProps) => (
+    <div className={className ? `${classes.stack} ${classes}` : classes.stack} {...props}>{children}</div>
+);
+
+export default withStyles(styles)(Stack);

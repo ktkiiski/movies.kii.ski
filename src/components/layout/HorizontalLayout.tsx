@@ -1,20 +1,21 @@
 import Grid from '@material-ui/core/Grid';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import * as React from 'react';
 
-const stylize = withStyles({
+const styles = createStyles({
     main: {
         flex: 1,
     },
 });
 
-interface HorizontalLayoutProps {
+interface HorizontalLayoutProps extends WithStyles<typeof styles> {
     left?: React.ReactNode;
     right?: React.ReactNode;
     align?: 'top' | 'center' | 'bottom';
+    children?: React.ReactNode;
 }
 
-const HorizontalLayout = stylize<HorizontalLayoutProps>(({classes, children, left, right, align, ...props}) => (
+const HorizontalLayout = ({classes, children, left, right, align, ...props}: HorizontalLayoutProps) => (
     <div>
         <Grid
             container
@@ -28,6 +29,6 @@ const HorizontalLayout = stylize<HorizontalLayoutProps>(({classes, children, lef
             {right && <Grid item>{right}</Grid>}
         </Grid>
     </div>
-));
+);
 
-export default HorizontalLayout;
+export default withStyles(styles)(HorizontalLayout);

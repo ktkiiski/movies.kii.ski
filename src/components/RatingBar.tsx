@@ -1,21 +1,12 @@
 import { yellow } from '@material-ui/core/colors';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import StarFullIcon from '@material-ui/icons/Star';
 import StarEmptyIcon from '@material-ui/icons/StarBorder';
 import StarHalfIcon from '@material-ui/icons/StarHalf';
 import * as React from 'react';
 
-interface RatingBarProps {
-    rating: string;
-    classes: {
-        bar: string;
-        star: string;
-        ratingText: string;
-    };
-}
-
-const stylize = withStyles({
+const styles = createStyles({
     bar: {
         whiteSpace: 'nowrap',
     },
@@ -30,6 +21,10 @@ const stylize = withStyles({
         verticalAlign: 'middle',
     },
 });
+
+interface RatingBarProps extends WithStyles<typeof styles> {
+    rating: string;
+}
 
 class RatingBar extends React.PureComponent<RatingBarProps> {
     public render() {
@@ -55,4 +50,4 @@ class RatingBar extends React.PureComponent<RatingBarProps> {
     }
 }
 
-export default stylize(RatingBar);
+export default withStyles(styles)(RatingBar);

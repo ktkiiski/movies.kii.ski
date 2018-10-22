@@ -1,17 +1,17 @@
 import Avatar from '@material-ui/core/Avatar';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import { recomposeColor } from '@material-ui/core/styles/colorManipulator';
 import Tooltip from '@material-ui/core/Tooltip';
 import PersonIcon from '@material-ui/icons/Person';
 import * as React from 'react';
 
-const stylize = withStyles({
+const styles = createStyles({
     fadedImg: {
         opacity: 0.7,
     },
 });
 
-interface ProfileAvatarProps {
+interface ProfileAvatarProps extends WithStyles<typeof styles> {
     size?: number;
     fade?: string | null;
     className?: string;
@@ -64,4 +64,4 @@ class ProfileAvatar extends React.PureComponent<ProfileAvatarProps> {
     }
 }
 
-export default stylize(ProfileAvatar);
+export default withStyles(styles)(ProfileAvatar);

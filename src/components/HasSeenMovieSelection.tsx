@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, FormGroup, Hidden, withStyles } from '@material-ui/core';
+import { Checkbox, createStyles, FormControlLabel, FormGroup, Hidden, Theme, withStyles, WithStyles } from '@material-ui/core';
 import { identifier } from 'broilerkit/id';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
@@ -6,22 +6,18 @@ import { of } from 'rxjs';
 import { combineLatest, map, switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
 
-const stylize = withStyles(({spacing}) => ({
+const styles = ({spacing}: Theme) => createStyles({
     root: {
         paddingLeft: spacing.unit * 2,
     },
     labelText: {
         whiteSpace: 'nowrap',
     },
-}));
+});
 
-interface HasSeenMovieSelectionProps {
+interface HasSeenMovieSelectionProps extends WithStyles<typeof styles> {
     style?: React.CSSProperties;
     movieId: number;
-    classes: {
-        root: string,
-        labelText: string;
-    };
 }
 
 interface HasSeenMovieSelectionState {
@@ -66,7 +62,7 @@ class HasSeenMovieSelection extends ObserverComponent<HasSeenMovieSelectionProps
     }
 
     public render() {
-        const {classes, ...props} = this.props;
+        const {classes, movieId, ...props} = this.props;
         const {hasSeen} = this.state;
         if (hasSeen == null) {
             return null;
@@ -87,4 +83,4 @@ class HasSeenMovieSelection extends ObserverComponent<HasSeenMovieSelectionProps
     }
 }
 
-export default stylize(HasSeenMovieSelection);
+export default withStyles(styles)(HasSeenMovieSelection);

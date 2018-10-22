@@ -1,6 +1,6 @@
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -9,7 +9,7 @@ import * as React from 'react';
 import Dropdown from './Dropdown';
 import TopBarProfile from './TopBarProfile';
 
-const stylize = withStyles(() => ({
+const styles = () => createStyles({
     flex: {
         flex: 1,
     },
@@ -20,22 +20,22 @@ const stylize = withStyles(() => ({
     push: {
         height: 64,
     },
-}));
+});
 
-interface TopBarProps {
+interface TopBarProps extends WithStyles<typeof styles> {
     title?: string;
     onMenuButtonClick: () => void;
     menu?: React.ReactNode;
 }
 
-const TopBar = stylize<TopBarProps>(({classes, title, onMenuButtonClick, menu}) => (
+const TopBar = withStyles(styles)(({classes, title, onMenuButtonClick, menu}: TopBarProps) => (
     <React.Fragment>
         <AppBar >
             <Toolbar>
                 <IconButton className={classes.menuButton} color='inherit' aria-label='Menu' onClick={onMenuButtonClick}>
                     <MenuIcon />
                 </IconButton>
-                <Typography variant='title' color='inherit' className={classes.flex}>{title}</Typography>
+                <Typography variant='h6' color='inherit' className={classes.flex}>{title}</Typography>
                 <TopBarProfile />
                 {menu &&
                 <Dropdown button={

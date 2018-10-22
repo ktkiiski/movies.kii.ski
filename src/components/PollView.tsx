@@ -82,7 +82,7 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
             <Grid container direction='row-reverse' justify='center' spacing={16}>
                 <Grid item md={3} sm={10} xs={12}>
                     <VerticalFlow>
-                        <Typography variant='subheading'>Participants</Typography>
+                        <Typography variant='subtitle1'>Participants</Typography>
                         <ParticipantList pollId={pollId} />
                     </VerticalFlow>
                 </Grid>
@@ -94,7 +94,7 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
                                 <MenuItem value={'top'}>Top voted first</MenuItem>
                             </Select>
                         }>
-                            <Typography variant='headline'>Suggested movies</Typography>
+                            <Typography variant='h5'>Suggested movies</Typography>
                         </HorizontalLayout>
                         <MovieCandidateList pollId={pollId} sorting={sorting} />
                     </MovieSearch>

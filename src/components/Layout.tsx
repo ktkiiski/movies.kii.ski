@@ -3,7 +3,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import * as React from 'react';
@@ -16,21 +16,18 @@ import PromptModal from './PromptModal';
 import SignOutListItem from './SignOutListItem';
 import TopBar from './TopBar';
 
-const stylize = withStyles<'root', {}>(({spacing}) => ({
+const styles = ({spacing}: Theme) => createStyles({
     root: {
         padding: spacing.unit * 2,
         marginLeft: 'auto',
         marginRight: 'auto',
         maxWidth: 1024,
     },
-}));
+});
 
-interface LayoutProps {
+interface LayoutProps extends WithStyles<typeof styles> {
     title: string;
     menu?: React.ReactNode;
-    classes: {
-        root: string;
-    };
 }
 
 interface LayoutState {
@@ -107,4 +104,4 @@ class Layout extends React.Component<LayoutProps, LayoutState> {
     }
 }
 
-export default stylize(Layout);
+export default withStyles(styles)(Layout);

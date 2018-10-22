@@ -7,7 +7,7 @@ class Home extends React.Component<{}, {}> {
     public render() {
         return <Layout title='Movie Polls'>
             <Center>
-                <Typography variant='display1'>Welcome!</Typography>
+                <Typography variant='h1'>Welcome!</Typography>
                 <Typography>Start by opening the menu!</Typography>
             </Center>
         </Layout>;

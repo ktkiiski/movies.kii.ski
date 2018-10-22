@@ -1,4 +1,4 @@
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import { order } from 'broilerkit/utils/arrays';
 import { isNotNully } from 'broilerkit/utils/compare';
@@ -9,19 +9,7 @@ import { api } from '../client';
 import { PublicProfile } from '../resources';
 import ProfileVoteAvatar from './ProfileVoteAvatar';
 
-interface ParticipantListProps {
-    pollId: string;
-    classes: {
-        container: string,
-        avatar: string;
-    };
-}
-
-interface ParticipantListState {
-    participants: PublicProfile[];
-}
-
-const stylize = withStyles(({spacing}) => ({
+const styles = ({spacing}: Theme) => createStyles({
     container: {
         display: 'flex',
         flexDirection: 'row',
@@ -31,7 +19,15 @@ const stylize = withStyles(({spacing}) => ({
         marginRight: spacing.unit,
         marginBottom: spacing.unit,
     },
-}));
+});
+
+interface ParticipantListProps extends WithStyles<typeof styles> {
+    pollId: string;
+}
+
+interface ParticipantListState {
+    participants: PublicProfile[];
+}
 
 class ParticipantList extends ObserverComponent<ParticipantListProps, ParticipantListState> {
 
@@ -79,4 +75,4 @@ class ParticipantList extends ObserverComponent<ParticipantListProps, Participan
     }
 }
 
-export default stylize(ParticipantList);
+export default withStyles(styles)(ParticipantList);

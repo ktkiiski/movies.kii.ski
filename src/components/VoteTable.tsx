@@ -1,5 +1,5 @@
 import { green, red, yellow } from '@material-ui/core/colors';
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -18,7 +18,7 @@ import { DetailedRating, DetailedVote } from '../resources';
 import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
 
-const stylize = withStyles({
+const styles = createStyles({
     avatar: {
         float: 'left',
         marginRight: 5,
@@ -51,19 +51,9 @@ const stylize = withStyles({
     },
 });
 
-interface VoteTableProps {
+interface VoteTableProps extends WithStyles<typeof styles> {
     pollId: string;
     movieId: number;
-    classes: {
-        avatar: string;
-        positiveColumn: string;
-        neutralColumn: string;
-        negativeColumn: string;
-        headerColumn: string;
-        votesColumn: string;
-        sumColumn: string;
-        footer: string;
-    };
 }
 
 interface VoteTableState {
@@ -192,4 +182,4 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
     }
 }
 
-export default stylize(VoteTable);
+export default withStyles(styles)(VoteTable);

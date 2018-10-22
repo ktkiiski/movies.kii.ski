@@ -1,16 +1,20 @@
-import { withStyles } from '@material-ui/core/styles';
+import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import { renderUser } from 'broilerkit/react/observer';
 import * as React from 'react';
 import { authClient } from '../client';
 
-const stylize = withStyles<'profile', {}>(({spacing}) => ({
+const styles = ({spacing}: Theme) => createStyles({
     profile: {
         padding: spacing.unit * 3,
     },
-}));
+});
 
-const ProfileContainer = stylize(({classes, children}) => (
+interface ProfileContainerStyles extends WithStyles<typeof styles> {
+    children?: React.ReactNode;
+}
+
+const ProfileContainer = withStyles(styles)(({classes, children}: ProfileContainerStyles) => (
     <div className={classes.profile}>{children}</div>
 ));
 
@@ -19,8 +23,8 @@ class Profile extends renderUser(authClient) {
         const {user} = this.state;
         return user ?
             <ProfileContainer>
-                <Typography variant='title'>{user.name}</Typography>
-                <Typography variant='subheading'>{user.email}</Typography>
+                <Typography variant='h6'>{user.name}</Typography>
+                <Typography variant='subtitle1'>{user.email}</Typography>
             </ProfileContainer>
             : null
         ;

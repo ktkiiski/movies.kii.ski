@@ -1,6 +1,5 @@
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
-import { withStyles } from '@material-ui/core/styles';
 import SelectedNegativeIcon from '@material-ui/icons/ThumbDown';
 import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
@@ -15,7 +14,6 @@ import { Vote } from '../resources';
 import NegativeIcon from './icons/ThumbDownOutline';
 import NeutralIcon from './icons/ThumbsUpDownOutline';
 import PositiveIcon from './icons/ThumbUpOutline';
-// import { fade } from '@material-ui/core/styles/colorManipulator';
 
 type VoteValue = Vote['value'];
 
@@ -26,26 +24,14 @@ interface VoteButtonProps {
     children: React.ReactNode;
 }
 
-const VoteButton = withStyles<'positive' | 'negative' | 'neutral', {}>(() => ({
-    positive: {
-        // background: fade(theme.palette.primary.dark, 0.1),
-    },
-    negative: {
-        // background: fade(theme.palette.secondary.dark, 0.1),
-    },
-    neutral: {
-        // background: fade(theme.palette.action.active, 0.1),
-    },
-}))<VoteButtonProps>(({children, value, buttonValue, onSelect, classes}) => {
+const VoteButton = ({children, value, buttonValue, onSelect}: VoteButtonProps) => {
     const color = buttonValue === 1 ? 'primary' : buttonValue === -1 ? 'secondary' : 'inherit';
-    const rootClass = value === 1 ? 'positive' : value === -1 ? 'negative' : 'neutral';
     return <IconButton
-        classes={value === buttonValue ? {root: classes[rootClass]} : undefined}
         onClick={() => onSelect(buttonValue, value)}
         color={color}>
         {children}
     </IconButton>;
-});
+};
 
 interface VoteButtonSetProps {
     movieId: number;

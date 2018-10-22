@@ -60,7 +60,7 @@ class MovieSearch extends ObserverComponent<MovieSearchProps, MovieSearchState> 
                 } : undefined}
             />
             {!search ? children : <>
-                <Typography variant='headline'>Search results</Typography>
+                <Typography variant='h5'>Search results</Typography>
                 <MovieSearchResultList
                     query={search}
                     pollId={pollId}

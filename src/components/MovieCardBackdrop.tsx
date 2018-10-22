@@ -1,12 +1,12 @@
 import CardMedia from '@material-ui/core/CardMedia';
 import IconButton from '@material-ui/core/IconButton';
-import { MuiThemeProvider, withStyles } from '@material-ui/core/styles';
+import { createStyles, MuiThemeProvider, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import InfoIcon from '@material-ui/icons/Info';
 import * as React from 'react';
 import { darkTheme } from '../themes';
 
 const ratio = `${(100 * 9 / 16).toFixed(2)}%`; // 16:9
-const stylize = withStyles<'backdrop' | 'content' | 'heading' | 'linkButton', {}>(({spacing}) => ({
+const styles = ({spacing}: Theme) => createStyles({
     backdrop: {
         height: 0,
         minHeight: 256,
@@ -34,14 +34,15 @@ const stylize = withStyles<'backdrop' | 'content' | 'heading' | 'linkButton', {}
         right: spacing.unit,
         zIndex: 1,
     },
-}));
+});
 
-interface MovieCardProps {
+interface MovieCardProps extends WithStyles<typeof styles> {
     backdropPath: string | null | undefined;
     linkUrl: string | null | undefined;
+    children?: React.ReactNode;
 }
 
-const MovieCardBackdrop = stylize<MovieCardProps>(({classes, backdropPath, children, linkUrl}) => {
+const MovieCardBackdrop = withStyles(styles)(({classes, backdropPath, children, linkUrl}: MovieCardProps) => {
     const backdropUrl = backdropPath && `https://image.tmdb.org/t/p/w1280${backdropPath}` || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOMi439DwAEUgIZT0JltgAAAABJRU5ErkJggg==';
     return (
         <MuiThemeProvider theme={darkTheme}>
