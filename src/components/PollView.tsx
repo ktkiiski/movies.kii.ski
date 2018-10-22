@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
 import { combineLatest } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
 import { Poll } from '../resources';
 import { router } from '../router';
@@ -39,10 +40,12 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
         sorting: 'unvoted' as CandidateSorting,
     };
 
-    public state$ = combineLatest(
-        api.pollResource.observeSwitch(this.props$),
-        authClient.userId$,
-        (poll, userId) => ({poll, userId}),
+    public state$ = this.pluckProp('id').pipe(
+        switchMap((id) => combineLatest(
+            api.pollResource.observe({id}),
+            authClient.userId$,
+            (poll, userId) => ({poll, userId}),
+        )),
     );
 
     public openUpdateModal = () => {
