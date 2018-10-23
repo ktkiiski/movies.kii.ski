@@ -1,3 +1,4 @@
+import { CardActionArea } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Hidden from '@material-ui/core/Hidden';
@@ -42,7 +43,7 @@ const MovieCard = withStyles(styles)(({movie, profile, children, content}: Movie
     const rating = movie && movie.voteAverage;
     const linkUrl = movie && movie.imdbId && `https://www.imdb.com/title/${movie.imdbId}/`;
     const backdropPath = movie && movie.backdropPath;
-    const backdrop = <MovieCardBackdrop backdropPath={backdropPath} linkUrl={linkUrl}>
+    const backdrop = <MovieCardBackdrop backdropPath={backdropPath}>
         <HorizontalLayout right={content} align='bottom'>
             <Typography variant='h5'>{movie && movie.title}</Typography>
             {movie && movie.originalTitle !== movie.title
@@ -61,7 +62,7 @@ const MovieCard = withStyles(styles)(({movie, profile, children, content}: Movie
         </HorizontalLayout>
     </MovieCardBackdrop>;
     return <Card>
-        {backdrop}
+        {linkUrl ? <CardActionArea href={linkUrl} target='_blank'>{backdrop}</CardActionArea> : backdrop}
         <Hidden smUp>
             <CardContent>
                 <Typography component='p' color='textSecondary'>
