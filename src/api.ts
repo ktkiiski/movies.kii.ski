@@ -1,7 +1,7 @@
 import { endpoint } from 'broilerkit/api';
-import { detailedCandidate, detailedVote, movie, movieSearchResult, poll, rating } from './resources';
+import { candidate, movie, movieSearchResult, poll, publicProfile, rating, vote } from './resources';
 
-export const userPollCollection = endpoint(poll, 'id')
+export const userPollCollection = endpoint(poll)
     .url `/users/${'profileId'}/polls`
     .authorizeBy('profileId')
     .listable({
@@ -16,7 +16,7 @@ export const userPollCollection = endpoint(poll, 'id')
     })
 ;
 
-export const userPollResource = userPollCollection.singleton()
+export const userPollResource = endpoint(poll)
     .url `/users/${'profileId'}/polls/${'id'}`
     .authorizeBy('profileId')
     .retrievable({
@@ -33,13 +33,17 @@ export const userPollResource = userPollCollection.singleton()
     })
 ;
 
-export const pollResource = endpoint(poll, 'id')
+export const pollResource = endpoint(poll)
     .url `/polls/${'id'}`
     .retrievable()
 ;
 
-export const pollCandidateCollection = endpoint(detailedCandidate, 'movieId')
+export const pollCandidateCollection = endpoint(candidate)
     .url `/polls/${'pollId'}/candidates`
+    .join({
+        movie,
+        profile: publicProfile,
+    })
     .listable({
         orderingKeys: ['createdAt'],
     })
@@ -51,7 +55,7 @@ export const pollCandidateCollection = endpoint(detailedCandidate, 'movieId')
     })
 ;
 
-export const pollCandidateResource = pollCandidateCollection.singleton()
+export const pollCandidateResource = endpoint(candidate)
     .url `/polls/${'pollId'}/users/${'profileId'}/candidates/${'movieId'}`
     .authorizeBy('profileId')
     .destroyable({
@@ -59,8 +63,11 @@ export const pollCandidateResource = pollCandidateCollection.singleton()
     })
 ;
 
-export const pollVoteCollection = endpoint(detailedVote, 'profileId', 'movieId')
+export const pollVoteCollection = endpoint(vote)
     .url `/polls/${'pollId'}/votes`
+    .join({
+        profile: publicProfile,
+    })
     .listable({
         orderingKeys: ['createdAt'],
     })
@@ -72,7 +79,7 @@ export const pollVoteCollection = endpoint(detailedVote, 'profileId', 'movieId')
     })
 ;
 
-export const pollVoteResource = pollVoteCollection.singleton()
+export const pollVoteResource = endpoint(vote)
     .url `/polls/${'pollId'}/users/${'profileId'}/votes/${'movieId'}`
     .authorizeBy('profileId')
     .updateable({
@@ -86,7 +93,7 @@ export const pollVoteResource = pollVoteCollection.singleton()
     })
 ;
 
-export const userRatingCollection = endpoint(rating, 'movieId')
+export const userRatingCollection = endpoint(rating)
     .url `/users/${'profileId'}/ratings`
     .authorizeBy('profileId')
     .listable({
@@ -100,7 +107,7 @@ export const userRatingCollection = endpoint(rating, 'movieId')
     })
 ;
 
-export const userRatingResource = userRatingCollection.singleton()
+export const userRatingResource = endpoint(rating)
     .url `/users/${'profileId'}/ratings/${'movieId'}`
     .authorizeBy('profileId')
     .destroyable({
@@ -108,12 +115,12 @@ export const userRatingResource = userRatingCollection.singleton()
     })
 ;
 
-export const movieResource = endpoint(movie, 'id')
+export const movieResource = endpoint(movie)
     .url `/movies/${'id'}`
     .retrievable()
 ;
 
-export const queryMovieSearchResultCollection = endpoint(movieSearchResult, 'id')
+export const queryMovieSearchResultCollection = endpoint(movieSearchResult)
     .url `/queries/${'query'}/movie_search_results`
     .listable({
         orderingKeys: ['index'],
