@@ -225,10 +225,7 @@ export const movieResource = implement(api.movieResource, db)
 export const queryMovieSearchResultCollection = implement(api.queryMovieSearchResultCollection, db)
     .list(async ({ordering, since, direction, query}, {}, {environment}) => {
         const apiKey = environment.TMDBApiKey;
-        const items = await searchMovies(query, apiKey).catch((error) => {
-            // Failed to search for the movies
-            throw error;
-        });
+        const items = await searchMovies(query, apiKey);
         // Limit the number of search results for throttling the TMDb API usage
         return {
             results: order(items.slice(0, 6), ordering, direction, since),
