@@ -20,7 +20,7 @@ import PromptModal from './PromptModal';
 type CandidateSorting = 'unvoted' | 'top';
 
 interface PollViewProps {
-    id: string;
+    pollId: string;
 }
 
 interface PollViewObservedState {
@@ -40,7 +40,7 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
         sorting: 'unvoted' as CandidateSorting,
     };
 
-    public state$ = this.pluckProp('id').pipe(
+    public state$ = this.pluckProp('pollId').pipe(
         switchMap((id) => combineLatest(
             api.pollResource.observe({id}),
             authClient.userId$,
@@ -56,12 +56,12 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
     }
     public onUpdateModalSubmit = async (title: string) => {
         this.closeUpdateModal();
-        const {id} = this.props;
-        await api.userPollResource.patchWithUser({id, title});
+        const {pollId} = this.props;
+        await api.userPollResource.patchWithUser({id: pollId, title});
     }
     public deletePoll = async () => {
-        const {id} = this.props;
-        await api.userPollResource.deleteWithUser({id});
+        const {pollId} = this.props;
+        await api.userPollResource.deleteWithUser({id: pollId});
         router.replace('home', {});
     }
     public onOrderingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -76,7 +76,7 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
 
     public render() {
         const {poll, isUpdateModalOpen, sorting, userId} = this.state;
-        const pollId = this.props.id;
+        const pollId = this.props.pollId;
         const menu = poll && userId && userId === poll.profileId ? this.menu : null;
         return <Layout title={poll && poll.title || ''} menu={menu}>
             <Grid container direction='row-reverse' justify='center' spacing={16}>

@@ -11,7 +11,7 @@ const MainContent = renderRoute(router)
     .withDefault(() => <Typography>Page not found</Typography>)
     .withStates({
         home: () => <Home />,
-        showPoll: ({pollId}) => <PollView id={pollId} />,
+        showPoll: ({pollId}) => <PollView pollId={pollId} />,
     })
 ;
 
