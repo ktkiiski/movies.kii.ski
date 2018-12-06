@@ -5,8 +5,9 @@ import Typography from '@material-ui/core/Typography';
 import { renderUserCollection } from 'broilerkit/react/api';
 import { order } from 'broilerkit/utils/arrays';
 import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { api } from '../client';
-import { router } from '../router';
+import { showPoll } from '../routes';
 import LoadingIndicator from './LoadingIndicator';
 
 const PollListBase = renderUserCollection(api.userPollCollection, {
@@ -14,8 +15,9 @@ const PollListBase = renderUserCollection(api.userPollCollection, {
     direction: 'asc',
 });
 
-class PollList extends PollListBase {
+class PollList extends PollListBase<RouteComponentProps> {
     public render() {
+        const {history} = this.props;
         const {isComplete, items} = this.state;
         if (items == null) {
             return <ListItem>
@@ -25,23 +27,24 @@ class PollList extends PollListBase {
         const sortedItems = order(items, 'title', 'asc');
         return <>
             <List>
-                {sortedItems.map((poll) => (
-                    <ListItem
+                {sortedItems.map((poll) => {
+                    const pollUrl = showPoll.compile({pollId: poll.id}).toString();
+                    return <ListItem
                         key={poll.id}
                         button
                         onClick={(event) => {
-                            router.push('showPoll', {pollId: poll.id});
+                            history.push(pollUrl);
                             event.preventDefault();
                         }}
                         component='a'
-                        href={router.buildUrl('showPoll', {pollId: poll.id})}>
+                        href={pollUrl}>
                         <ListItemText primary={poll.title} />
-                    </ListItem>
-                ))}
+                    </ListItem>;
+                })}
             </List>
             {isComplete ? null : <LoadingIndicator />}
         </>;
     }
 }
 
-export default PollList;
+export default withRouter(PollList);

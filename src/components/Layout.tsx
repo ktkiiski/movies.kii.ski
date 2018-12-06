@@ -7,8 +7,9 @@ import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/s
 import AddIcon from '@material-ui/icons/Add';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { api, authClient } from '../client';
-import { router } from '../router';
+import { showPoll } from '../routes';
 import AppDrawer from './AppDrawer';
 import PollList from './PollList';
 import Profile from './Profile';
@@ -25,7 +26,7 @@ const styles = ({spacing}: Theme) => createStyles({
     },
 });
 
-interface LayoutProps extends WithStyles<typeof styles> {
+interface LayoutProps extends WithStyles<typeof styles>, RouteComponentProps {
     title: string;
     menu?: React.ReactNode;
 }
@@ -57,12 +58,13 @@ class Layout extends React.Component<LayoutProps, LayoutState> {
         this.setState({isCreateModalOpen: false});
     }
     public onCreateModalSubmit = async (title: string) => {
+        const { history } = this.props;
         this.closeCreateModal();
         const poll = await api.userPollCollection.postWithUser({
             title,
             description: '', // TODO
         });
-        router.push('showPoll', {pollId: poll.id});
+        history.push(showPoll.compile({pollId: poll.id}).toString());
     }
     public render() {
         const {title, children, menu, classes} = this.props;
@@ -104,4 +106,4 @@ class Layout extends React.Component<LayoutProps, LayoutState> {
     }
 }
 
-export default withStyles(styles)(Layout);
+export default withStyles(styles)(withRouter(Layout));

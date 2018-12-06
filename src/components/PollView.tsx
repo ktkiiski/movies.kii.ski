@@ -4,11 +4,12 @@ import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { combineLatest } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
 import { Poll } from '../resources';
-import { router } from '../router';
+import { home } from '../routes';
 import Layout from './Layout';
 import HorizontalLayout from './layout/HorizontalLayout';
 import VerticalFlow from './layout/VerticalFlow';
@@ -19,7 +20,7 @@ import PromptModal from './PromptModal';
 
 type CandidateSorting = 'unvoted' | 'top';
 
-interface PollViewProps {
+interface PollViewProps extends RouteComponentProps {
     pollId: string;
 }
 
@@ -60,9 +61,9 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
         await api.userPollResource.patchWithUser({id: pollId, title});
     }
     public deletePoll = async () => {
-        const {pollId} = this.props;
+        const {pollId, history} = this.props;
         await api.userPollResource.deleteWithUser({id: pollId});
-        router.replace('home', {});
+        history.push(home.compile({}).toString());
     }
     public onOrderingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         this.setState({sorting: event.target.value as CandidateSorting});
@@ -114,4 +115,4 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
     }
 }
 
-export default PollView;
+export default withRouter(PollView);
