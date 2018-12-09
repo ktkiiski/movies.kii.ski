@@ -91,12 +91,10 @@ export default app({
     serverFile: 'server.ts',
     // Web page configuration
     pages: [{
-        title: 'Movie polls',
-        file: 'index.pug',
+        file: 'index.html',
         scripts: ['index.tsx'],
     }, {
-        title: 'Page not found!',
-        file: 'error.pug',
+        file: 'error.html',
         scripts: ['index.tsx'],
     }],
     /**
