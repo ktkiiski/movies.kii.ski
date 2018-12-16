@@ -107,6 +107,47 @@ export const pollCandidateResource = implement(api.pollCandidateResource, db)
     })
 ;
 
+export const pollParticipantCollection = implement(api.pollParticipantCollection, db)
+    .list(async (query, {participants, profiles}) => {
+        const {results, next} = await participants.list(query);
+        const nestedUsers = await profiles.batchRetrieve(
+            results.map(({profileId: id}) => ({id})),
+        );
+        return {
+            next,
+            results: results.map((item, index) => ({
+                ...item,
+                profile: nestedUsers[index],
+            })),
+        };
+    })
+    .create(async (input, {participants, profiles}, {auth}) => {
+        const now = new Date();
+        const [profile, participant] = await Promise.all([
+            profiles.write({
+                ...auth,
+                version: identifier(now),
+            }),
+            participants.create({
+                ...input,
+                version: identifier(now),
+                profileId: auth.id,
+                createdAt: now,
+                updatedAt: now,
+            }),
+        ]);
+        return new Created({
+            ...participant, profile,
+        });
+    })
+;
+
+export const pollParticipantResource = implement(api.pollParticipantResource, db)
+    .destroy(async (query, {participants}) => {
+        await participants.destroy(query);
+    })
+;
+
 export const pollVoteCollection = implement(api.pollVoteCollection, db)
     .list(async (query, {votes, profiles}) => {
         const {results, next} = await votes.list(query);

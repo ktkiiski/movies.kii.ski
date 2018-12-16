@@ -1,5 +1,5 @@
 import { endpoint } from 'broilerkit/api';
-import { candidate, movie, movieSearchResult, poll, publicProfile, rating, vote } from './resources';
+import { candidate, movie, movieSearchResult, participant, poll, publicProfile, rating, vote } from './resources';
 
 export const userPollCollection = endpoint(poll)
     .url `/users/${'profileId'}/polls`
@@ -88,6 +88,30 @@ export const pollVoteResource = endpoint(vote)
         optional: [],
         defaults: {},
     })
+    .destroyable({
+        auth: 'user',
+    })
+;
+
+export const pollParticipantCollection = endpoint(participant)
+    .url `/polls/${'pollId'}/participants`
+    .join({
+        profile: publicProfile,
+    })
+    .listable({
+        orderingKeys: ['createdAt'],
+    })
+    .creatable({
+        auth: 'user',
+        required: [],
+        optional: [],
+        defaults: {},
+    })
+;
+
+export const pollParticipantResource = endpoint(participant)
+    .url `/polls/${'pollId'}/participants/${'profileId'}`
+    .authorizeBy('profileId')
     .destroyable({
         auth: 'user',
     })

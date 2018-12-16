@@ -1,5 +1,5 @@
 import { table } from 'broilerkit/db';
-import { candidate, movie, poll, profile, rating, vote } from './resources';
+import { candidate, movie, participant, poll, profile, rating, vote } from './resources';
 
 export const profiles = table(profile, {
     name: 'Profiles',
@@ -15,6 +15,10 @@ export const polls = table(poll, {
 
 export const candidates = table(candidate, {
     name: 'Candidates',
+});
+
+export const participants = table(participant, {
+    name: 'Participants',
 });
 
 export const votes = table(vote, {

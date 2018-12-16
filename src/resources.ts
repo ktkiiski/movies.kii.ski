@@ -86,6 +86,21 @@ export const poll = resource({
 
 export type Poll = Deserialization<typeof poll>;
 
+export const participant = resource({
+    name: 'participant',
+    fields: {
+        version: id(),
+        pollId: poll.fields.id,
+        profileId: publicProfile.fields.id,
+        createdAt: datetime(),
+        updatedAt: datetime(),
+    },
+    identifyBy: ['pollId', 'profileId'],
+    versionBy: 'version',
+});
+
+export type Participant = Deserialization<typeof participant>;
+
 export const candidate = resource({
     name: 'candidate',
     fields: {
