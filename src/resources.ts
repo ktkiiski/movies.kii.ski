@@ -100,6 +100,9 @@ export const participant = resource({
 });
 
 export type Participant = Deserialization<typeof participant>;
+export interface DetailedParticipant extends Participant {
+    profile: PublicProfile | null;
+}
 
 export const candidate = resource({
     name: 'candidate',

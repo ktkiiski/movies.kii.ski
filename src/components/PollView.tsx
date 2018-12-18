@@ -1,3 +1,4 @@
+import { Button } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
@@ -8,7 +9,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { combineLatest } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
-import { Poll } from '../resources';
+import { Participant, Poll } from '../resources';
 import { home } from '../routes';
 import Layout from './Layout';
 import HorizontalLayout from './layout/HorizontalLayout';
@@ -27,6 +28,7 @@ interface PollViewProps extends RouteComponentProps {
 interface PollViewObservedState {
     poll?: Poll;
     userId?: string | null;
+    participants: Participant[];
 }
 
 interface PollViewState {
@@ -45,7 +47,12 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
         switchMap((id) => combineLatest(
             api.pollResource.observe({id}),
             authClient.userId$,
-            (poll, userId) => ({poll, userId}),
+            api.pollParticipantCollection.observeAll({
+                pollId: id,
+                ordering: 'createdAt',
+                direction: 'asc',
+            }),
+            (poll, userId, participants) => ({poll, userId, participants}),
         )),
     );
 
@@ -68,6 +75,12 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
     public onOrderingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         this.setState({sorting: event.target.value as CandidateSorting});
     }
+    public onLeaveClick = () => {
+        const {pollId} = this.props;
+        if (confirm(`Are you sure you want to unparticipate this poll?`)) {
+            api.pollParticipantResource.deleteWithUser({pollId});
+        }
+    }
 
     // tslint:disable-next-line:member-ordering
     private menu = [
@@ -76,15 +89,21 @@ class PollView extends ObserverComponent<PollViewProps, PollViewObservedState, P
     ];
 
     public render() {
-        const {poll, isUpdateModalOpen, sorting, userId} = this.state;
+        const {poll, isUpdateModalOpen, sorting, userId, participants} = this.state;
         const pollId = this.props.pollId;
         const menu = poll && userId && userId === poll.profileId ? this.menu : null;
+        const isParticipating = !!userId && !!participants && participants.some(
+            ({profileId}) => userId === profileId,
+        );
         return <Layout title={poll && poll.title || ''} menu={menu}>
             <Grid container direction='row-reverse' justify='center' spacing={16}>
                 <Grid item md={3} sm={10} xs={12}>
                     <VerticalFlow>
                         <Typography variant='subtitle1'>Participants</Typography>
                         <ParticipantList pollId={pollId} />
+                        {isParticipating ? <Button size='small' onClick={this.onLeaveClick}>
+                            Leave from this poll
+                        </Button> : null}
                     </VerticalFlow>
                 </Grid>
                 <Grid item md={9} sm={10} xs={12}>

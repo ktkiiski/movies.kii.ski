@@ -12,10 +12,10 @@ import PositiveIcon from '@material-ui/icons/ThumbUp';
 import { ObserverComponent } from 'broilerkit/react/observer';
 import { isEqual } from 'broilerkit/utils/compare';
 import * as React from 'react';
-import { combineLatest, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { combineLatest, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { api } from '../client';
 import { DetailedRating, DetailedVote } from '../resources';
-import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
+import { getMovieScore, getPollRatings$ } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
 
 const styles = createStyles({
@@ -81,10 +81,14 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
     public votes$ = this.pluckProp('pollId').pipe(
         switchMap((pollId) => api.pollVoteCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'})),
     );
+    public participantIds$ = this.pluckProp('pollId').pipe(
+        switchMap((pollId) => api.pollParticipantCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'})),
+        map((participants) => participants.map(({profileId}) => profileId)),
+    );
     public score$ = this.pluckProp('movieId').pipe(
         combineLatest(
-            this.candidates$, this.votes$,
-            (movieId, candidates, votes) => getMovieScore(movieId, votes, getParticipantIds(candidates, votes)),
+            this.participantIds$, this.votes$,
+            (movieId, participantIds, votes) => getMovieScore(movieId, votes, participantIds),
         ),
     );
     public state$ = this.votes$.pipe(

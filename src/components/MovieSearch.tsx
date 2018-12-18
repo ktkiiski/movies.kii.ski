@@ -40,6 +40,7 @@ class MovieSearch extends ObserverComponent<MovieSearchProps, MovieSearchState> 
         const {pollId} = this.props;
         // tslint:disable-next-line:no-console
         console.log(`Adding movie ${movieId} as a candidate to the poll ${pollId}`);
+        api.pollParticipantCollection.post({pollId});
         await api.pollCandidateCollection.post({pollId, movieId});
         this.query$.next('');
     }

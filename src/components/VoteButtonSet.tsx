@@ -68,6 +68,10 @@ class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetS
         if (!user) {
             return;
         }
+        if (value !== oldValue) {
+            // Ensure that the user is the participant in this poll
+            api.pollParticipantCollection.post({pollId});
+        }
         if (oldValue == null) {
             // Create a new vote
             const now = new Date();

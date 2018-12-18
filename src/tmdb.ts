@@ -1,4 +1,4 @@
-import { NotFound } from 'broilerkit/http';
+import { isErrorResponse, NotFound } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { requestJson } from 'broilerkit/request';
 import { movie, Movie, MovieSearchResult, movieSearchResult } from './resources';
@@ -38,8 +38,13 @@ export async function retrieveMovie(id: number, apiKey: string): Promise<Movie> 
             posterPath: data.poster_path,
         });
     } catch (error) {
-        // tslint:disable-next-line:no-console
-        console.error(error);
+        if (isErrorResponse(error)) {
+            // tslint:disable-next-line:no-console
+            console.error(JSON.stringify(error.data, null, 4));
+        } else {
+            // tslint:disable-next-line:no-console
+            console.error(error);
+        }
         throw new NotFound(`Movie not found`);
     }
 }

@@ -6,7 +6,7 @@ import { combineLatest } from 'rxjs';
 import { distinctUntilChanged, map, switchMap } from 'rxjs/operators';
 import { api } from '../client';
 import { Rating, Vote } from '../resources';
-import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
+import { getMovieScore, getPollRatings$ } from '../scoring';
 import VotePie from './VotePie';
 
 interface VoteTableProps {
@@ -28,14 +28,13 @@ class VoteResult extends ObserverComponent<VoteTableProps, VoteTableState> {
             pollId, ordering: 'createdAt', direction: 'asc',
         })),
     );
-    public candidates$ = this.pluckProp('pollId').pipe(
-        switchMap((pollId) => api.pollCandidateCollection.observeAll({
+    public participants$ = this.pluckProp('pollId').pipe(
+        switchMap((pollId) => api.pollParticipantCollection.observeAll({
             pollId, ordering: 'createdAt', direction: 'asc',
         })),
     );
-    public participantId$ = combineLatest(
-        this.votes$, this.candidates$, (votes, candidates) => getParticipantIds(candidates, votes),
-    ).pipe(
+    public participantId$ = this.participants$.pipe(
+        map((participants) => participants.map(({profileId}) => profileId)),
         distinctUntilChanged(isEqual),
     );
     public ratings$ = this.pluckProp('pollId').pipe(

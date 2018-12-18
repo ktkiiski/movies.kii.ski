@@ -128,7 +128,7 @@ export const pollParticipantCollection = implement(api.pollParticipantCollection
                 ...auth,
                 version: identifier(now),
             }),
-            participants.create({
+            participants.write({
                 ...input,
                 version: identifier(now),
                 profileId: auth.id,

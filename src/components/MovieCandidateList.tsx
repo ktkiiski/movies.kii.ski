@@ -6,7 +6,7 @@ import { combineLatest } from 'rxjs';
 import { first, switchMap } from 'rxjs/operators';
 import { api, authClient } from '../client';
 import { DetailedCandidate, Vote } from '../resources';
-import { getMovieScore, getParticipantIds, getPollRatings$ } from '../scoring';
+import { getMovieScore, getPollRatings$ } from '../scoring';
 import Center from './layout/Center';
 import LoadingIndicator from './LoadingIndicator';
 import MovieCandidate from './MovieCandidate';
@@ -43,8 +43,13 @@ class MovieCandidateList extends ObserverComponent<MovieCandidateListProps, Movi
                 ordering: 'createdAt',
                 direction: 'asc',
             }).pipe(first()),
-            (candidates, ratings, votes) => {
-                const participantIds = getParticipantIds(candidates, votes);
+            api.pollParticipantCollection.observeAll({
+                pollId,
+                ordering: 'createdAt',
+                direction: 'asc',
+            }),
+            (candidates, ratings, votes, participants) => {
+                const participantIds = participants.map(({profileId}) => profileId);
                 // Calculate score for each movie
                 const scoredCandidates = candidates.map((candidate) => ({
                     ...candidate,
