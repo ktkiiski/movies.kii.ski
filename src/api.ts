@@ -46,6 +46,7 @@ export const pollCandidateCollection = endpoint(candidate)
     })
     .listable({
         orderingKeys: ['createdAt'],
+        filteringKeys: ['movieId', 'profileId'],
     })
     .creatable({
         auth: 'user',
@@ -70,6 +71,7 @@ export const pollVoteCollection = endpoint(vote)
     })
     .listable({
         orderingKeys: ['createdAt'],
+        filteringKeys: ['movieId', 'profileId'],
     })
     .creatable({
         auth: 'user',
@@ -122,6 +124,7 @@ export const userRatingCollection = endpoint(rating)
     .authorizeBy('profileId')
     .listable({
         orderingKeys: ['createdAt'],
+        filteringKeys: ['movieId'],
     })
     .creatable({
         auth: 'user',
