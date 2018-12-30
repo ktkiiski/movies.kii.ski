@@ -23,9 +23,11 @@ interface VoteTableState {
 
 class VoteResult extends ObserverComponent<VoteTableProps, VoteTableState> {
 
-    public votes$ = this.pluckProp('pollId').pipe(
-        switchMap((pollId) => api.pollVoteCollection.observeAll({
+    public movieVotes$ = this.props$.pipe(
+        switchMap(({pollId, movieId}) => api.pollVoteCollection.observeAll({
             pollId, ordering: 'createdAt', direction: 'asc',
+        }, {
+            movieId,
         })),
     );
     public participants$ = this.pluckProp('pollId').pipe(
@@ -37,19 +39,8 @@ class VoteResult extends ObserverComponent<VoteTableProps, VoteTableState> {
         map((participants) => participants.map(({profileId}) => profileId)),
         distinctUntilChanged(isEqual),
     );
-    public ratings$ = this.pluckProp('pollId').pipe(
-        switchMap((pollId) => getPollRatings$(pollId)),
-    );
-    public movieRatings$ = combineLatest(
-        this.ratings$, this.pluckProp('movieId'),
-        (ratings, movieId) => ratings.filter((rating) => rating.movieId === movieId),
-    ).pipe(
-        distinctUntilChanged(isEqual),
-    );
-    public movieVotes$ = combineLatest(
-        this.votes$, this.pluckProp('movieId'),
-        (votes, movieId) => votes.filter((vote) => vote.movieId === movieId),
-    ).pipe(
+    public movieRatings$ = this.props$.pipe(
+        switchMap(({pollId, movieId}) => getPollRatings$(pollId, movieId)),
         distinctUntilChanged(isEqual),
     );
     public score$ = combineLatest(

@@ -12,8 +12,10 @@ export function getMovieScore(movieId: number, votes: Vote[], participantIds: st
     return 100 * (totalValue - minScore) / (maxScore - minScore);
 }
 
-export function getPollRatings$(pollId: string) {
-    const participants$ = api.pollParticipantCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'});
+export function getPollRatings$(pollId: string, movieId?: number) {
+    const participants$ = api.pollParticipantCollection.observeAll({
+        pollId, ordering: 'createdAt', direction: 'asc',
+    });
     return participants$.pipe(
         switchMap((participants) => !participants.length ? [[]] : combineLatest(
             participants
@@ -23,6 +25,8 @@ export function getPollRatings$(pollId: string) {
                     profileId: profile.id,
                     ordering: 'createdAt',
                     direction: 'asc',
+                }, {
+                    movieId,
                 }).pipe(
                     map((ratings) => ratings.map((rating) => ({...rating, profile}))),
                 )),

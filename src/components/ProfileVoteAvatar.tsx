@@ -1,7 +1,7 @@
 import {ObserverComponent} from 'broilerkit/react/observer';
 import * as React from 'react';
 import { combineLatest } from 'rxjs';
-import { filter, switchMap, toArray } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { api } from '../client';
 import { Rating, Vote } from '../resources';
 import ProfileAvatar from './ProfileAvatar';
@@ -27,12 +27,11 @@ class ProfileVoteAvatar extends ObserverComponent<ProfileVoteAvatarProps, Profil
     public state$ = this.props$.pipe(
         switchMap(({pollId, user}) => combineLatest(
             // Observe votes of the user in this poll
-            api.pollVoteCollection.observeObservable({pollId, ordering: 'createdAt', direction: 'asc'}).pipe(
-                switchMap((vote$) => vote$.pipe(
-                    filter((vote) => vote.profileId === user.id),
-                    toArray(),
-                )),
-            ),
+            api.pollVoteCollection.observeAll({
+                pollId, ordering: 'createdAt', direction: 'asc',
+            }, {
+                profileId: user.id,
+            }),
             // Observe ratings of the user
             api.userRatingCollection.observeAll({profileId: user.id, ordering: 'createdAt', direction: 'asc'}),
             // Observe the poll candidates

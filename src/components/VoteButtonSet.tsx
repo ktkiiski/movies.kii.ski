@@ -45,17 +45,15 @@ interface VoteButtonSetState {
 
 class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetState> {
 
-    public votes$ = this.pluckProp('pollId').pipe(
-        switchMap((pollId) => api.pollVoteCollection.observeAll({
+    public votes$ = combineLatest(this.props$, authClient.userId$).pipe(
+        switchMap(([{pollId, movieId}, userId]) => userId ? api.pollVoteCollection.observeAll({
             pollId, ordering: 'createdAt', direction: 'asc',
-        })),
+        }, {
+            movieId, profileId: userId,
+        }) : []),
     );
-    public currentVote$ = combineLatest(
-        this.votes$, authClient.userId$, this.pluckProp('movieId'),
-        (votes, userId, movieId) => votes.find((vote) => vote.movieId === movieId && vote.profileId === userId),
-    );
-    public currentVoteValue$ = this.currentVote$.pipe(
-        map((vote) => vote ? vote.value : null),
+    public currentVoteValue$ = this.votes$.pipe(
+        map((votes) => votes.length ? votes[0].value : null),
         distinctUntilChanged(),
     );
     public state$ = combineLatest(this.currentVoteValue$, authClient.user$, (currentVoteValue, user) => ({

@@ -78,8 +78,12 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
     public candidates$ = this.pluckProp('pollId').pipe(
         switchMap((pollId) => api.pollCandidateCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'})),
     );
-    public votes$ = this.pluckProp('pollId').pipe(
-        switchMap((pollId) => api.pollVoteCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'})),
+    public votes$ = this.props$.pipe(
+        switchMap(({pollId, movieId}) => api.pollVoteCollection.observeAll({
+            pollId, ordering: 'createdAt', direction: 'asc',
+        }, {
+            movieId,
+        })),
     );
     public participantIds$ = this.pluckProp('pollId').pipe(
         switchMap((pollId) => api.pollParticipantCollection.observeAll({pollId, ordering: 'createdAt', direction: 'asc'})),
@@ -92,10 +96,6 @@ class VoteTable extends ObserverComponent<VoteTableProps, VoteTableState> {
         ),
     );
     public state$ = this.votes$.pipe(
-        combineLatest(
-            this.pluckProp('movieId'),
-            (votes, movieId) => votes.filter((vote) => vote.movieId === movieId),
-        ),
         distinctUntilChanged(isEqual),
         combineLatest(
             this.ratings$,
