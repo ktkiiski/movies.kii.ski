@@ -1,4 +1,5 @@
-import { endpoint } from 'broilerkit/api';
+import { endpoint } from 'broilerkit/endpoints';
+import { creatable, destroyable, listable, retrievable, updateable } from 'broilerkit/operations';
 import { pattern } from 'broilerkit/url';
 import { candidate, movie, movieSearchResult, participant, poll, publicProfile, rating, vote } from './resources';
 
@@ -6,12 +7,12 @@ import { candidate, movie, movieSearchResult, participant, poll, publicProfile, 
  * Polls
  */
 const userPollCollection = endpoint(poll, pattern `/users/${'profileId'}/polls`);
-export const listUserPolls = userPollCollection.listable({
+export const listUserPolls = listable(userPollCollection, {
     auth: 'owner',
     ownership: 'profileId',
     orderingKeys: ['createdAt'],
 });
-export const createUserPoll = userPollCollection.creatable({
+export const createUserPoll = creatable(userPollCollection, {
     auth: 'owner',
     ownership: 'profileId',
     required: ['title', 'description'],
@@ -20,15 +21,15 @@ export const createUserPoll = userPollCollection.creatable({
 });
 
 const userPollResource = endpoint(poll, pattern `/users/${'profileId'}/polls/${'id'}`);
-export const retrieveUserPoll = userPollResource.retrievable({
+export const retrieveUserPoll = retrievable(userPollResource, {
     auth: 'owner',
     ownership: 'profileId',
 });
-export const destroyUserPoll = userPollResource.destroyable({
+export const destroyUserPoll = destroyable(userPollResource, {
     auth: 'owner',
     ownership: 'profileId',
 });
-export const updateUserPoll = userPollResource.updateable({
+export const updateUserPoll = updateable(userPollResource, {
     auth: 'owner',
     ownership: 'profileId',
     required: ['title'],
@@ -37,7 +38,7 @@ export const updateUserPoll = userPollResource.updateable({
 });
 
 const pollResource = endpoint(poll, pattern `/polls/${'id'}`);
-export const retrievePoll = pollResource.retrievable();
+export const retrievePoll = retrievable(pollResource );
 
 /**
  * Candidates
@@ -48,11 +49,11 @@ const pollCandidateCollection = endpoint(candidate, pattern `/polls/${'pollId'}/
         profile: publicProfile,
     })
 ;
-export const listPollCandidates = pollCandidateCollection.listable({
+export const listPollCandidates = listable(pollCandidateCollection, {
     orderingKeys: ['createdAt'],
     filteringKeys: ['movieId', 'profileId'],
 });
-export const createPollCandidate = pollCandidateCollection.creatable({
+export const createPollCandidate = creatable(pollCandidateCollection, {
     auth: 'user',
     required: ['movieId'],
     optional: [],
@@ -60,7 +61,7 @@ export const createPollCandidate = pollCandidateCollection.creatable({
 });
 
 const pollCandidateResource = endpoint(candidate, pattern `/polls/${'pollId'}/users/${'profileId'}/candidates/${'movieId'}`);
-export const destroyPollCandidate = pollCandidateResource.destroyable({
+export const destroyPollCandidate = destroyable(pollCandidateResource, {
     auth: 'owner',
     ownership: 'profileId',
 });
@@ -73,11 +74,11 @@ const pollVoteCollection = endpoint(vote, pattern `/polls/${'pollId'}/votes`)
         profile: publicProfile,
     })
 ;
-export const listPollVotes = pollVoteCollection.listable({
+export const listPollVotes = listable(pollVoteCollection, {
     orderingKeys: ['createdAt'],
     filteringKeys: ['movieId', 'profileId'],
 });
-export const createPollVote = pollVoteCollection.creatable({
+export const createPollVote = creatable(pollVoteCollection, {
     auth: 'user',
     required: ['movieId', 'value'],
     optional: [],
@@ -85,14 +86,14 @@ export const createPollVote = pollVoteCollection.creatable({
 });
 
 const pollVoteResource = endpoint(vote, pattern `/polls/${'pollId'}/users/${'profileId'}/votes/${'movieId'}`);
-export const updatePollVote = pollVoteResource.updateable({
+export const updatePollVote = updateable(pollVoteResource, {
     auth: 'owner',
     ownership: 'profileId',
     required: ['value'],
     optional: [],
     defaults: {},
 });
-export const destroyPollVote = pollVoteResource.destroyable({
+export const destroyPollVote = destroyable(pollVoteResource, {
     auth: 'owner',
     ownership: 'profileId',
 });
@@ -105,10 +106,10 @@ const pollParticipantCollection = endpoint(participant, pattern `/polls/${'pollI
         profile: publicProfile,
     })
 ;
-export const listPollParticipants = pollParticipantCollection.listable({
+export const listPollParticipants = listable(pollParticipantCollection, {
     orderingKeys: ['createdAt'],
 });
-export const createPollParticipant = pollParticipantCollection.creatable({
+export const createPollParticipant = creatable(pollParticipantCollection, {
     auth: 'user',
     required: [],
     optional: [],
@@ -116,7 +117,7 @@ export const createPollParticipant = pollParticipantCollection.creatable({
 });
 
 const pollParticipantResource = endpoint(participant, pattern `/polls/${'pollId'}/participants/${'profileId'}`);
-export const destroyPollParticipant = pollParticipantResource.destroyable({
+export const destroyPollParticipant = destroyable(pollParticipantResource, {
     auth: 'owner',
     ownership: 'profileId',
 });
@@ -125,13 +126,13 @@ export const destroyPollParticipant = pollParticipantResource.destroyable({
  * Ratings
  */
 const userRatingCollection = endpoint(rating, pattern `/users/${'profileId'}/ratings`);
-export const listUserRatings = userRatingCollection.listable({
+export const listUserRatings = listable(userRatingCollection, {
     auth: 'none',
     ownership: 'profileId',
     orderingKeys: ['createdAt'],
     filteringKeys: ['movieId'],
 });
-export const createUserRating = userRatingCollection.creatable({
+export const createUserRating = creatable(userRatingCollection, {
     auth: 'owner',
     ownership: 'profileId',
     required: ['movieId', 'value'],
@@ -140,7 +141,7 @@ export const createUserRating = userRatingCollection.creatable({
 });
 
 const userRatingResource = endpoint(rating, pattern `/users/${'profileId'}/ratings/${'movieId'}`);
-export const destroyUserRating = userRatingResource.destroyable({
+export const destroyUserRating = destroyable(userRatingResource, {
     auth: 'owner',
     ownership: 'profileId',
 });
@@ -149,12 +150,12 @@ export const destroyUserRating = userRatingResource.destroyable({
  * Movies
  */
 const movieResource = endpoint(movie, pattern `/movies/${'id'}`);
-export const retrieveMovie = movieResource.retrievable();
+export const retrieveMovie = retrievable(movieResource );
 
 /**
  * Search results
  */
 const queryMovieSearchResultCollection = endpoint(movieSearchResult, pattern `/queries/${'query'}/movie_search_results`);
-export const searchMovies = queryMovieSearchResultCollection.listable({
+export const searchMovies = listable(queryMovieSearchResultCollection, {
     orderingKeys: ['index'],
 });
