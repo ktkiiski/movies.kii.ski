@@ -1,24 +1,21 @@
 import ListItem from '@material-ui/core/ListItem';
-import { renderUser } from 'broilerkit/react/observer';
+import { useAuth, useAuthClient } from 'broilerkit/react/auth';
 import * as React from 'react';
-import { authClient } from '../client';
 
-class SignOutListItem extends renderUser<{onClick?: React.MouseEventHandler<HTMLElement>}>(authClient) {
-    public render() {
-        const {user} = this.state;
-        const {children} = this.props;
-        return user
-            ? <ListItem onClick={this.onClick} button>{children}</ListItem>
-            : null
-        ;
-    }
-    private onClick: React.MouseEventHandler<HTMLElement> = (event) => {
-        const {onClick} = this.props;
+interface SignOutListItemProps {
+    onClick?: React.MouseEventHandler<HTMLElement>;
+    children?: React.ReactNode;
+}
+
+function SignOutListItem({onClick, children}: SignOutListItemProps) {
+    const user = useAuth();
+    const onItemClick = useAuthClient((authClient, event: React.MouseEvent<HTMLElement>) => {
         authClient.signOut();
         if (onClick) {
             onClick(event);
         }
-    }
+    });
+    return user ? <ListItem onClick={onItemClick} button>{children}</ListItem> : null;
 }
 
 export default SignOutListItem;

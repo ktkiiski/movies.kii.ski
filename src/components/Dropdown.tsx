@@ -24,7 +24,7 @@ class Dropdown extends React.Component<DropdownProps, DropdownState> {
 
     public renderChildren() {
         return React.Children.map(this.props.children, (child) => {
-            if (typeof child !== 'string' && typeof child !== 'number') {
+            if (typeof child === 'object' && child && 'props' in child) {
                 const {props} = child;
                 const onClick = 'onClick' in props && typeof props.onClick === 'function' && props.onClick;
                 return React.cloneElement(child, {

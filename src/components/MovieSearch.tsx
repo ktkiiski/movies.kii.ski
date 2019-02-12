@@ -3,76 +3,69 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import ClearIcon from '@material-ui/icons/Clear';
-import { ObserverComponent } from 'broilerkit/react/observer';
+import { useOperation } from 'broilerkit/react/api';
+import { useDebouncedValue } from 'broilerkit/react/hooks';
+import { useCallback, useMemo, useState } from 'react';
 import * as React from 'react';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, startWith } from 'rxjs/operators';
-import { api } from '../client';
+import * as api from '../api';
 import VerticalFlow from './layout/VerticalFlow';
 import MovieSearchResultList from './MovieSearchResultList';
 
-interface MovieSearchState {
-    query: string;
-    search: string;
-}
-
 interface MovieSearchProps {
     pollId: string;
+    children?: React.ReactNode;
 }
 
-class MovieSearch extends ObserverComponent<MovieSearchProps, MovieSearchState> {
-    public query$ = new BehaviorSubject('');
-    public search$ = this.query$.pipe(
-        debounceTime(500),
-        startWith(''),
-    );
-    public state$ = combineLatest(this.query$, this.search$, (query, search) => (
-        query ? {query, search} : {query, search: ''}
+function MovieSearch({pollId, children}: MovieSearchProps) {
+    const [query, setQuery] = useState('');
+    const search = useDebouncedValue(query, 500);
+    const resetQuery = useCallback(() => setQuery(''), []);
+    const inputProps = useMemo(() => {
+        if (!query) {
+            return undefined;
+        }
+        return {
+            endAdornment: <InputAdornment position='end'>
+                <IconButton onClick={resetQuery}>
+                    <ClearIcon />
+                </IconButton>
+            </InputAdornment>,
+        };
+    }, [query]);
+    const createPollParticipant = useOperation(api.createPollParticipant, (op) => (
+        op.post({pollId})
     ));
-
-    private clearButton = <InputAdornment position='end'>
-        <IconButton onClick={() => this.query$.next('')}>
-            <ClearIcon />
-        </IconButton>
-    </InputAdornment>;
-
-    public onMovieSearchResultSelect = async (movieId: number) => {
-        const {pollId} = this.props;
+    const createPollCandidate = useOperation(api.createPollCandidate, (op, movieId: number) => (
+        op.post({pollId, movieId})
+    ));
+    const onMovieSearchResultSelect = useCallback(async (movieId: number) => {
         // tslint:disable-next-line:no-console
         console.log(`Adding movie ${movieId} as a candidate to the poll ${pollId}`);
-        api.pollParticipantCollection.post({pollId});
-        await api.pollCandidateCollection.post({pollId, movieId});
-        this.query$.next('');
-    }
-    public render() {
-        const {query = '', search = ''} = this.state;
-        const {pollId, children} = this.props;
-        return <VerticalFlow>
-            <TextField
-                style={{marginTop: -8}}
-                label='Search for a movie'
-                placeholder='Type a movie name'
-                fullWidth
-                margin='none'
-                onChange={this.onChange}
-                value={query || ''}
-                InputProps={query ? {
-                    endAdornment: this.clearButton,
-                } : undefined}
+        createPollParticipant();
+        await createPollCandidate(movieId);
+        resetQuery();
+    }, [pollId]);
+    const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setQuery(event.target.value), []);
+    return <VerticalFlow>
+        <TextField
+            style={{marginTop: -8}}
+            label='Search for a movie'
+            placeholder='Type a movie name'
+            fullWidth
+            margin='none'
+            onChange={onChange}
+            value={query || ''}
+            InputProps={inputProps}
+        />
+        {!search ? children : <>
+            <Typography variant='h5'>Search results</Typography>
+            <MovieSearchResultList
+                query={search}
+                pollId={pollId}
+                onSelect={onMovieSearchResultSelect}
             />
-            {!search ? children : <>
-                <Typography variant='h5'>Search results</Typography>
-                <MovieSearchResultList
-                    query={search}
-                    pollId={pollId}
-                    onSelect={this.onMovieSearchResultSelect}
-                />
-            </>}
-        </VerticalFlow>;
-    }
-    private onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.query$.next(event.target.value);
-    }
+        </>}
+    </VerticalFlow>;
 }
 
 export default MovieSearch;

@@ -5,11 +5,10 @@ import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
 import { AuthUser } from 'broilerkit/auth';
 import { identifier } from 'broilerkit/id';
-import { ObserverComponent } from 'broilerkit/react/observer';
+import { useList, useOperation } from 'broilerkit/react/api';
+import { useAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
-import { combineLatest } from 'rxjs';
-import { distinctUntilChanged, map, switchMap } from 'rxjs/operators';
-import { api, authClient } from '../client';
+import * as api from '../api';
 import { Vote } from '../resources';
 import NegativeIcon from './icons/ThumbDownOutline';
 import NeutralIcon from './icons/ThumbsUpDownOutline';
@@ -38,80 +37,77 @@ interface VoteButtonSetProps {
     pollId: string;
 }
 
-interface VoteButtonSetState {
-    currentVoteValue: Vote['value'] | null;
-    user: AuthUser | null;
-}
+function VoteButtonSet({movieId, pollId}: VoteButtonSetProps) {
+    const user = useAuth();
+    const userId = user && user.id;
+    const pollVotes = useList(api.listPollVotes, {
+        pollId, ordering: 'createdAt', direction: 'asc',
+    });
+    const createPollParticipant = useOperation(api.createPollParticipant, (op) => (
+        op.post({pollId})
+    ));
+    // tslint:disable-next-line:no-shadowed-variable
+    const createPollVote = useOperation(api.createPollVote, async (op, user: AuthUser, value: VoteValue) => {
+        // Create a new vote
+        const now = new Date();
+        return await op.postOptimistically({
+            movieId, pollId, value,
+            profileId: user.id,
+            profile: user,
+            version: identifier(),
+            createdAt: now,
+            updatedAt: now,
+        });
+    });
+    const destroyPollVote = useOperation(api.destroyPollVote, (op) => (
+        op.deleteWithUser({movieId, pollId})
+    ));
+    const updatePollVote = useOperation(api.updatePollVote, (op, value: VoteValue) => (
+        op.patchWithUser({movieId, pollId, value})
+    ));
+    const votes = pollVotes && pollVotes.filter((vote) => (
+        vote.movieId === movieId && vote.profileId === userId
+    ));
+    const currentValue = votes && votes.length ? votes[0].value : null;
 
-class VoteButtonSet extends ObserverComponent<VoteButtonSetProps, VoteButtonSetState> {
-
-    public votes$ = combineLatest(this.props$, authClient.userId$).pipe(
-        switchMap(([{pollId, movieId}, userId]) => userId ? api.pollVoteCollection.observeAll({
-            pollId, ordering: 'createdAt', direction: 'asc',
-        }, {
-            movieId, profileId: userId,
-        }) : []),
-    );
-    public currentVoteValue$ = this.votes$.pipe(
-        map((votes) => votes.length ? votes[0].value : null),
-        distinctUntilChanged(),
-    );
-    public state$ = combineLatest(this.currentVoteValue$, authClient.user$, (currentVoteValue, user) => ({
-        currentVoteValue, user,
-    }));
-
-    public onSelect = (value: VoteValue, oldValue?: VoteValue | null) => {
-        const {movieId, pollId} = this.props;
-        const {user} = this.state;
+    const onSelect = (value: VoteValue, oldValue?: VoteValue | null) => {
         if (!user) {
             return;
         }
         if (value !== oldValue) {
             // Ensure that the user is the participant in this poll
-            api.pollParticipantCollection.post({pollId});
+            createPollParticipant();
         }
         if (oldValue == null) {
             // Create a new vote
-            const now = new Date();
-            api.pollVoteCollection.postOptimistically({
-                movieId, pollId, value,
-                profileId: user.id,
-                profile: user,
-                version: identifier(),
-                createdAt: now,
-                updatedAt: now,
-            });
+            createPollVote(user, value);
         } else if (value === oldValue) {
             // Remove old value
-            api.pollVoteResource.deleteWithUser({movieId, pollId});
+            destroyPollVote();
         } else {
             // Update existing value
-            api.pollVoteResource.patchWithUser({movieId, pollId, value});
+            updatePollVote(value);
         }
-    }
-
-    public render() {
-        const value = this.state.currentVoteValue;
-        return <div>
-            <Grid container spacing={0} item direction='row'>
-                <Grid item>
-                    <VoteButton value={value} buttonValue={1} onSelect={this.onSelect}>
-                        {value === 1 ? <SelectedPositiveIcon /> : <PositiveIcon />}
-                    </VoteButton>
-                </Grid>
-                <Grid item>
-                    <VoteButton value={value} buttonValue={0} onSelect={this.onSelect}>
-                        {value === 0 ? <SelectedNeutralIcon /> : <NeutralIcon />}
-                    </VoteButton>
-                </Grid>
-                <Grid item>
-                    <VoteButton value={value} buttonValue={-1} onSelect={this.onSelect}>
-                        {value === -1 ? <SelectedNegativeIcon /> : <NegativeIcon />}
-                    </VoteButton>
-                </Grid>
+    };
+    return <div>
+        <Grid container spacing={0} item direction='row'>
+            <Grid item>
+                <VoteButton value={currentValue} buttonValue={1} onSelect={onSelect}>
+                    {currentValue === 1 ? <SelectedPositiveIcon /> : <PositiveIcon />}
+                </VoteButton>
             </Grid>
-        </div>;
-    }
+            <Grid item>
+                <VoteButton value={currentValue} buttonValue={0} onSelect={onSelect}>
+                    {currentValue === 0 ? <SelectedNeutralIcon /> : <NeutralIcon />}
+                </VoteButton>
+            </Grid>
+            <Grid item>
+                <VoteButton value={currentValue} buttonValue={-1} onSelect={onSelect}>
+                    {currentValue === -1 ? <SelectedNegativeIcon /> : <NegativeIcon />}
+                </VoteButton>
+            </Grid>
+        </Grid>
+    </div>;
 }
 
-export default VoteButtonSet;
+export default React.memo(VoteButtonSet);

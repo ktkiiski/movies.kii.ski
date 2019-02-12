@@ -1,16 +1,16 @@
 import { Created, OK } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
-import { implement } from 'broilerkit/server';
+import { implementAll } from 'broilerkit/server';
 import { order } from 'broilerkit/utils/arrays';
 import * as api from './api';
 import * as db from './db';
 import { retrieveMovie, searchMovies } from './tmdb';
 
-export const userPollCollection = implement(api.userPollCollection, db)
-    .list(async (query, {polls}) => {
+export default implementAll(api, db).using({
+    listUserPolls: async (query, {polls}) => {
         return await polls.list(query);
-    })
-    .create(async (input, {polls, profiles}, {auth}) => {
+    },
+    createUserPoll: async (input, {polls, profiles}, {auth}) => {
         const now = new Date();
         const [poll] = await Promise.all([
             polls.create({
@@ -27,14 +27,11 @@ export const userPollCollection = implement(api.userPollCollection, db)
             }),
         ]);
         return new Created(poll);
-    })
-;
-
-export const userPollResource = implement(api.userPollResource, db)
-    .retrieve(async ({id}, {polls}) => {
+    },
+    retrieveUserPoll: async ({id}, {polls}) => {
         return await polls.retrieve({id});
-    })
-    .update(async ({id, ...changes}, {polls, profiles}, {auth}) => {
+    },
+    updateUserPoll: async ({id, ...changes}, {polls, profiles}, {auth}) => {
         const now = new Date();
         const [poll] = await Promise.all([
             polls.update({id}, {
@@ -48,20 +45,14 @@ export const userPollResource = implement(api.userPollResource, db)
             }),
         ]);
         return new OK(poll);
-    })
-    .destroy(async ({id}, {polls}) => {
+    },
+    destroyUserPoll: async ({id}, {polls}) => {
         await polls.destroy({id});
-    })
-;
-
-export const pollResource = implement(api.pollResource, db)
-    .retrieve(async ({id}, {polls}) => {
+    },
+    retrievePoll: async ({id}, {polls}) => {
         return await polls.retrieve({id});
-    })
-;
-
-export const pollCandidateCollection = implement(api.pollCandidateCollection, db)
-    .list(async (query, {candidates, movies, profiles}) => {
+    },
+    listPollCandidates: async (query, {candidates, movies, profiles}) => {
         const {results, next} = await candidates.list(query);
         const nestedMoviesPromise = movies.batchRetrieve(
             results.map(({movieId}) => ({id: movieId})),
@@ -78,8 +69,8 @@ export const pollCandidateCollection = implement(api.pollCandidateCollection, db
                 profile: nestedUsers[index],
             })),
         };
-    })
-    .create(async (input, {candidates, movies, profiles}, {auth}) => {
+    },
+    createPollCandidate: async (input, {candidates, movies, profiles}, {auth}) => {
         const now = new Date();
         const [profile, movie, candidate] = await Promise.all([
             profiles.write({
@@ -98,17 +89,11 @@ export const pollCandidateCollection = implement(api.pollCandidateCollection, db
         return new Created({
             ...candidate, profile, movie,
         });
-    })
-;
-
-export const pollCandidateResource = implement(api.pollCandidateResource, db)
-    .destroy(async (query, {candidates}) => {
+    },
+    destroyPollCandidate: async (query, {candidates}) => {
         await candidates.destroy(query);
-    })
-;
-
-export const pollParticipantCollection = implement(api.pollParticipantCollection, db)
-    .list(async (query, {participants, profiles}) => {
+    },
+    listPollParticipants: async (query, {participants, profiles}) => {
         const {results, next} = await participants.list(query);
         const nestedUsers = await profiles.batchRetrieve(
             results.map(({profileId: id}) => ({id})),
@@ -120,8 +105,8 @@ export const pollParticipantCollection = implement(api.pollParticipantCollection
                 profile: nestedUsers[index],
             })),
         };
-    })
-    .create(async (input, {participants, profiles}, {auth}) => {
+    },
+    createPollParticipant: async (input, {participants, profiles}, {auth}) => {
         const now = new Date();
         const [profile, participant] = await Promise.all([
             profiles.write({
@@ -139,17 +124,11 @@ export const pollParticipantCollection = implement(api.pollParticipantCollection
         return new Created({
             ...participant, profile,
         });
-    })
-;
-
-export const pollParticipantResource = implement(api.pollParticipantResource, db)
-    .destroy(async (query, {participants}) => {
+    },
+    destroyPollParticipant: async (query, {participants}) => {
         await participants.destroy(query);
-    })
-;
-
-export const pollVoteCollection = implement(api.pollVoteCollection, db)
-    .list(async (query, {votes, profiles}) => {
+    },
+    listPollVotes: async (query, {votes, profiles}) => {
         const {results, next} = await votes.list(query);
         const nestedProfiles = await profiles.batchRetrieve(
             results.map(({profileId}) => ({id: profileId})),
@@ -161,8 +140,8 @@ export const pollVoteCollection = implement(api.pollVoteCollection, db)
                 profile: nestedProfiles[index],
             })),
         };
-    })
-    .create(async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
+    },
+    createPollVote: async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
         const now = new Date();
         const profileId = auth.id;
         const [profile] = await Promise.all([
@@ -201,16 +180,13 @@ export const pollVoteCollection = implement(api.pollVoteCollection, db)
             // Raise through
             throw error;
         }
-    })
-;
-
-export const userRatingCollection = implement(api.userRatingCollection, db)
-    .list(async ({profileId, ordering, since, direction}, {ratings}) => {
+    },
+    listUserRatings: async ({profileId, ordering, since, direction}, {ratings}) => {
         return ratings.list({
             profileId, ordering, since, direction,
         });
-    })
-    .create(async (input, {ratings, movies}) => {
+    },
+    createUserRating: async (input, {ratings, movies}) => {
         // Ensure that the movie exists
         await movies.retrieve({id: input.movieId});
         const now = new Date();
@@ -221,17 +197,11 @@ export const userRatingCollection = implement(api.userRatingCollection, db)
             updatedAt: now,
         });
         return new Created(rating);
-    })
-;
-
-export const userRatingResource = implement(api.userRatingResource, db)
-    .destroy(async (query, {ratings}) => {
+    },
+    destroyUserRating: async (query, {ratings}) => {
         await ratings.destroy(query);
-    })
-;
-
-export const pollVoteResource = implement(api.pollVoteResource, db)
-    .update(async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
+    },
+    updatePollVote: async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
         // Find the related resources, ensuring that they exist
         const now = new Date();
         const [profile, movie] = await Promise.all([
@@ -250,21 +220,16 @@ export const pollVoteResource = implement(api.pollVoteResource, db)
             }),
             profile, movie,
         });
-    })
-    .destroy(async (query, {votes}) => {
+    },
+    destroyPollVote: async (query, {votes}) => {
         await votes.destroy(query);
-    })
-;
-export const movieResource = implement(api.movieResource, db)
-    .retrieve(async ({id}, {movies}, {environment}) => {
+    },
+    retrieveMovie: async ({id}, {movies}, {environment}) => {
         const apiKey = environment.TMDBApiKey;
         const movie = await retrieveMovie(id, apiKey);
         return await movies.write(movie);
-    })
-;
-
-export const queryMovieSearchResultCollection = implement(api.queryMovieSearchResultCollection, db)
-    .list(async ({ordering, since, direction, query}, {}, {environment}) => {
+    },
+    searchMovies: async ({ordering, since, direction, query}, {}, {environment}) => {
         const apiKey = environment.TMDBApiKey;
         const items = await searchMovies(query, apiKey);
         // Limit the number of search results for throttling the TMDb API usage
@@ -272,5 +237,5 @@ export const queryMovieSearchResultCollection = implement(api.queryMovieSearchRe
             results: order(items.slice(0, 6), ordering, direction, since),
             next: null,
         };
-    })
-;
+    },
+});

@@ -6,9 +6,12 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { useOperation } from 'broilerkit/react/api';
+import { useAuthClient } from 'broilerkit/react/auth';
 import * as React from 'react';
+import { useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { api, authClient } from '../client';
+import * as api from '../api';
 import { showPoll } from '../routes';
 import AppDrawer from './AppDrawer';
 import PollList from './PollList';
@@ -29,81 +32,77 @@ const styles = ({spacing}: Theme) => createStyles({
 interface LayoutProps extends WithStyles<typeof styles>, RouteComponentProps {
     title: string;
     menu?: React.ReactNode;
+    children?: React.ReactNode;
 }
 
-interface LayoutState {
-    isDrawerOpen: boolean;
-    isCreateModalOpen: boolean;
-}
-
-class Layout extends React.Component<LayoutProps, LayoutState> {
-    public state = {
-        isDrawerOpen: false,
-        isCreateModalOpen: false,
-    };
-    public openDrawer = () => {
-        this.setState({isDrawerOpen: true});
-    }
-    public closeDrawer = () => {
-        this.setState({isDrawerOpen: false});
-    }
-    public openCreateModal = async () => {
-        await authClient.demandAuthentication();
-        this.setState({
-            isDrawerOpen: false,
-            isCreateModalOpen: true,
-        });
-    }
-    public closeCreateModal = () => {
-        this.setState({isCreateModalOpen: false});
-    }
-    public onCreateModalSubmit = async (title: string) => {
-        const { history } = this.props;
-        this.closeCreateModal();
-        const poll = await api.userPollCollection.postWithUser({
-            title,
+function Layout({title, children, menu, classes, history}: LayoutProps) {
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const demandAuthentication = useAuthClient((authClient) => (
+        authClient.demandAuthentication()
+    ));
+    const createUserPoll = useOperation(api.createUserPoll, (op, newTitle: string) => (
+        op.postWithUser({
+            title: newTitle,
             description: '', // TODO
-        });
+        })
+    ));
+
+    function openDrawer() {
+        setIsDrawerOpen(true);
+    }
+    function closeDrawer() {
+        setIsDrawerOpen(false);
+    }
+    async function openCreateModal() {
+        await demandAuthentication();
+        setIsDrawerOpen(false);
+        setIsCreateModalOpen(true);
+    }
+    function closeCreateModal() {
+        setIsCreateModalOpen(false);
+    }
+    async function onCreateModalSubmit(newTitle: string) {
+        closeCreateModal();
+        const poll = await createUserPoll(newTitle);
         history.push(showPoll.compile({pollId: poll.id}).toString());
     }
-    public render() {
-        const {title, children, menu, classes} = this.props;
-        return <>
-            <TopBar title={title} onMenuButtonClick={this.openDrawer} menu={menu} />
-            <AppDrawer
-                disableRestoreFocus={this.state.isCreateModalOpen}
-                open={this.state.isDrawerOpen}
-                onClose={this.closeDrawer}
-            >
-                <Profile />
-                <Divider />
-                <div onClick={this.closeDrawer}>
-                    <PollList />
-                </div>
-                <Divider />
-                <List>
-                    <ListItem onClick={this.openCreateModal} button>
-                        <ListItemIcon><AddIcon /></ListItemIcon>
-                        <ListItemText>Create a poll</ListItemText>
-                    </ListItem>
-                    <SignOutListItem onClick={this.closeDrawer}>
-                        <ListItemIcon><ExitToAppIcon /></ListItemIcon>
-                        <ListItemText>Sign out</ListItemText>
-                    </SignOutListItem>
-                </List>
-            </AppDrawer>
-            <div className={classes.root}>{children}</div>
-            <PromptModal
-                open={this.state.isCreateModalOpen}
-                onClose={this.closeCreateModal}
-                onSubmit={this.onCreateModalSubmit}
-                title='Create a new poll'
-                label='Poll name'
-                closeButtonText='Close'
-                submitButtonText='Create'
-            />
-        </>;
-    }
+
+    return <>
+        <TopBar title={title} onMenuButtonClick={openDrawer} menu={menu} />
+        <AppDrawer
+            disableRestoreFocus={isCreateModalOpen}
+            open={isDrawerOpen}
+            onClose={closeDrawer}
+        >
+            <Profile />
+            <Divider />
+            <div onClick={closeDrawer}>
+                <PollList />
+            </div>
+            <Divider />
+            <List>
+                <ListItem onClick={openCreateModal} button>
+                    <ListItemIcon><AddIcon /></ListItemIcon>
+                    <ListItemText>Create a poll</ListItemText>
+                </ListItem>
+                <SignOutListItem onClick={closeDrawer}>
+                    <ListItemIcon><ExitToAppIcon /></ListItemIcon>
+                    <ListItemText>Sign out</ListItemText>
+                </SignOutListItem>
+            </List>
+        </AppDrawer>
+        <div className={classes.root}>{children}</div>
+        <PromptModal
+            open={isCreateModalOpen}
+            onClose={closeCreateModal}
+            onSubmit={onCreateModalSubmit}
+            title='Create a new poll'
+            label='Poll name'
+            closeButtonText='Close'
+            submitButtonText='Create'
+        />
+    </>;
 }
 
 export default withStyles(styles)(withRouter(Layout));

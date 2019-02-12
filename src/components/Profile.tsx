@@ -1,8 +1,7 @@
 import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import { renderUser } from 'broilerkit/react/observer';
+import { useAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
-import { authClient } from '../client';
 
 const styles = ({spacing}: Theme) => createStyles({
     profile: {
@@ -18,17 +17,15 @@ const ProfileContainer = withStyles(styles)(({classes, children}: ProfileContain
     <div className={classes.profile}>{children}</div>
 ));
 
-class Profile extends renderUser(authClient) {
-    public render() {
-        const {user} = this.state;
-        return user ?
-            <ProfileContainer>
-                <Typography variant='h6'>{user.name}</Typography>
-                <Typography variant='subtitle1'>{user.email}</Typography>
-            </ProfileContainer>
-            : null
-        ;
-    }
+function Profile() {
+    const user = useAuth();
+    return user ?
+        <ProfileContainer>
+            <Typography variant='h6'>{user.name}</Typography>
+            <Typography variant='subtitle1'>{user.email}</Typography>
+        </ProfileContainer>
+        : null
+    ;
 }
 
 export default Profile;
