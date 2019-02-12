@@ -2,6 +2,9 @@ import { endpoint } from 'broilerkit/api';
 import { pattern } from 'broilerkit/url';
 import { candidate, movie, movieSearchResult, participant, poll, publicProfile, rating, vote } from './resources';
 
+/**
+ * Polls
+ */
 const userPollCollection = endpoint(poll, pattern `/users/${'profileId'}/polls`);
 export const listUserPolls = userPollCollection.listable({
     auth: 'owner',
@@ -36,6 +39,9 @@ export const updateUserPoll = userPollResource.updateable({
 const pollResource = endpoint(poll, pattern `/polls/${'id'}`);
 export const retrievePoll = pollResource.retrievable();
 
+/**
+ * Candidates
+ */
 const pollCandidateCollection = endpoint(candidate, pattern `/polls/${'pollId'}/candidates`)
     .join({
         movie,
@@ -59,6 +65,9 @@ export const destroyPollCandidate = pollCandidateResource.destroyable({
     ownership: 'profileId',
 });
 
+/**
+ * Votes
+ */
 const pollVoteCollection = endpoint(vote, pattern `/polls/${'pollId'}/votes`)
     .join({
         profile: publicProfile,
@@ -88,6 +97,9 @@ export const destroyPollVote = pollVoteResource.destroyable({
     ownership: 'profileId',
 });
 
+/**
+ * Participants
+ */
 const pollParticipantCollection = endpoint(participant, pattern `/polls/${'pollId'}/participants`)
     .join({
         profile: publicProfile,
@@ -109,6 +121,9 @@ export const destroyPollParticipant = pollParticipantResource.destroyable({
     ownership: 'profileId',
 });
 
+/**
+ * Ratings
+ */
 const userRatingCollection = endpoint(rating, pattern `/users/${'profileId'}/ratings`);
 export const listUserRatings = userRatingCollection.listable({
     auth: 'none',
@@ -130,9 +145,15 @@ export const destroyUserRating = userRatingResource.destroyable({
     ownership: 'profileId',
 });
 
+/**
+ * Movies
+ */
 const movieResource = endpoint(movie, pattern `/movies/${'id'}`);
 export const retrieveMovie = movieResource.retrievable();
 
+/**
+ * Search results
+ */
 const queryMovieSearchResultCollection = endpoint(movieSearchResult, pattern `/queries/${'query'}/movie_search_results`);
 export const searchMovies = queryMovieSearchResultCollection.listable({
     orderingKeys: ['index'],
