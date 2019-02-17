@@ -81,7 +81,7 @@ function VoteTable({pollId, movieId, classes}: VoteTableProps) {
                             <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={green[400]} />
                     ))}
                 </TableCell>
-                <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.positiveColumn} numeric>
+                <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.positiveColumn} align='right'>
                     {positiveVotes && positiveVotes.length}
                 </TableCell>
             </TableRow>
@@ -95,7 +95,7 @@ function VoteTable({pollId, movieId, classes}: VoteTableProps) {
                             <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={yellow[400]} />
                     ))}
                 </TableCell>
-                <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.neutralColumn} numeric>
+                <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.neutralColumn} align='right'>
                     {neutralVotes && neutralVotes.length}
                 </TableCell>
             </TableRow>
@@ -109,7 +109,7 @@ function VoteTable({pollId, movieId, classes}: VoteTableProps) {
                             <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={red[400]} />
                     ))}
                 </TableCell>
-                <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.negativeColumn} numeric>
+                <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.negativeColumn} align='right'>
                     {negativeVotes && negativeVotes.length}
                 </TableCell>
             </TableRow>
@@ -123,7 +123,7 @@ function VoteTable({pollId, movieId, classes}: VoteTableProps) {
                             <ProfileAvatar className={classes.avatar} key={rating.profileId} user={rating.profile} size={22} />
                     ))}
                 </TableCell>
-                <TableCell padding={'dense'} className={classes.sumColumn} numeric>
+                <TableCell padding={'dense'} className={classes.sumColumn} align='right'>
                     {ratings && ratings.length}
                 </TableCell>
             </TableRow>
@@ -133,7 +133,7 @@ function VoteTable({pollId, movieId, classes}: VoteTableProps) {
                 <TableCell padding={'dense'} className={`${classes.headerColumn} ${classes.footer}`}>
                     Score
                 </TableCell>
-                <TableCell colSpan={2} padding={'dense'} className={classes.footer} numeric>
+                <TableCell colSpan={2} padding={'dense'} className={classes.footer} align='right'>
                     {sum}{typeof score === 'number' ? ` = ${Math.round(score)}%` : null}
                 </TableCell>
             </TableRow>
