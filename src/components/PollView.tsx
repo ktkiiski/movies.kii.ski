@@ -5,8 +5,9 @@ import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import { useList, useOperation, useResource } from 'broilerkit/react/api';
 import { useUserId } from 'broilerkit/react/auth';
-import { useState } from 'react';
+import { useTitle } from 'broilerkit/react/meta';
 import * as React from 'react';
+import { useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import * as api from '../api';
 import { home } from '../routes';
@@ -34,6 +35,7 @@ function PollView({pollId, history}: PollViewProps) {
         ordering: 'createdAt',
         direction: 'asc',
     });
+    useTitle(poll && poll.title || `Movie poll`);
     const openUpdateModal = () => setIsUpdateModalOpen(true);
     const closeUpdateModal = () => setIsUpdateModalOpen(false);
     const onOrderingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {

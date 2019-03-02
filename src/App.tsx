@@ -1,6 +1,6 @@
 import { createGenerateClassName, MuiThemeProvider, Typography } from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { useCss } from 'broilerkit/react/meta';
+import { useCss, useTitle } from 'broilerkit/react/meta';
 import { renderRoute } from 'broilerkit/react/router';
 import * as React from 'react';
 import { useMemo } from 'react';
@@ -12,11 +12,12 @@ import PollView from './components/PollView';
 import { home, showPoll } from './routes';
 import { mainTheme } from './themes';
 
-const NotFound = () => (
-    <Root>
+const NotFound = () => {
+    useTitle(`Page not found`);
+    return <Root>
         <Typography>Page not found</Typography>
-    </Root>
-);
+    </Root>;
+};
 
 export default () => {
     const generateClassName = useMemo(createGenerateClassName, []);
