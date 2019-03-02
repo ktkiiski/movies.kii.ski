@@ -3,7 +3,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useOperation } from 'broilerkit/react/api';
@@ -14,28 +13,20 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import * as api from '../api';
 import { showPoll } from '../routes';
 import AppDrawer from './AppDrawer';
+import Root from './layout/Root';
 import PollList from './PollList';
 import Profile from './Profile';
 import PromptModal from './PromptModal';
 import SignOutListItem from './SignOutListItem';
 import TopBar from './TopBar';
 
-const styles = ({spacing}: Theme) => createStyles({
-    root: {
-        padding: spacing.unit * 2,
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        maxWidth: 1024,
-    },
-});
-
-interface LayoutProps extends WithStyles<typeof styles>, RouteComponentProps {
+interface LayoutProps extends RouteComponentProps {
     title: string;
     menu?: React.ReactNode;
     children?: React.ReactNode;
 }
 
-function Layout({title, children, menu, classes, history}: LayoutProps) {
+function Layout({title, children, menu, history}: LayoutProps) {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const demandAuthentication = useAuthClient((authClient) => (
@@ -68,7 +59,7 @@ function Layout({title, children, menu, classes, history}: LayoutProps) {
         history.push(showPoll.compile({pollId: poll.id}).toString());
     }
 
-    return <>
+    return <div>
         <TopBar title={title} onMenuButtonClick={openDrawer} menu={menu} />
         <AppDrawer
             disableRestoreFocus={isCreateModalOpen}
@@ -92,7 +83,7 @@ function Layout({title, children, menu, classes, history}: LayoutProps) {
                 </SignOutListItem>
             </List>
         </AppDrawer>
-        <div className={classes.root}>{children}</div>
+        <Root>{children}</Root>
         <PromptModal
             open={isCreateModalOpen}
             onClose={closeCreateModal}
@@ -102,7 +93,7 @@ function Layout({title, children, menu, classes, history}: LayoutProps) {
             closeButtonText='Close'
             submitButtonText='Create'
         />
-    </>;
+    </div>;
 }
 
-export default withStyles(styles)(withRouter(Layout));
+export default withRouter(Layout);

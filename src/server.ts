@@ -6,4 +6,4 @@ import endpoints from './endpoints';
  * Create an API server instance using the
  * implemented API endpoint functions.
  */
-export = new ApiService(endpoints, db);
+export default new ApiService(endpoints, db);

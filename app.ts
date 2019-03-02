@@ -10,6 +10,10 @@ export default app({
      */
     name: 'movie-polls',
     /**
+     * Human-readable title for the app.
+     */
+    title: 'Movie Polls',
+    /**
      * The AWS region to which the web app will be deployed.
      */
     region: 'us-east-1',
@@ -56,9 +60,9 @@ export default app({
             // Root URL where the HTML pages are hosted
             siteRoot: 'http://localhost:1111',
             // Root URL where all the indefinitely-cached static assets are hosted
-            assetsRoot: 'http://localhost:1111',
+            assetsRoot: 'http://localhost:1112',
             // Root URL where the API is served
-            apiRoot: 'http://localhost:1112',
+            apiRoot: 'http://localhost:1113',
         },
     },
     /**
@@ -89,20 +93,8 @@ export default app({
      * The API endpoints for this app.
      */
     serverFile: 'server.ts',
-    // Web page configuration
-    pages: [{
-        file: 'index.html',
-        scripts: ['index.tsx'],
-    }, {
-        file: 'error.html',
-        scripts: ['index.tsx'],
-    }],
     /**
-     * Optional default web page that will be served when no web page file
-     * is found by the requested URL. If null or undefined, an 404 error page will be
-     * shown. Otherwise, the defined file will be served with 200 response.
-     *
-     * This is useful for single page apps using HTML5 History API.
+     * The website file for this app.
      */
-    defaultPage: 'index.html',
+    siteFile: 'App.tsx',
 });

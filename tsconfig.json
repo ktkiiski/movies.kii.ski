@@ -1,28 +1,15 @@
 {
+    "extends": "./node_modules/broilerkit/tsconfig.json",
     "compilerOptions": {
         "sourceMap": true,
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "strict": true,
-        "importHelpers": true,
-        "lib": [
-            "dom",
-            "dom.iterable",
-            "es2015",
-            "esnext.asynciterable",
-        ],
-        "module": "commonjs",
-        "target": "es5",
         "types": ["node"],
         "typeRoots": [
             "./node_modules/@types"
-        ],
-        "jsx": "react"
+        ]
     },
     "include": [
         "./node_modules/broilerkit/types/**/*",
         "./src/**/*"
-    ]
+    ],
+    "exclude": []
 }
