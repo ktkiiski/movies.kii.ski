@@ -55,19 +55,20 @@ interface VoteTableProps extends WithStyles<typeof styles> {
 
 function VoteTable({pollId, movieId, classes}: VoteTableProps) {
     const ratings = usePollRatings(pollId, movieId);
-    const pollVotes = useList(api.listPollVotes, {
+    const [movieVotes] = useList(api.listPollVotes, {
         pollId, ordering: 'createdAt', direction: 'asc',
-    }) || [];
-    const pollParticipants = useList(api.listPollParticipants, {
+    }, {
+        movieId,
+    });
+    const [pollParticipants] = useList(api.listPollParticipants, {
         pollId, ordering: 'createdAt', direction: 'asc',
-    }) || [];
-    const movieVotes = pollVotes.filter((vote) => vote.movieId === movieId);
-    const participantIds = pollParticipants.map(({profileId}) => profileId);
-    const score = getMovieScore(movieId, movieVotes, participantIds);
-    const positiveVotes = movieVotes.filter((vote) => vote.value === 1);
-    const neutralVotes = movieVotes.filter((vote) => vote.value === 0);
-    const negativeVotes = movieVotes.filter((vote) => vote.value === -1);
-    const sum = movieVotes.reduce((total, vote) => vote.value + total, 0);
+    });
+    const participantIds = pollParticipants ? pollParticipants.map(({profileId}) => profileId) : [];
+    const score = getMovieScore(movieId, movieVotes || [], participantIds);
+    const positiveVotes = (movieVotes || []).filter((vote) => vote.value === 1);
+    const neutralVotes = (movieVotes || []).filter((vote) => vote.value === 0);
+    const negativeVotes = (movieVotes || []).filter((vote) => vote.value === -1);
+    const sum = (movieVotes || []).reduce((total, vote) => vote.value + total, 0);
 
     return <Table>
         <TableBody>

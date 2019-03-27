@@ -11,19 +11,20 @@ interface VoteTableProps {
 }
 
 function VoteResult({pollId, movieId}: VoteTableProps) {
-    const pollVotes = useList(api.listPollVotes, {
+    const [movieVotes] = useList(api.listPollVotes, {
         pollId, ordering: 'createdAt', direction: 'asc',
+    }, {
+        movieId,
     });
-    const pollParticipants = useList(api.listPollParticipants, {
+    const [pollParticipants] = useList(api.listPollParticipants, {
         pollId, ordering: 'createdAt', direction: 'asc',
     });
     const movieRatings = usePollRatings(pollId, movieId);
-    if (pollVotes == null || pollParticipants == null || movieRatings == null) {
+    if (movieVotes == null || pollParticipants == null || movieRatings == null) {
         return null;
     }
-    const movieVotes = pollVotes.filter((vote) => vote.movieId === movieId);
     const participantIds = pollParticipants.map(({profileId}) => profileId);
-    const score = getMovieScore(movieId, pollVotes, participantIds);
+    const score = getMovieScore(movieId, movieVotes, participantIds);
     const participantCount = pollParticipants.length;
 
     return <>

@@ -1,5 +1,5 @@
 import ListItem from '@material-ui/core/ListItem';
-import { useAuth, useAuthClient } from 'broilerkit/react/auth';
+import { useAuth, useSignOut } from 'broilerkit/react/auth';
 import * as React from 'react';
 
 interface SignOutListItemProps {
@@ -9,12 +9,13 @@ interface SignOutListItemProps {
 
 function SignOutListItem({onClick, children}: SignOutListItemProps) {
     const user = useAuth();
-    const onItemClick = useAuthClient((authClient, event: React.MouseEvent<HTMLElement>) => {
-        authClient.signOut();
+    const signOut = useSignOut();
+    const onItemClick: React.MouseEventHandler<HTMLElement> = (event: React.MouseEvent<HTMLElement>) => {
+        signOut();
         if (onClick) {
             onClick(event);
         }
-    });
+    };
     return user ? <ListItem onClick={onItemClick} button>{children}</ListItem> : null;
 }
 

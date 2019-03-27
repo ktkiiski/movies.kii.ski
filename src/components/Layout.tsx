@@ -3,10 +3,11 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { useOperation } from 'broilerkit/react/api';
-import { useAuthClient } from 'broilerkit/react/auth';
+import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
 import * as React from 'react';
 import { useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -29,15 +30,9 @@ interface LayoutProps extends RouteComponentProps {
 function Layout({title, children, menu, history}: LayoutProps) {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const demandAuthentication = useAuthClient((authClient) => (
-        authClient.demandAuthentication()
-    ));
-    const createUserPoll = useOperation(api.createUserPoll, (op, newTitle: string) => (
-        op.postWithUser({
-            title: newTitle,
-            description: '', // TODO
-        })
-    ));
+    const userId = useUserId();
+    const requireAuth = useRequireAuth();
+    const createUserPoll = useOperation(api.createUserPoll);
 
     function openDrawer() {
         setIsDrawerOpen(true);
@@ -46,7 +41,7 @@ function Layout({title, children, menu, history}: LayoutProps) {
         setIsDrawerOpen(false);
     }
     async function openCreateModal() {
-        await demandAuthentication();
+        await requireAuth();
         setIsDrawerOpen(false);
         setIsCreateModalOpen(true);
     }
@@ -55,10 +50,19 @@ function Layout({title, children, menu, history}: LayoutProps) {
     }
     async function onCreateModalSubmit(newTitle: string) {
         closeCreateModal();
-        const poll = await createUserPoll(newTitle);
+        const auth = await requireAuth();
+        const poll = await createUserPoll.post({
+            title: newTitle,
+            description: '', // TODO
+            profileId: auth.id,
+        });
         history.push(showPoll.compile({pollId: poll.id}).toString());
     }
 
+    const pollList = userId
+        ? <PollList userId={userId} />
+        : <ListItem><Typography variant='caption'>Sign in to see your polls</Typography></ListItem>
+    ;
     return <div>
         <TopBar title={title} onMenuButtonClick={openDrawer} menu={menu} />
         <AppDrawer
@@ -68,9 +72,7 @@ function Layout({title, children, menu, history}: LayoutProps) {
         >
             <Profile />
             <Divider />
-            <div onClick={closeDrawer}>
-                <PollList />
-            </div>
+            <div onClick={closeDrawer}>{pollList}</div>
             <Divider />
             <List>
                 <ListItem onClick={openCreateModal} button>

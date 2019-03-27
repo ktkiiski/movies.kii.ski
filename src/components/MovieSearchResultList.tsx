@@ -16,7 +16,7 @@ interface MovieSearchResultListItemProps {
 }
 
 function MovieSearchResultListItem(props: MovieSearchResultListItemProps) {
-    const movie = useResource(api.retrieveMovie, {id: props.movieId});
+    const [movie] = useResource(api.retrieveMovie, {id: props.movieId});
     return <MovieCard movie={movie}>{props.children}</MovieCard>;
 }
 
@@ -31,7 +31,7 @@ interface AddMovieCandidateButtonProps {
 }
 
 function AddMovieCandidateButton({pollId, movieId, onClick}: AddMovieCandidateButtonProps) {
-    const pollCandidates = useList(api.listPollCandidates, {
+    const [pollCandidates] = useList(api.listPollCandidates, {
         pollId,
         ordering: 'createdAt',
         direction: 'asc',
@@ -53,7 +53,7 @@ interface MovieSearchResultListProps {
 }
 
 function MovieSearchResultList({pollId, query, onSelect}: MovieSearchResultListProps) {
-    const searchResults = useList(api.searchMovies, {
+    const [searchResults] = useList(api.searchMovies, {
         query,
         ordering: 'index',
         direction: 'asc',

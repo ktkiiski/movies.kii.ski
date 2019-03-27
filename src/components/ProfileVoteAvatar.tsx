@@ -14,19 +14,20 @@ interface ProfileVoteAvatarProps {
 }
 
 function ProfileVoteAvatar({pollId, user}: ProfileVoteAvatarProps) {
-    const pollVotes = useList(api.listPollVotes, {
+    const [votes] = useList(api.listPollVotes, {
         pollId, ordering: 'createdAt', direction: 'asc',
+    }, {
+        profileId: user.id,
     });
-    const userRatings = useList(api.listUserRatings, {
+    const [userRatings] = useList(api.listUserRatings, {
         profileId: user.id, ordering: 'createdAt', direction: 'asc',
     });
-    const pollCandidates = useList(api.listPollCandidates, {
+    const [pollCandidates] = useList(api.listPollCandidates, {
         pollId, ordering: 'createdAt', direction: 'asc',
     });
-    if (!pollVotes || !userRatings || !pollCandidates) {
+    if (!votes || !userRatings || !pollCandidates) {
         return null;
     }
-    const votes = pollVotes.filter((vote) => vote.profileId === user.id);
     const ratings = userRatings.filter((rating) => (
         pollCandidates.some((candidate) => candidate.movieId === rating.movieId)
     ));

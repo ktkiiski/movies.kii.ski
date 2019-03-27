@@ -53,7 +53,7 @@ const MovieCard = withStyles(styles)(({movie, profile, children, content}: Movie
                 {year}{genres}{' '}{runtime && <Hidden smUp><br/></Hidden>}{runtime}
             </Typography>
             {rating == null ? null : <RatingBar rating={rating} />}
-            <Hidden xsDown>
+            <Hidden xsDown implementation='css'>
                 <Typography component='p'>
                     {movie && shortenSentences(movie.overview, 300)}
                     {profile && <> Suggested by <strong>{profile.name}</strong></>}
@@ -63,7 +63,7 @@ const MovieCard = withStyles(styles)(({movie, profile, children, content}: Movie
     </MovieCardBackdrop>;
     return <Card>
         {linkUrl ? <CardActionArea href={linkUrl} target='_blank'>{backdrop}</CardActionArea> : backdrop}
-        <Hidden smUp>
+        <Hidden smUp implementation='css'>
             <CardContent>
                 <Typography component='p' color='textSecondary'>
                 {movie && movie.overview}

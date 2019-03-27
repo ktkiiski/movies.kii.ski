@@ -4,7 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import { useList, useOperation, useResource } from 'broilerkit/react/api';
-import { useUserId } from 'broilerkit/react/auth';
+import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
 import { useTitle } from 'broilerkit/react/meta';
 import * as React from 'react';
 import { useState } from 'react';
@@ -29,34 +29,41 @@ function PollView({pollId, history}: PollViewProps) {
     const userId = useUserId();
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [sorting, setSorting] = useState<CandidateSorting>('unvoted');
-    const poll = useResource(api.retrievePoll, {id: pollId});
-    const participants = useList(api.listPollParticipants, {
+    const requireAuth = useRequireAuth();
+    const [poll] = useResource(api.retrievePoll, {id: pollId});
+    const [participants] = useList(api.listPollParticipants, {
         pollId,
         ordering: 'createdAt',
         direction: 'asc',
     });
     useTitle(poll && poll.title || `Movie poll`);
+    const updatePoll = useOperation(api.updateUserPoll);
+    const destroyPoll = useOperation(api.destroyUserPoll);
+    const destroyPollParticipant = useOperation(api.destroyPollParticipant);
     const openUpdateModal = () => setIsUpdateModalOpen(true);
     const closeUpdateModal = () => setIsUpdateModalOpen(false);
     const onOrderingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSorting(event.target.value as CandidateSorting);
     };
-    const updatePoll = useOperation(api.updateUserPoll, async (op, title: string) => {
+    const onModalSubmit = async (title: string) => {
         closeUpdateModal();
-        await op.patchWithUser({id: pollId, title});
-    });
-    const destroyPoll = useOperation(api.destroyUserPoll, async (op) => {
-        await op.deleteWithUser({id: pollId});
+        const auth = await requireAuth();
+        await updatePoll.patch({id: pollId, title, profileId: auth.id});
+    };
+    const onDeleteClick = async () => {
+        const auth = await requireAuth();
+        await destroyPoll.delete({id: pollId, profileId: auth.id});
         history.push(home.compile({}).toString());
-    });
-    const leavePoll = useOperation(api.destroyPollParticipant, async (op) => {
+    };
+    const onLeaveClick = async () => {
         if (confirm(`Are you sure you want to unparticipate this poll?`)) {
-            op.deleteWithUser({pollId});
+            const auth = await requireAuth();
+            await destroyPollParticipant.delete({pollId, profileId: auth.id});
         }
-    });
+    };
     const menu = poll && userId && userId === poll.profileId ? [
         <MenuItem key='rename' onClick={openUpdateModal}>Rename poll</MenuItem>,
-        <MenuItem key='delete' onClick={destroyPoll}>Delete poll</MenuItem>,
+        <MenuItem key='delete' onClick={onDeleteClick}>Delete poll</MenuItem>,
     ] : null;
     const isParticipating = !!userId && !!participants && participants.some(
         ({profileId}) => userId === profileId,
@@ -67,7 +74,7 @@ function PollView({pollId, history}: PollViewProps) {
                 <VerticalFlow>
                     <Typography variant='subtitle1'>Participants</Typography>
                     <ParticipantList pollId={pollId} />
-                    {isParticipating ? <Button size='small' onClick={leavePoll}>
+                    {isParticipating ? <Button size='small' onClick={onLeaveClick}>
                         Leave from this poll
                     </Button> : null}
                 </VerticalFlow>
@@ -89,7 +96,7 @@ function PollView({pollId, history}: PollViewProps) {
         <PromptModal
             open={isUpdateModalOpen}
             onClose={closeUpdateModal}
-            onSubmit={updatePoll}
+            onSubmit={onModalSubmit}
             defaultValue={poll && poll.title}
             title='Rename the list'
             label='List name'

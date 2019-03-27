@@ -32,17 +32,13 @@ function MovieSearch({pollId, children}: MovieSearchProps) {
             </InputAdornment>,
         };
     }, [query]);
-    const createPollParticipant = useOperation(api.createPollParticipant, (op) => (
-        op.post({pollId})
-    ));
-    const createPollCandidate = useOperation(api.createPollCandidate, (op, movieId: number) => (
-        op.post({pollId, movieId})
-    ));
+    const createPollParticipant = useOperation(api.createPollParticipant);
+    const createPollCandidate = useOperation(api.createPollCandidate);
     const onMovieSearchResultSelect = useCallback(async (movieId: number) => {
         // tslint:disable-next-line:no-console
         console.log(`Adding movie ${movieId} as a candidate to the poll ${pollId}`);
-        createPollParticipant();
-        await createPollCandidate(movieId);
+        createPollParticipant.post({pollId});
+        await createPollCandidate.post({pollId, movieId});
         resetQuery();
     }, [pollId]);
     const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setQuery(event.target.value), []);

@@ -22,7 +22,7 @@ interface ParticipantListProps extends WithStyles<typeof styles> {
 }
 
 function ParticipantList({pollId, classes}: ParticipantListProps) {
-    const participants = useList(listPollParticipants, {
+    const [participants] = useList(listPollParticipants, {
         pollId,
         ordering: 'createdAt',
         direction: 'asc',
@@ -40,4 +40,4 @@ function ParticipantList({pollId, classes}: ParticipantListProps) {
     </div>;
 }
 
-export default withStyles(styles)(ParticipantList);
+export default React.memo(withStyles(styles)(ParticipantList));

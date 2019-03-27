@@ -3,10 +3,9 @@ import IconButton from '@material-ui/core/IconButton';
 import SelectedNegativeIcon from '@material-ui/icons/ThumbDown';
 import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
-import { AuthUser } from 'broilerkit/auth';
 import { identifier } from 'broilerkit/id';
-import { useList, useOperation } from 'broilerkit/react/api';
-import { useAuth } from 'broilerkit/react/auth';
+import { useOperation } from 'broilerkit/react/api';
+import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
 import * as api from '../api';
 import { Vote } from '../resources';
@@ -35,58 +34,39 @@ const VoteButton = ({children, value, buttonValue, onSelect}: VoteButtonProps) =
 interface VoteButtonSetProps {
     movieId: number;
     pollId: string;
+    currentValue: VoteValue | null;
 }
 
-function VoteButtonSet({movieId, pollId}: VoteButtonSetProps) {
-    const user = useAuth();
-    const userId = user && user.id;
-    const pollVotes = useList(api.listPollVotes, {
-        pollId, ordering: 'createdAt', direction: 'asc',
-    });
-    const createPollParticipant = useOperation(api.createPollParticipant, (op) => (
-        op.post({pollId})
-    ));
-    // tslint:disable-next-line:no-shadowed-variable
-    const createPollVote = useOperation(api.createPollVote, async (op, user: AuthUser, value: VoteValue) => {
-        // Create a new vote
-        const now = new Date();
-        return await op.postOptimistically({
-            movieId, pollId, value,
-            profileId: user.id,
-            profile: user,
-            version: identifier(),
-            createdAt: now,
-            updatedAt: now,
-        });
-    });
-    const destroyPollVote = useOperation(api.destroyPollVote, (op) => (
-        op.deleteWithUser({movieId, pollId})
-    ));
-    const updatePollVote = useOperation(api.updatePollVote, (op, value: VoteValue) => (
-        op.patchWithUser({movieId, pollId, value})
-    ));
-    const votes = pollVotes && pollVotes.filter((vote) => (
-        vote.movieId === movieId && vote.profileId === userId
-    ));
-    const currentValue = votes && votes.length ? votes[0].value : null;
+function VoteButtonSet({movieId, pollId, currentValue}: VoteButtonSetProps) {
+    const requireAuth = useRequireAuth();
+    const createPollParticipantOperation = useOperation(api.createPollParticipant);
+    const createPollVoteOperation = useOperation(api.createPollVote);
+    const destroyPollVoteOperation = useOperation(api.destroyPollVote);
+    const updatePollVote = useOperation(api.updatePollVote);
 
-    const onSelect = (value: VoteValue, oldValue?: VoteValue | null) => {
-        if (!user) {
-            return;
-        }
+    const onSelect = async (value: VoteValue, oldValue?: VoteValue | null) => {
+        const auth = await requireAuth();
         if (value !== oldValue) {
             // Ensure that the user is the participant in this poll
-            createPollParticipant();
+            createPollParticipantOperation.post({pollId});
         }
         if (oldValue == null) {
             // Create a new vote
-            createPollVote(user, value);
+            const now = new Date();
+            return await createPollVoteOperation.postOptimistically({
+                movieId, pollId, value,
+                profileId: auth.id,
+                profile: auth,
+                version: identifier(),
+                createdAt: now,
+                updatedAt: now,
+            });
         } else if (value === oldValue) {
             // Remove old value
-            destroyPollVote();
+            destroyPollVoteOperation.delete({movieId, pollId, profileId: auth.id});
         } else {
             // Update existing value
-            updatePollVote(value);
+            updatePollVote.patch({movieId, pollId, value, profileId: auth.id});
         }
     };
     return <div>

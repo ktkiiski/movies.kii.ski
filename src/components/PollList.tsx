@@ -1,23 +1,29 @@
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Typography from '@material-ui/core/Typography';
-import { useListWithAuth } from 'broilerkit/react/api';
+import { useList } from 'broilerkit/react/api';
 import { order } from 'broilerkit/utils/arrays';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import * as api from '../api';
 import { showPoll } from '../routes';
+import LoadingIndicator from './LoadingIndicator';
 
-function PollList({history}: RouteComponentProps) {
-    const polls = useListWithAuth(api.listUserPolls, {
+interface PollListProps extends RouteComponentProps {
+    userId: string;
+}
+
+function PollList({history, userId}: PollListProps) {
+    const [polls, , isLoading] = useList(api.listUserPolls, {
         ordering: 'createdAt',
         direction: 'asc',
+        profileId: userId,
     });
+    if (isLoading) {
+        return <LoadingIndicator />;
+    }
     if (!polls) {
-        return <ListItem>
-            <Typography variant='caption'>Sign in to see your polls</Typography>
-        </ListItem>;
+        return null;
     }
     const sortedItems = order(polls, 'title', 'asc');
     return <>

@@ -1,8 +1,8 @@
 import { Collapse, Divider, IconButton, MenuItem } from '@material-ui/core';
 import CardActions from '@material-ui/core/CardActions';
 import MenuIcon from '@material-ui/icons/MoreVert';
-import { useOperation } from 'broilerkit/react/api';
-import { useUserId } from 'broilerkit/react/auth';
+import { useList, useOperation } from 'broilerkit/react/api';
+import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
 import * as React from 'react';
 import { useState } from 'react';
 import * as api from '../api';
@@ -26,19 +26,31 @@ function MovieCandidate({pollId, candidate}: MovieCandidateProps) {
     const {movie, movieId, profileId, profile} = candidate;
     const [isExpanded, setIsExpanded] = useState(false);
     const userId = useUserId();
-    const destroyPollCandidate = useOperation(api.destroyPollCandidate, (op) => (
-        op.deleteWithUser({pollId, movieId})
-    ));
+    const requireAuth = useRequireAuth();
+    const destroyPollCandidate = useOperation(api.destroyPollCandidate);
+    const onDestroyClick = async () => {
+        const auth = await requireAuth();
+        await destroyPollCandidate.delete({pollId, movieId, profileId: auth.id});
+    };
+    const voteButtonSet = userId
+        ? <UserVoteButtonSet pollId={pollId} movieId={movieId} userId={userId} />
+        : <VoteButtonSet pollId={pollId} movieId={movieId} currentValue={null} />
+    ;
+    const hasSeenSelection = userId
+        ? <UserHasSeenMovieSelection movieId={movieId} userId={userId} />
+        : <HasSeenMovieSelection movieId={movieId} hasSeen={false} />
+    ;
     return (
+        // TODO: Use classes instead of `style` props for better performance
         <MovieCard movie={movie} key={movieId} profile={profile} content={
             <VoteResult pollId={pollId} movieId={movieId} />
         }>
             <CardActions style={{flexFlow: 'row wrap', justifyContent: 'stretch'}}>
-                <VoteButtonSet pollId={pollId} movieId={movieId} />
+                {voteButtonSet}
                 <div style={{display: 'flex', flexFlow: 'row nowrap', flex: 1}}>
-                    <HasSeenMovieSelection style={{flex: 1}} movieId={movieId} />
+                    <div style={{flex: 1}}>{hasSeenSelection}</div>
                     {profileId !== userId ? null : <Dropdown button={menuButton} align='right'>
-                        <MenuItem onClick={destroyPollCandidate}>
+                        <MenuItem onClick={onDestroyClick}>
                             Remove the movie suggestion
                         </MenuItem>
                     </Dropdown>}
@@ -55,4 +67,35 @@ function MovieCandidate({pollId, candidate}: MovieCandidateProps) {
     );
 }
 
-export default MovieCandidate;
+interface UserVoteButtonSetProps {
+    userId: string;
+    movieId: number;
+    pollId: string;
+}
+
+function UserVoteButtonSet({userId, pollId, movieId}: UserVoteButtonSetProps) {
+    const [votes] = useList(
+        api.listPollVotes,
+        { pollId, ordering: 'createdAt', direction: 'asc' },
+        { movieId, profileId: userId },
+    );
+    const currentValue = votes && votes.length ? votes[0].value : null;
+    return <VoteButtonSet movieId={movieId} pollId={pollId} currentValue={currentValue} />;
+}
+
+interface UserHasSeenMovieSelectionProps {
+    movieId: number;
+    userId: string;
+}
+
+function UserHasSeenMovieSelection({movieId, userId}: UserHasSeenMovieSelectionProps) {
+    const [ratings] = useList(api.listUserRatings, {
+        ordering: 'createdAt',
+        direction: 'asc',
+        profileId: userId,
+    });
+    const hasSeen = ratings && ratings.some((rating) => rating.movieId === movieId);
+    return hasSeen == null ? null : <HasSeenMovieSelection movieId={movieId} hasSeen={hasSeen} />;
+}
+
+export default React.memo(MovieCandidate);

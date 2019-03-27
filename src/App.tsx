@@ -1,11 +1,12 @@
 import { createGenerateClassName, MuiThemeProvider, Typography } from '@material-ui/core';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { HttpStatus } from 'broilerkit/http';
 import { useCss, useTitle } from 'broilerkit/react/meta';
-import { renderRoute } from 'broilerkit/react/router';
-import * as React from 'react';
+import { renderRoute, renderStaticRoute } from 'broilerkit/react/router';
 import { useMemo } from 'react';
+import * as React from 'react';
 import { JssProvider, SheetsRegistry } from 'react-jss';
-import { Route, Switch } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import Home from './components/Home';
 import Root from './components/layout/Root';
 import PollView from './components/PollView';
@@ -34,7 +35,7 @@ export default () => {
                 <Switch>
                     {renderRoute(home, Home, NotFound)}
                     {renderRoute(showPoll, PollView, NotFound)}
-                    <Route component={NotFound} />
+                    {renderStaticRoute(NotFound, HttpStatus.NotFound)}
                 </Switch>
             </MuiThemeProvider>
         </JssProvider>
