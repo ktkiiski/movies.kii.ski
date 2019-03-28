@@ -121,7 +121,11 @@ function VoteTable({pollId, movieId, classes}: VoteTableProps) {
                 <TableCell padding={'none'} className={classes.votesColumn}>
                     {ratings && ratings.map((rating) => (
                         rating.profile && rating.profile.picture &&
-                            <ProfileAvatar className={classes.avatar} key={rating.profileId} user={rating.profile} size={22} />
+                            <ProfileAvatar
+                                className={classes.avatar}
+                                key={rating.profileId}
+                                user={rating.profile} size={22}
+                            />
                     ))}
                 </TableCell>
                 <TableCell padding={'dense'} className={classes.sumColumn} align='right'>

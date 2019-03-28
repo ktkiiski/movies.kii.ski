@@ -31,10 +31,11 @@ export function usePollRatings(pollId: string, movieId?: number) {
         return null;
     }
     const ratingLists = ratingCollections.map(({resources}) => resources);
-    const ratings = flatten(ratingLists.map((profileRatings, index) => profileRatings.map((rating) => ({
-        ...rating,
-        profile: (participants || [])[index].profile,
-    }))));
+    const ratings = flatten(ratingLists.map((profileRatings) => profileRatings.map((rating) => {
+        const profiles = (participants || []).map((p) => p.profile);
+        const profile = profiles.find((prof) => !!prof && prof.id === rating.profileId);
+        return { ...rating, profile: profile || null };
+    })));
     return ratings;
 }
 
