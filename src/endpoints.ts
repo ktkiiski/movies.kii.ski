@@ -7,9 +7,7 @@ import * as db from './db';
 import { retrieveMovie, searchMovies } from './tmdb';
 
 export default implementAll(api, db).using({
-    listUserPolls: async (query, {polls}) => {
-        return await polls.list(query);
-    },
+    listUserPolls: async (query, {polls}) => polls.list(query),
     createUserPoll: async (input, {polls, profiles}, {auth}) => {
         const now = new Date();
         const [poll] = await Promise.all([
@@ -28,9 +26,7 @@ export default implementAll(api, db).using({
         ]);
         return new Created(poll);
     },
-    retrieveUserPoll: async ({id}, {polls}) => {
-        return await polls.retrieve({id});
-    },
+    retrieveUserPoll: async ({id}, {polls}) => polls.retrieve({id}),
     updateUserPoll: async ({id, ...changes}, {polls, profiles}, {auth}) => {
         const now = new Date();
         const [poll] = await Promise.all([
@@ -46,12 +42,8 @@ export default implementAll(api, db).using({
         ]);
         return new OK(poll);
     },
-    destroyUserPoll: async ({id}, {polls}) => {
-        await polls.destroy({id});
-    },
-    retrievePoll: async ({id}, {polls}) => {
-        return await polls.retrieve({id});
-    },
+    destroyUserPoll: async ({id}, {polls}) => polls.destroy({id}),
+    retrievePoll: async ({id}, {polls}) => polls.retrieve({id}),
     listPollCandidates: async (query, {candidates, movies, profiles}) => {
         const {results, next} = await candidates.list(query);
         const nestedMoviesPromise = movies.batchRetrieve(
@@ -90,9 +82,7 @@ export default implementAll(api, db).using({
             ...candidate, profile, movie,
         });
     },
-    destroyPollCandidate: async (query, {candidates}) => {
-        await candidates.destroy(query);
-    },
+    destroyPollCandidate: async (query, {candidates}) => candidates.destroy(query),
     listPollParticipants: async (query, {participants, profiles}) => {
         const {results, next} = await participants.list(query);
         const nestedUsers = await profiles.batchRetrieve(
@@ -125,9 +115,7 @@ export default implementAll(api, db).using({
             ...participant, profile,
         });
     },
-    destroyPollParticipant: async (query, {participants}) => {
-        await participants.destroy(query);
-    },
+    destroyPollParticipant: async (query, {participants}) => participants.destroy(query),
     listPollVotes: async (query, {votes, profiles}) => {
         const {results, next} = await votes.list(query);
         const nestedProfiles = await profiles.batchRetrieve(
@@ -181,11 +169,9 @@ export default implementAll(api, db).using({
             throw error;
         }
     },
-    listUserRatings: async ({profileId, ordering, since, direction}, {ratings}) => {
-        return ratings.list({
-            profileId, ordering, since, direction,
-        });
-    },
+    listUserRatings: async ({profileId, ordering, since, direction}, {ratings}) => (
+        ratings.list({ profileId, ordering, since, direction })
+    ),
     createUserRating: async (input, {ratings, movies}) => {
         // Ensure that the movie exists
         await movies.retrieve({id: input.movieId});
@@ -198,9 +184,7 @@ export default implementAll(api, db).using({
         });
         return new Created(rating);
     },
-    destroyUserRating: async (query, {ratings}) => {
-        await ratings.destroy(query);
-    },
+    destroyUserRating: async (query, {ratings}) => ratings.destroy(query),
     updatePollVote: async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
         // Find the related resources, ensuring that they exist
         const now = new Date();
@@ -221,9 +205,7 @@ export default implementAll(api, db).using({
             profile, movie,
         });
     },
-    destroyPollVote: async (query, {votes}) => {
-        await votes.destroy(query);
-    },
+    destroyPollVote: async (query, {votes}) => votes.destroy(query),
     retrieveMovie: async ({id}, {movies}, {environment}) => {
         const apiKey = environment.TMDBApiKey;
         const movie = await retrieveMovie(id, apiKey);
