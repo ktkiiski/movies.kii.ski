@@ -2,17 +2,17 @@ import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/s
 import * as React from 'react';
 
 const styles = (theme: Theme) => createStyles({
-    spacer: {
-        padding: theme.spacing.unit * 2,
-    },
+  spacer: {
+    padding: theme.spacing.unit * 2,
+  },
 });
 
 interface SpacerProps extends WithStyles<typeof styles> {
-    children?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
-const Spacer = ({classes, children}: SpacerProps) => (
-    <div className={classes.spacer}>{children}</div>
+const Spacer = ({ classes, children }: SpacerProps) => (
+  <div className={classes.spacer}>{children}</div>
 );
 
 export default withStyles(styles)(Spacer);

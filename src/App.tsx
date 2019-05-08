@@ -14,30 +14,30 @@ import { home, showPoll } from './routes';
 import { mainTheme } from './themes';
 
 const NotFound = () => {
-    useTitle(`Page not found`);
-    return <Root>
-        <Typography>Page not found</Typography>
-    </Root>;
+  useTitle(`Page not found`);
+  return <Root>
+    <Typography>Page not found</Typography>
+  </Root>;
 };
 
 export default () => {
-    const generateClassName = useMemo(createGenerateClassName, []);
-    const sheetsRegistry = useMemo(() => new SheetsRegistry(), []);
-    useCss(() => (
-        // On server-side, render the stylesheets manually.
-        // On client-side on the other hand, render nothing, as this will be handled by JSS
-        typeof window === 'undefined' ? sheetsRegistry.toString() : null
-    ));
-    return (
-        <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-            <MuiThemeProvider theme={mainTheme} sheetsManager={new Map()}>
-                <CssBaseline />
-                <Switch>
-                    {renderRoute(home, Home, NotFound)}
-                    {renderRoute(showPoll, PollView, NotFound)}
-                    {renderStaticRoute(NotFound, HttpStatus.NotFound)}
-                </Switch>
-            </MuiThemeProvider>
-        </JssProvider>
-    );
+  const generateClassName = useMemo(createGenerateClassName, []);
+  const sheetsRegistry = useMemo(() => new SheetsRegistry(), []);
+  useCss(() => (
+    // On server-side, render the stylesheets manually.
+    // On client-side on the other hand, render nothing, as this will be handled by JSS
+    typeof window === 'undefined' ? sheetsRegistry.toString() : null
+  ));
+  return (
+    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
+      <MuiThemeProvider theme={mainTheme} sheetsManager={new Map()}>
+        <CssBaseline />
+        <Switch>
+          {renderRoute(home, Home, NotFound)}
+          {renderRoute(showPoll, PollView, NotFound)}
+          {renderStaticRoute(NotFound, HttpStatus.NotFound)}
+        </Switch>
+      </MuiThemeProvider>
+    </JssProvider>
+  );
 };

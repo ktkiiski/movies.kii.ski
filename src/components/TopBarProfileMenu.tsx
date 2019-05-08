@@ -7,44 +7,44 @@ import DropdownMenu from './DropdownMenu';
 import ProfileAvatar from './ProfileAvatar';
 
 interface TopBarProfileMenuProps {
-    user: AuthUser | null;
-    onLogout: () => void;
+  user: AuthUser | null;
+  onLogout: () => void;
 }
 
 class TopBarProfileMenu extends React.Component<TopBarProfileMenuProps> {
-    public state = {
-        anchorEl: undefined as HTMLElement | undefined,
-    };
+  public state = {
+    anchorEl: undefined as HTMLElement | undefined,
+  };
 
-    public handleOpen: React.MouseEventHandler<HTMLElement> = (event) => {
-        this.setState({ anchorEl: event.currentTarget });
-    }
+  public handleOpen: React.MouseEventHandler<HTMLElement> = (event) => {
+    this.setState({ anchorEl: event.currentTarget });
+  }
 
-    public handleClose: React.MouseEventHandler<HTMLElement> = () => {
-        this.setState({ anchorEl: undefined });
-    }
+  public handleClose: React.MouseEventHandler<HTMLElement> = () => {
+    this.setState({ anchorEl: undefined });
+  }
 
-    public render() {
-        const { user } = this.props;
-        const { anchorEl } = this.state;
-        const open = Boolean(anchorEl);
+  public render() {
+    const { user } = this.props;
+    const { anchorEl } = this.state;
+    const open = Boolean(anchorEl);
 
-        return (
-            <React.Fragment>
-                <Button onClick={this.handleOpen} color='inherit'>
-                    {user && <ProfileAvatar user={user} size={32} />}
-                    {user && <Typography style={{marginLeft: '1em'}} color='inherit'>{user.name}</Typography>}
-                </Button>
-                <DropdownMenu
-                    id='menu-appbar'
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={this.handleClose}>
-                    <MenuItem onClick={this.props.onLogout}>Log out</MenuItem>
-                </DropdownMenu>
-            </React.Fragment>
-        );
-    }
+    return (
+      <React.Fragment>
+        <Button onClick={this.handleOpen} color='inherit'>
+          {user && <ProfileAvatar user={user} size={32} />}
+          {user && <Typography style={{ marginLeft: '1em' }} color='inherit'>{user.name}</Typography>}
+        </Button>
+        <DropdownMenu
+          id='menu-appbar'
+          anchorEl={anchorEl}
+          open={open}
+          onClose={this.handleClose}>
+          <MenuItem onClick={this.props.onLogout}>Log out</MenuItem>
+        </DropdownMenu>
+      </React.Fragment>
+    );
+  }
 }
 
 export default TopBarProfileMenu;

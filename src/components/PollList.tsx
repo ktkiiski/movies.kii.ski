@@ -10,40 +10,40 @@ import { showPoll } from '../routes';
 import LoadingIndicator from './LoadingIndicator';
 
 interface PollListProps extends RouteComponentProps {
-    userId: string;
+  userId: string;
 }
 
-function PollList({history, userId}: PollListProps) {
-    const [polls, , isLoading] = useList(api.listUserPolls, {
-        ordering: 'createdAt',
-        direction: 'asc',
-        profileId: userId,
-    });
-    if (isLoading) {
-        return <LoadingIndicator />;
-    }
-    if (!polls) {
-        return null;
-    }
-    const sortedItems = order(polls, 'title', 'asc');
-    return <>
-        <List>
-            {sortedItems.map((poll) => {
-                const pollUrl = showPoll.compile({pollId: poll.id}).toString();
-                return <ListItem
-                    key={poll.id}
-                    button
-                    onClick={(event) => {
-                        history.push(pollUrl);
-                        event.preventDefault();
-                    }}
-                    component='a'
-                    href={pollUrl}>
-                    <ListItemText primary={poll.title} />
-                </ListItem>;
-            })}
-        </List>
-    </>;
+function PollList({ history, userId }: PollListProps) {
+  const [polls, , isLoading] = useList(api.listUserPolls, {
+    ordering: 'createdAt',
+    direction: 'asc',
+    profileId: userId,
+  });
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
+  if (!polls) {
+    return null;
+  }
+  const sortedItems = order(polls, 'title', 'asc');
+  return <>
+    <List>
+      {sortedItems.map((poll) => {
+        const pollUrl = showPoll.compile({ pollId: poll.id }).toString();
+        return <ListItem
+          key={poll.id}
+          button
+          onClick={(event) => {
+            history.push(pollUrl);
+            event.preventDefault();
+          }}
+          component='a'
+          href={pollUrl}>
+          <ListItemText primary={poll.title} />
+        </ListItem>;
+      })}
+    </List>
+  </>;
 }
 
 export default withRouter(PollList);

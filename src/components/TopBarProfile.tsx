@@ -4,13 +4,13 @@ import * as React from 'react';
 import TopBarProfileMenu from './TopBarProfileMenu';
 
 function TopBarProfile() {
-    const user = useAuth();
-    const signOut = useSignOut();
-    const signIn = useSignIn();
-    return user
-        ? <TopBarProfileMenu user={user} onLogout={signOut} />
-        : <Button color='inherit' onClick={signIn}>Sign in</Button>
-    ;
+  const user = useAuth();
+  const signOut = useSignOut();
+  const signIn = useSignIn();
+  return user
+    ? <TopBarProfileMenu user={user} onLogout={signOut} />
+    : <Button color='inherit' onClick={signIn}>Sign in</Button>
+  ;
 }
 
 export default TopBarProfile;

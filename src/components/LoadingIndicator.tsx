@@ -3,12 +3,12 @@ import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/s
 import * as React from 'react';
 
 const styles = (theme: Theme) => createStyles({
-    loader: {
-        padding: theme.spacing.unit * 2,
-        textAlign: 'center',
-    },
+  loader: {
+    padding: theme.spacing.unit * 2,
+    textAlign: 'center',
+  },
 });
 
-export default withStyles(styles)(({classes}: WithStyles<typeof styles>) => (
-    <div className={classes.loader}><CircularProgress /></div>
+export default withStyles(styles)(({ classes }: WithStyles<typeof styles>) => (
+  <div className={classes.loader}><CircularProgress /></div>
 ));

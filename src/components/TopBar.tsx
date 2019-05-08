@@ -10,43 +10,43 @@ import Dropdown from './Dropdown';
 import TopBarProfile from './TopBarProfile';
 
 const styles = () => createStyles({
-    flex: {
-        flex: 1,
-    },
-    menuButton: {
-        marginLeft: -12,
-        marginRight: 20,
-    },
-    push: {
-        height: 64,
-    },
+  flex: {
+    flex: 1,
+  },
+  menuButton: {
+    marginLeft: -12,
+    marginRight: 20,
+  },
+  push: {
+    height: 64,
+  },
 });
 
 interface TopBarProps extends WithStyles<typeof styles> {
-    title?: string;
-    onMenuButtonClick: () => void;
-    menu?: React.ReactNode;
+  title?: string;
+  onMenuButtonClick: () => void;
+  menu?: React.ReactNode;
 }
 
-const TopBar = withStyles(styles)(({classes, title, onMenuButtonClick, menu}: TopBarProps) => (
-    <React.Fragment>
-        <AppBar >
-            <Toolbar>
-                <IconButton className={classes.menuButton} color='inherit' aria-label='Menu' onClick={onMenuButtonClick}>
-                    <MenuIcon />
-                </IconButton>
-                <Typography variant='h6' color='inherit' className={classes.flex}>{title}</Typography>
-                <TopBarProfile />
-                {menu &&
-                <Dropdown button={
-                    <IconButton color='inherit'>
-                        <MoreVertIcon />
-                    </IconButton>
-                }>{menu}</Dropdown>}
-            </Toolbar>
-        </AppBar>
-        <div className={classes.push} />
-    </React.Fragment>
+const TopBar = withStyles(styles)(({ classes, title, onMenuButtonClick, menu }: TopBarProps) => (
+  <React.Fragment>
+    <AppBar >
+      <Toolbar>
+        <IconButton className={classes.menuButton} color='inherit' aria-label='Menu' onClick={onMenuButtonClick}>
+          <MenuIcon />
+        </IconButton>
+        <Typography variant='h6' color='inherit' className={classes.flex}>{title}</Typography>
+        <TopBarProfile />
+        {menu &&
+          <Dropdown button={
+            <IconButton color='inherit'>
+              <MoreVertIcon />
+            </IconButton>
+          }>{menu}</Dropdown>}
+      </Toolbar>
+    </AppBar>
+    <div className={classes.push} />
+  </React.Fragment>
 ));
 
 export default TopBar;

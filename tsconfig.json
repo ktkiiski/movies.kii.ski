@@ -1,15 +1,15 @@
 {
-    "extends": "./node_modules/broilerkit/tsconfig.json",
-    "compilerOptions": {
-        "sourceMap": true,
-        "types": ["node"],
-        "typeRoots": [
-            "./node_modules/@types"
-        ]
-    },
-    "include": [
-        "./node_modules/broilerkit/types/**/*",
-        "./src/**/*"
-    ],
-    "exclude": []
+  "extends": "./node_modules/broilerkit/tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "types": ["node"],
+    "typeRoots": [
+      "./node_modules/@types"
+    ]
+  },
+  "include": [
+    "./node_modules/broilerkit/types/**/*",
+    "./src/**/*"
+  ],
+  "exclude": []
 }

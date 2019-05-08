@@ -22,80 +22,80 @@ import SignOutListItem from './SignOutListItem';
 import TopBar from './TopBar';
 
 interface LayoutProps extends RouteComponentProps {
-    title: string;
-    menu?: React.ReactNode;
-    children?: React.ReactNode;
+  title: string;
+  menu?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
-function Layout({title, children, menu, history}: LayoutProps) {
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const userId = useUserId();
-    const requireAuth = useRequireAuth();
-    const createUserPoll = useOperation(api.createUserPoll);
+function Layout({ title, children, menu, history }: LayoutProps) {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const userId = useUserId();
+  const requireAuth = useRequireAuth();
+  const createUserPoll = useOperation(api.createUserPoll);
 
-    function openDrawer() {
-        setIsDrawerOpen(true);
-    }
-    function closeDrawer() {
-        setIsDrawerOpen(false);
-    }
-    async function openCreateModal() {
-        await requireAuth();
-        setIsDrawerOpen(false);
-        setIsCreateModalOpen(true);
-    }
-    function closeCreateModal() {
-        setIsCreateModalOpen(false);
-    }
-    async function onCreateModalSubmit(newTitle: string) {
-        closeCreateModal();
-        const auth = await requireAuth();
-        const poll = await createUserPoll.post({
-            title: newTitle,
-            description: '', // TODO
-            profileId: auth.id,
-        });
-        history.push(showPoll.compile({pollId: poll.id}).toString());
-    }
+  function openDrawer() {
+    setIsDrawerOpen(true);
+  }
+  function closeDrawer() {
+    setIsDrawerOpen(false);
+  }
+  async function openCreateModal() {
+    await requireAuth();
+    setIsDrawerOpen(false);
+    setIsCreateModalOpen(true);
+  }
+  function closeCreateModal() {
+    setIsCreateModalOpen(false);
+  }
+  async function onCreateModalSubmit(newTitle: string) {
+    closeCreateModal();
+    const auth = await requireAuth();
+    const poll = await createUserPoll.post({
+      title: newTitle,
+      description: '', // TODO
+      profileId: auth.id,
+    });
+    history.push(showPoll.compile({ pollId: poll.id }).toString());
+  }
 
-    const pollList = userId
-        ? <PollList userId={userId} />
-        : <ListItem><Typography variant='caption'>Sign in to see your polls</Typography></ListItem>
+  const pollList = userId
+    ? <PollList userId={userId} />
+    : <ListItem><Typography variant='caption'>Sign in to see your polls</Typography></ListItem>
     ;
-    return <div>
-        <TopBar title={title} onMenuButtonClick={openDrawer} menu={menu} />
-        <AppDrawer
-            disableRestoreFocus={isCreateModalOpen}
-            open={isDrawerOpen}
-            onClose={closeDrawer}
-        >
-            <Profile />
-            <Divider />
-            <div onClick={closeDrawer}>{pollList}</div>
-            <Divider />
-            <List>
-                <ListItem onClick={openCreateModal} button>
-                    <ListItemIcon><AddIcon /></ListItemIcon>
-                    <ListItemText>Create a poll</ListItemText>
-                </ListItem>
-                <SignOutListItem onClick={closeDrawer}>
-                    <ListItemIcon><ExitToAppIcon /></ListItemIcon>
-                    <ListItemText>Sign out</ListItemText>
-                </SignOutListItem>
-            </List>
-        </AppDrawer>
-        <Root>{children}</Root>
-        <PromptModal
-            open={isCreateModalOpen}
-            onClose={closeCreateModal}
-            onSubmit={onCreateModalSubmit}
-            title='Create a new poll'
-            label='Poll name'
-            closeButtonText='Close'
-            submitButtonText='Create'
-        />
-    </div>;
+  return <div>
+    <TopBar title={title} onMenuButtonClick={openDrawer} menu={menu} />
+    <AppDrawer
+      disableRestoreFocus={isCreateModalOpen}
+      open={isDrawerOpen}
+      onClose={closeDrawer}
+    >
+      <Profile />
+      <Divider />
+      <div onClick={closeDrawer}>{pollList}</div>
+      <Divider />
+      <List>
+        <ListItem onClick={openCreateModal} button>
+          <ListItemIcon><AddIcon /></ListItemIcon>
+          <ListItemText>Create a poll</ListItemText>
+        </ListItem>
+        <SignOutListItem onClick={closeDrawer}>
+          <ListItemIcon><ExitToAppIcon /></ListItemIcon>
+          <ListItemText>Sign out</ListItemText>
+        </SignOutListItem>
+      </List>
+    </AppDrawer>
+    <Root>{children}</Root>
+    <PromptModal
+      open={isCreateModalOpen}
+      onClose={closeCreateModal}
+      onSubmit={onCreateModalSubmit}
+      title='Create a new poll'
+      label='Poll name'
+      closeButtonText='Close'
+      submitButtonText='Create'
+    />
+  </div>;
 }
 
 export default withRouter(Layout);
