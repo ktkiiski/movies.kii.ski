@@ -18,7 +18,6 @@ export const profile = resource({
 
 export const publicProfile = profile.expose(['name', 'picture']);
 
-export type Profile = Deserialization<typeof profile>;
 export type PublicProfile = Deserialization<typeof publicProfile>;
 
 export const movie = resource({
@@ -84,8 +83,6 @@ export const poll = resource({
     versionBy: 'version',
 });
 
-export type Poll = Deserialization<typeof poll>;
-
 export const participant = resource({
     name: 'participant',
     fields: {
@@ -98,11 +95,6 @@ export const participant = resource({
     identifyBy: ['pollId', 'profileId'],
     versionBy: 'version',
 });
-
-export type Participant = Deserialization<typeof participant>;
-export interface DetailedParticipant extends Participant {
-    profile: PublicProfile | null;
-}
 
 export const candidate = resource({
     name: 'candidate',
@@ -141,9 +133,6 @@ export const vote = resource({
 });
 
 export type Vote = Deserialization<typeof vote>;
-export interface DetailedVote extends Vote {
-    profile: PublicProfile | null;
-}
 
 export const rating = resource({
     name: 'rating',
@@ -163,6 +152,3 @@ export const rating = resource({
 });
 
 export type Rating = Deserialization<typeof rating>;
-export type DetailedRating = Rating & {
-    profile: PublicProfile;
-};
