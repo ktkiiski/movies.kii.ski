@@ -1,7 +1,9 @@
+import { flatMapAsync, toArray } from 'broilerkit/async';
 import { Created, OK } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { implementAll } from 'broilerkit/server';
 import { order } from 'broilerkit/utils/arrays';
+import { isNotNully } from 'broilerkit/utils/compare';
 import * as api from './api';
 import * as db from './db';
 import { retrieveMovie, searchMovies } from './tmdb';
@@ -185,6 +187,71 @@ export default implementAll(api, db).using({
     return new Created(rating);
   },
   destroyUserRating: async (query, {ratings}) => ratings.destroy(query),
+  listPollRatings: async ({pollId, ordering, direction, since}, models) => {
+    const [profileIds, movieIds] = await Promise.all([
+      toArray(flatMapAsync(
+        models.participants.scan({ pollId, ordering: 'createdAt', direction: 'asc' }),
+        (items) => items.map(({profileId}) => profileId),
+      )),
+      toArray(flatMapAsync(
+        models.candidates.scan({ pollId, ordering: 'createdAt', direction: 'asc' }),
+        (items) => items.map(({movieId}) => movieId),
+      )),
+    ]);
+    const [{ results, next }, profiles] = await Promise.all([
+      models.ratings.list({
+        profileId: profileIds,
+        movieId: movieIds,
+        ordering, direction, since,
+      }),
+      models.profiles.batchRetrieve(profileIds.map((id) => ({id}))),
+    ]);
+    const publicProfiles = profiles
+      .filter(isNotNully)
+      .map(({id, name, picture}) => ({id, name, picture}))
+    ;
+    return {
+      results: results.map((rating) => ({
+        pollId,
+        profile: publicProfiles.find(({id}) => rating.profileId === id) || null,
+        ...rating,
+      })),
+      next: next && {
+        since: next.since,
+        pollId, ordering, direction,
+      },
+    };
+  },
+  createPollRating: async ({pollId, movieId, value}, {ratings, candidates, participants, profiles}, {auth}) => {
+    const now = new Date();
+    const profileId = auth.id;
+    // Ensure that the candidate & participant exists
+    await Promise.all([
+      candidates.retrieve({ pollId, movieId }),
+      participants.retrieve({ pollId, profileId }),
+      profiles.write({ ...auth, version: identifier(now) }),
+    ]);
+    const rating = await ratings.write({
+      movieId, profileId,
+      version: identifier(now),
+      value,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return new Created({
+      pollId,
+      profile: { id: auth.id, name: auth.name, picture: auth.picture },
+      ...rating,
+    });
+  },
+  destroyPollCandidateRating: async ({pollId, movieId, profileId}, {candidates, participants, ratings}) => {
+    // Ensure that candidate and participant exists
+    await Promise.all([
+      candidates.retrieve({pollId, movieId}),
+      participants.retrieve({pollId, profileId}),
+    ]);
+    await ratings.destroy({profileId, movieId});
+  },
   updatePollVote: async ({value, ...input}, {votes, movies, profiles}, {auth}) => {
     // Find the related resources, ensuring that they exist
     const now = new Date();

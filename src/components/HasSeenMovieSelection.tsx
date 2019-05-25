@@ -16,29 +16,36 @@ const styles = ({ spacing }: Theme) => createStyles({
 
 interface HasSeenMovieSelectionProps extends WithStyles<typeof styles> {
   style?: React.CSSProperties;
+  pollId: string;
   movieId: number;
   hasSeen: boolean;
 }
 
-function HasSeenMovieSelection({ movieId, classes, hasSeen, ...props }: HasSeenMovieSelectionProps) {
+function HasSeenMovieSelection({ movieId, pollId, classes, hasSeen, ...props }: HasSeenMovieSelectionProps) {
   const requireAuth = useRequireAuth();
-  const createUserRating = useOperation(api.createUserRating);
-  const destroyUserRating = useOperation(api.destroyUserRating);
-  const onChange: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
-    const { id: profileId } = await requireAuth();
+  const createPollRating = useOperation(api.createPollRating);
+  const destroyPollCandidateRating = useOperation(api.destroyPollCandidateRating);
+  const onChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = event.target;
+    const { id, name, picture } = await requireAuth();
     if (checked) {
       const now = new Date();
-      return createUserRating.postOptimistically({
+      await createPollRating.postOptimistically({
+        pollId,
         movieId,
-        profileId,
+        profileId: id,
+        profile: { id, name, picture },
         value: null,
         createdAt: now,
         updatedAt: now,
         version: identifier(),
       });
     } else {
-      return destroyUserRating.delete({ movieId, profileId });
+      await destroyPollCandidateRating.delete({
+        pollId,
+        movieId,
+        profileId: id,
+      });
     }
   };
   return <FormGroup className={classes.root} {...props}>

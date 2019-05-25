@@ -35,11 +35,11 @@ function MovieCandidate({ pollId, candidate }: MovieCandidateProps) {
   const voteButtonSet = userId
     ? <UserVoteButtonSet pollId={pollId} movieId={movieId} userId={userId} />
     : <VoteButtonSet pollId={pollId} movieId={movieId} currentValue={null} />
-    ;
+  ;
   const hasSeenSelection = userId
-    ? <UserHasSeenMovieSelection movieId={movieId} userId={userId} />
-    : <HasSeenMovieSelection movieId={movieId} hasSeen={false} />
-    ;
+    ? <UserHasSeenMovieSelection movieId={movieId} userId={userId} pollId={pollId} />
+    : <HasSeenMovieSelection movieId={movieId} hasSeen={false} pollId={pollId} />
+  ;
   return (
     // TODO: Use classes instead of `style` props for better performance
     <MovieCard movie={movie} key={movieId} profile={profile} content={
@@ -86,16 +86,20 @@ function UserVoteButtonSet({ userId, pollId, movieId }: UserVoteButtonSetProps) 
 interface UserHasSeenMovieSelectionProps {
   movieId: number;
   userId: string;
+  pollId: string;
 }
 
-function UserHasSeenMovieSelection({ movieId, userId }: UserHasSeenMovieSelectionProps) {
-  const [ratings] = useList(api.listUserRatings, {
-    ordering: 'createdAt',
-    direction: 'asc',
-    profileId: userId,
-  });
-  const hasSeen = ratings && ratings.some((rating) => rating.movieId === movieId);
-  return hasSeen == null ? null : <HasSeenMovieSelection movieId={movieId} hasSeen={hasSeen} />;
+function UserHasSeenMovieSelection({ movieId, userId, pollId }: UserHasSeenMovieSelectionProps) {
+  const [ratings] = useList(
+    api.listPollRatings,
+    { pollId, ordering: 'createdAt', direction: 'asc' },
+    { movieId, profileId: userId },
+  );
+  return !ratings ? null : <HasSeenMovieSelection
+    movieId={movieId}
+    hasSeen={ratings.length > 0}
+    pollId={pollId}
+  />;
 }
 
 export default React.memo(MovieCandidate);

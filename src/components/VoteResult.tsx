@@ -2,7 +2,7 @@ import { Hidden, Typography } from '@material-ui/core';
 import { useList } from 'broilerkit/react/api';
 import * as React from 'react';
 import * as api from '../api';
-import { getMovieScore, usePollRatings } from '../scoring';
+import { getMovieScore } from '../scoring';
 import VotePie from './VotePie';
 
 interface VoteTableProps {
@@ -19,7 +19,11 @@ function VoteResult({ pollId, movieId }: VoteTableProps) {
   const [pollParticipants] = useList(api.listPollParticipants, {
     pollId, ordering: 'createdAt', direction: 'asc',
   });
-  const movieRatings = usePollRatings(pollId, movieId);
+  const [movieRatings] = useList(
+    api.listPollRatings,
+    { pollId, ordering: 'createdAt', direction: 'asc' },
+    { movieId },
+  );
   if (movieVotes == null || pollParticipants == null || movieRatings == null) {
     return null;
   }

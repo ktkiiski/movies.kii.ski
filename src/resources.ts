@@ -1,5 +1,5 @@
 import { boolean, constant, date, datetime, decimal, id, integer, list, matching, nullable, number, string, text, url } from 'broilerkit/fields';
-import { Deserialization, resource } from 'broilerkit/resources';
+import { Deserialization, junction, relation, resource } from 'broilerkit/resources';
 import { user } from 'broilerkit/users';
 
 export const profile = resource({
@@ -16,7 +16,7 @@ export const profile = resource({
   versionBy: 'version',
 });
 
-export const publicProfile = profile.expose(['name', 'picture']);
+export const publicProfile = profile.subset(['name', 'picture']);
 
 export type PublicProfile = Deserialization<typeof publicProfile>;
 
@@ -152,3 +152,35 @@ export const rating = resource({
 });
 
 export type Rating = Deserialization<typeof rating>;
+
+export const pollRating = junction(
+  relation({
+    resource: participant,
+    relation: {
+      pollId: 'pollId',
+      profileId: 'profileId',
+    },
+    fields: {},
+  }),
+  relation({
+    resource: candidate,
+    relation: {
+      movieId: 'movieId',
+      pollId: 'pollId',
+    },
+    fields: {},
+  }),
+  relation({
+    resource: rating,
+    relation: {
+      profileId: 'profileId',
+      movieId: 'movieId',
+    },
+    fields: {
+      value: 'value',
+      version: 'version',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    },
+  }),
+);

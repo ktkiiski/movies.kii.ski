@@ -12,7 +12,7 @@ import PositiveIcon from '@material-ui/icons/ThumbUp';
 import { useList } from 'broilerkit/react/api';
 import * as React from 'react';
 import * as api from '../api';
-import { getMovieScore, usePollRatings } from '../scoring';
+import { getMovieScore } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
 
 const styles = createStyles({
@@ -54,7 +54,11 @@ interface VoteTableProps extends WithStyles<typeof styles> {
 }
 
 function VoteTable({ pollId, movieId, classes }: VoteTableProps) {
-  const ratings = usePollRatings(pollId, movieId);
+  const [ratings] = useList(
+    api.listPollRatings,
+    { pollId, ordering: 'createdAt', direction: 'asc' },
+    { movieId },
+  );
   const [movieVotes] = useList(api.listPollVotes, {
     pollId, ordering: 'createdAt', direction: 'asc',
   }, {
