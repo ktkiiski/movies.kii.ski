@@ -1,6 +1,5 @@
 import Drawer, { DrawerProps } from '@material-ui/core/Drawer';
 import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
-import { Omit } from 'broilerkit/utils/objects';
 import * as React from 'react';
 
 const styles = createStyles({

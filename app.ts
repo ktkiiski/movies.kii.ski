@@ -14,10 +14,6 @@ export default app({
    */
   title: 'Movie Polls',
   /**
-   * The AWS region to which the web app will be deployed.
-   */
-  region: 'us-east-1',
-  /**
    * The folder containing all the source files for your app.
    * Other paths in this configuration are relative to this.
    */
@@ -33,23 +29,23 @@ export default app({
      * The primary public production version of the app.
      */
     prod: {
-      // Root URL where the HTML pages are hosted
-      siteRoot: 'https://movies.kii.ski',
+      // The AWS region to which the web app will be deployed.
+      region: 'us-east-1',
+      // Root URL where the website is hosted
+      serverRoot: 'https://movies.kii.ski',
       // Root URL where all the indefinitely-cached static assets are hosted
       assetsRoot: 'https://movies.static.kii.ski',
-      // Root URL where the API is served
-      apiRoot: 'https://api.movies.kii.ski',
     },
     /**
      * The development version of the app.
      */
     dev: {
-      // Root URL where the HTML pages are hosted
-      siteRoot: 'https://movies-dev.kii.ski',
+      // The AWS region to which the web app will be deployed.
+      region: 'us-east-1',
+      // Root URL where the website is hosted
+      serverRoot: 'https://movies-dev.kii.ski',
       // Root URL where all the indefinitely-cached static assets are hosted
       assetsRoot: 'https://movies-dev.static.kii.ski',
-      // Root URL where the API is served
-      apiRoot: 'https://api.movies-dev.kii.ski',
     },
     /**
      * The locally run development server.
@@ -57,12 +53,12 @@ export default app({
      * file defines the corresponding aliases for 127.0.0.1
      */
     local: {
-      // Root URL where the HTML pages are hosted
-      siteRoot: 'http://localhost:1111',
-      // Root URL where all the indefinitely-cached static assets are hosted
+      // The special region code for local development
+      region: 'local',
+      // Root URL where the website is served
+      serverRoot: 'http://localhost:1111',
+      // Root URL where all the local static assets are served
       assetsRoot: 'http://localhost:1112',
-      // Root URL where the API is served
-      apiRoot: 'http://localhost:1113',
     },
   },
   /**
