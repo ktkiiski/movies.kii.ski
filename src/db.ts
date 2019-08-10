@@ -6,6 +6,9 @@ export const profiles = table(profile, {
 });
 export const movies = table(movie, {
   name: 'Movies',
+  defaults: {
+    type: 'movie',
+  },
 });
 export const polls = table(poll, {
   name: 'Polls',

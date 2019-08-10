@@ -1,6 +1,6 @@
 import { chunkify, flatMapAsync, flatMapAsyncParallel, toArray, toFlattenArray } from 'broilerkit/async';
 import { catchNotFound } from 'broilerkit/errors';
-import { Created, OK } from 'broilerkit/http';
+import { Created, HttpStatus, isResponse, OK } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { implementAll } from 'broilerkit/server';
 import { order } from 'broilerkit/utils/arrays';
@@ -195,25 +195,27 @@ export default implementAll(api, db).using({
       direction: 'asc',
     }));
     const existingMovies = await toFlattenArray(movieChunks);
-    const movieIdsByImdbIDs = buildObject(existingMovies, (movie) => (
-      [movie.imdbId as string, movie.id]
-    ));
+    const moviesByImdbId = buildObject(existingMovies, (movie) => [movie.imdbId as string, movie]);
     const resultRatings = await toArray(flatMapAsyncParallel(4, rawRatings, async function*(rawRating) {
       const imdbId = rawRating.id;
-      let movieId = movieIdsByImdbIDs[imdbId] as number | undefined;
-      if (!movieId) {
+      let movie = moviesByImdbId[imdbId];
+      let movieId: number;
+      if (!movie) {
         // Unknown IMDb ID. Need to find the movie from the TMDb
-        const movie = await catchNotFound(retrieveMovieByImdbId(imdbId, apiKey));
-        if (!movie) {
-          // Movie not found. Need to ignore this movie
-          return;
+        try {
+          movie = await retrieveMovieByImdbId(imdbId, apiKey);
+        } catch (error) {
+          if (isResponse(error, HttpStatus.NotFound)) {
+            // Movie not found. Need to ignore this movie
+            return;
+          }
         }
-        movieId = movie.id;
         const { createdAt, ...movieUpdate } = movie;
         await movies.upsert(movie, { ...movieUpdate, version: identifier() });
         // tslint:disable-next-line:no-console
-        console.log(`Inserted/updated details about movie ${movie.originalTitle} (#${movieId})`);
+        console.log(`Inserted/updated details about a ${movie.type} ${movie.originalTitle} (#${movie.id})`);
       }
+      movieId = movie.id;
       const { value } = rawRating;
       const updatedAt = rawRating.modified || rawRating.created;
       // Insert the rating or update the existing rating
@@ -230,15 +232,15 @@ export default implementAll(api, db).using({
           value,
         });
         // tslint:disable-next-line:no-console
-        console.log(`Created a new rating for movie ${movieId} of user ${profileId} with value ${value}`);
+        console.log(`Created a new rating for the ${movie.type} ${movieId} of user ${profileId} with value ${value}`);
       } else if (updatedAt > existingRating.updatedAt) {
         yield await ratings.update({ movieId, profileId }, { version, value, updatedAt });
         // tslint:disable-next-line:no-console
-        console.log(`Updated the rating for movie ${movieId} of user ${profileId} with value ${value}`);
+        console.log(`Updated the rating for the ${movie.type} ${movieId} of user ${profileId} with value ${value}`);
       } else {
         yield existingRating;
         // tslint:disable-next-line:no-console
-        console.log(`A more or equally recent rating for movie ${movieId} of user ${profileId} already exists with value ${existingRating.value}`);
+        console.log(`A more or equally recent rating for the ${movie.type} ${movieId} of user ${profileId} already exists with value ${existingRating.value}`);
       }
     }));
     const now = new Date();

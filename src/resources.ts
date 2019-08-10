@@ -1,4 +1,4 @@
-import { boolean, constant, date, datetime, decimal, id, integer, list, matching, nullable, number, string, text, url } from 'broilerkit/fields';
+import { boolean, choice, constant, date, datetime, decimal, id, integer, list, matching, nullable, number, string, text, url } from 'broilerkit/fields';
 import { Deserialization, junction, relation, resource } from 'broilerkit/resources';
 import { user } from 'broilerkit/users';
 
@@ -27,6 +27,8 @@ export const movie = resource({
     version: id(),
     createdAt: datetime(),
     updatedAt: datetime(),
+
+    type: choice(['movie', 'series']),
 
     imdbId: nullable(string()),
     title: nullable(string()),
