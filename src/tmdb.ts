@@ -1,17 +1,25 @@
-import { isErrorResponse, NotFound } from 'broilerkit/http';
+import { NotFound } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { requestJson } from 'broilerkit/request';
+import { retryWithBackoff } from 'broilerkit/retry';
 import { movie, Movie, MovieSearchResult, movieSearchResult } from './resources';
+
+async function requestTMDB(url: string, query: {[key: string]: string}): Promise<any> {
+  const { data } = await retryWithBackoff(20, (retryCount) => {
+    if (retryCount > 0) {
+      // tslint:disable-next-line:no-console
+      console.warn(`Retrying request to ${url} with attempt ${retryCount}`);
+    }
+    return requestJson({ method: 'GET', url, query });
+  });
+  return data;
+}
 
 export async function retrieveMovie(id: number, apiKey: string): Promise<Movie> {
   const now = new Date();
   try {
-    const { data } = await requestJson({
-      method: 'GET',
-      url: `https://api.themoviedb.org/3/movie/${id}`,
-      query: {
-        api_key: apiKey,
-      },
+    const data = await requestTMDB(`https://api.themoviedb.org/3/movie/${id}`, {
+      api_key: apiKey,
     });
     return movie.deserialize({
       id: data.id,
@@ -33,32 +41,43 @@ export async function retrieveMovie(id: number, apiKey: string): Promise<Movie> 
       title: data.title,
       voteAverage: data.vote_average,
       voteCount: data.vote_count,
-      languages: (data.spoken_languages || []).map((lang: any) => lang.name), // TODO: Language codes?
+      languages: (data.spoken_languages as any[] || [])
+        .map((lang) => lang.name as string)
+        .filter((lang) => !!lang), // TODO: Language codes?
       backdropPath: data.backdrop_path,
       posterPath: data.poster_path,
     });
   } catch (error) {
-    if (isErrorResponse(error)) {
-      // tslint:disable-next-line:no-console
-      console.error(JSON.stringify(error.data, null, 4));
-    } else {
-      // tslint:disable-next-line:no-console
-      console.error(error);
+    // tslint:disable-next-line:no-console
+    console.error(`Failed to retrieve movie ${id}`, error);
+    throw new NotFound(`Movie not found`);
+  }
+}
+
+export async function retrieveMovieByImdbId(imdbId: string, apiKey: string): Promise<Movie> {
+  try {
+    const data = await requestTMDB(`https://api.themoviedb.org/3/find/${imdbId}`, {
+      external_source: 'imdb_id',
+      api_key: apiKey,
+    });
+    // TODO: TV-Series result
+    const movieResult = data.movie_results[0];
+    if (!movieResult) {
+      throw new Error(`Could not find a movie with IMDb ID ${imdbId}`);
     }
+    return retrieveMovie(movieResult.id, apiKey);
+  } catch (error) {
+    // tslint:disable-next-line:no-console
+    console.error(`Failed to retrieve the movie by IMDb ID ${imdbId}:`, error);
     throw new NotFound(`Movie not found`);
   }
 }
 
 export async function searchMovies(query: string, apiKey: string): Promise<MovieSearchResult[]> {
-  const response = await requestJson({
-    method: 'GET',
-    url: `https://api.themoviedb.org/3/search/movie`,
-    query: {
-      api_key: apiKey,
-      query,
-    },
+  const data = await requestTMDB(`https://api.themoviedb.org/3/search/movie`, {
+    api_key: apiKey, query,
   });
-  const results = response.data.results as any[];
+  const results = data.results as any[];
   return results.map(
     ({ id }, index) => movieSearchResult.deserialize({ id, index, query }),
   );

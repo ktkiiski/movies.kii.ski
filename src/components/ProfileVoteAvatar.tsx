@@ -19,8 +19,10 @@ function ProfileVoteAvatar({ pollId, user }: ProfileVoteAvatarProps) {
   }, {
     profileId: user.id,
   });
-  const [userRatings] = useList(api.listUserRatings, {
-    profileId: user.id, ordering: 'createdAt', direction: 'asc',
+  const [userRatings] = useList(api.listPollRatings, {
+    pollId, ordering: 'createdAt', direction: 'asc',
+  }, {
+    profileId: user.id,
   });
   const [pollCandidates] = useList(api.listPollCandidates, {
     pollId, ordering: 'createdAt', direction: 'asc',

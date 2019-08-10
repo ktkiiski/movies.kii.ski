@@ -10,7 +10,8 @@ import { Switch } from 'react-router-dom';
 import Home from './components/Home';
 import Root from './components/layout/Root';
 import PollView from './components/PollView';
-import { home, showPoll } from './routes';
+import RatingListView from './components/RatingListView';
+import { home, listRatings, showPoll } from './routes';
 import { mainTheme } from './themes';
 
 const NotFound = () => {
@@ -34,6 +35,7 @@ export default () => {
         <CssBaseline />
         <Switch>
           {renderRoute(home, Home, NotFound)}
+          {renderRoute(listRatings, RatingListView, NotFound)}
           {renderRoute(showPoll, PollView, NotFound)}
           {renderStaticRoute(NotFound, HttpStatus.NotFound)}
         </Switch>

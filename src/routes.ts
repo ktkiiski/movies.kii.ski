@@ -7,3 +7,4 @@ export const home = route(pattern `/`);
 export const showPoll = route(pattern `/polls/${'pollId'}`, serializer({
     pollId: id(),
 }));
+export const listRatings = route(pattern `/ratings`);

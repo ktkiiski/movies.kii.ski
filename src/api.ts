@@ -1,7 +1,7 @@
 import { endpoint } from 'broilerkit/endpoints';
-import { creatable, destroyable, listable, retrievable, updateable } from 'broilerkit/operations';
+import { creatable, destroyable, listable, retrievable, updateable, uploadable } from 'broilerkit/operations';
 import { pattern } from 'broilerkit/url';
-import { candidate, movie, movieSearchResult, participant, poll, pollRating, publicProfile, rating, vote } from './resources';
+import { candidate, movie, movieSearchResult, participant, poll, pollRating, publicProfile, rating, ratingUpload, vote } from './resources';
 
 /**
  * Polls
@@ -122,7 +122,9 @@ export const destroyPollParticipant = destroyable(pollParticipantResource, {
 /**
  * Ratings
  */
-const userRatingCollection = endpoint(rating, pattern`/api/users/${'profileId'}/ratings`);
+const userRatingCollection = endpoint(rating, pattern`/api/users/${'profileId'}/ratings`)
+  .join({ movie })
+;
 export const listUserRatings = listable(userRatingCollection, {
   auth: 'none',
   ownership: 'profileId',
@@ -142,6 +144,20 @@ export const destroyUserRating = destroyable(userRatingResource, {
   auth: 'owner',
   ownership: 'profileId',
 });
+
+const userRatingUploadCollection = endpoint(ratingUpload, pattern`/api/users/${'profileId'}/ratings_uploads`);
+export const uploadUserRatings = uploadable(userRatingUploadCollection, {
+  auth: 'owner',
+  ownership: 'profileId',
+  required: [],
+  optional: [],
+  defaults: {},
+  files: ['file'],
+});
+
+/**
+ * Poll ratings
+ */
 
 const pollRatingCollection = endpoint(pollRating, pattern`/api/polls/${'pollId'}/ratings`)
   .join({ profile: publicProfile })

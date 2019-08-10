@@ -153,6 +153,17 @@ export const rating = resource({
 
 export type Rating = Deserialization<typeof rating>;
 
+export const ratingUpload = resource({
+  name: 'ratingUpload',
+  fields: {
+    id: id(),
+    createdAt: datetime(),
+    profileId: profile.fields.id,
+    ratingCount: integer(),
+  },
+  identifyBy: ['id'],
+});
+
 export const pollRating = junction(
   relation({
     resource: participant,

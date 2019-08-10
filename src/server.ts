@@ -1,12 +1,15 @@
-import { flatMapAsync, toArray } from 'broilerkit/async';
+import { chunkify, flatMapAsync, flatMapAsyncParallel, toArray, toFlattenArray } from 'broilerkit/async';
+import { catchNotFound } from 'broilerkit/errors';
 import { Created, OK } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { implementAll } from 'broilerkit/server';
 import { order } from 'broilerkit/utils/arrays';
 import { isNotNully } from 'broilerkit/utils/compare';
+import { buildObject } from 'broilerkit/utils/objects';
 import * as api from './api';
 import * as db from './db';
-import { retrieveMovie, searchMovies } from './tmdb';
+import { parseImdbRatingsCsv } from './imdb';
+import { retrieveMovie, retrieveMovieByImdbId, searchMovies } from './tmdb';
 
 export default implementAll(api, db).using({
   listUserPolls: async (query, {polls}) => polls.list(query),
@@ -143,40 +146,35 @@ export default implementAll(api, db).using({
       movies.retrieve({id: input.movieId}),
     ]);
     const version = identifier(now);
-    const id = {...input, profileId};
-    const alreadyExists = new Error(`Already exists`);
-    try {
-      // Attempt to create the vote if already exists
-      return new Created({
-        ...await votes.create({
-          ...input,
-          ...id,
-          value, version,
-          updatedAt: now,
-          createdAt: now,
-        }, alreadyExists),
-        profile,
-      });
-    } catch (error) {
-      if (error === alreadyExists) {
-        // Vote already exists -> update it
-        return new OK({
-          ...await votes.update(id, {
-            value, version, updatedAt: now,
-          }),
-          profile,
-        });
-      }
-      // Raise through
-      throw error;
+    const vote = await votes.upsert({
+      ...input,
+      profileId, value, version,
+      createdAt: now,
+      updatedAt: now,
+    }, {
+      value, version, updatedAt: now,
+    });
+    if (vote.createdAt === now) {
+      return new Created({ ...vote, profile });
     }
+    return new OK({ ...vote, profile });
   },
-  listUserRatings: async ({profileId, ordering, since, direction}, {ratings}) => (
-    ratings.list({ profileId, ordering, since, direction })
-  ),
+  listUserRatings: async ({profileId, ordering, since, direction}, {ratings, movies}) => {
+    const {results, next} = await ratings.list({ profileId, ordering, since, direction });
+    const nestedMovies = await movies.batchRetrieve(
+      results.map(({ movieId }) => ({ id: movieId })),
+    );
+    return {
+      next,
+      results: results.map((item, index) => ({
+        ...item,
+        movie: nestedMovies[index],
+      })),
+    };
+  },
   createUserRating: async (input, {ratings, movies}) => {
     // Ensure that the movie exists
-    await movies.retrieve({id: input.movieId});
+    const movie = await movies.retrieve({id: input.movieId});
     const now = new Date();
     const rating = await ratings.create({
       ...input,
@@ -184,9 +182,73 @@ export default implementAll(api, db).using({
       createdAt: now,
       updatedAt: now,
     });
-    return new Created(rating);
+    return new Created({ ...rating, movie });
   },
   destroyUserRating: async (query, {ratings}) => ratings.destroy(query),
+  uploadUserRatings: async ({file, profileId}, {ratings, movies}, {auth, environment}) => {
+    const apiKey = environment.TMDBApiKey;
+    const rawRatings = parseImdbRatingsCsv(file.data);
+    const imdbIdChunks = chunkify(rawRatings.map((rating) => rating.id), 10);
+    const movieChunks = flatMapAsync(imdbIdChunks, (imdbIds) => movies.scan({
+      imdbId: imdbIds,
+      ordering: 'imdbId',
+      direction: 'asc',
+    }));
+    const existingMovies = await toFlattenArray(movieChunks);
+    const movieIdsByImdbIDs = buildObject(existingMovies, (movie) => (
+      [movie.imdbId as string, movie.id]
+    ));
+    const resultRatings = await toArray(flatMapAsyncParallel(4, rawRatings, async function*(rawRating) {
+      const imdbId = rawRating.id;
+      let movieId = movieIdsByImdbIDs[imdbId] as number | undefined;
+      if (!movieId) {
+        // Unknown IMDb ID. Need to find the movie from the TMDb
+        const movie = await catchNotFound(retrieveMovieByImdbId(imdbId, apiKey));
+        if (!movie) {
+          // Movie not found. Need to ignore this movie
+          return;
+        }
+        movieId = movie.id;
+        const { createdAt, ...movieUpdate } = movie;
+        await movies.upsert(movie, { ...movieUpdate, version: identifier() });
+        // tslint:disable-next-line:no-console
+        console.log(`Inserted/updated details about movie ${movie.originalTitle} (#${movieId})`);
+      }
+      const { value } = rawRating;
+      const updatedAt = rawRating.modified || rawRating.created;
+      // Insert the rating or update the existing rating
+      const existingRating = await catchNotFound(ratings.retrieve({ profileId, movieId }));
+      const version = identifier();
+      if (!existingRating) {
+        // Create a new rating
+        yield await ratings.create({
+          version,
+          createdAt: updatedAt,
+          updatedAt,
+          movieId,
+          profileId,
+          value,
+        });
+        // tslint:disable-next-line:no-console
+        console.log(`Created a new rating for movie ${movieId} of user ${profileId} with value ${value}`);
+      } else if (updatedAt > existingRating.updatedAt) {
+        yield await ratings.update({ movieId, profileId }, { version, value, updatedAt });
+        // tslint:disable-next-line:no-console
+        console.log(`Updated the rating for movie ${movieId} of user ${profileId} with value ${value}`);
+      } else {
+        yield existingRating;
+        // tslint:disable-next-line:no-console
+        console.log(`A more or equally recent rating for movie ${movieId} of user ${profileId} already exists with value ${existingRating.value}`);
+      }
+    }));
+    const now = new Date();
+    return new Created({
+      id: identifier(now),
+      createdAt: now,
+      ratingCount: resultRatings.length,
+      profileId: auth.id,
+    });
+  },
   listPollRatings: async ({pollId, ordering, direction, since}, models) => {
     const [profileIds, movieIds] = await Promise.all([
       toArray(flatMapAsync(
@@ -276,6 +338,7 @@ export default implementAll(api, db).using({
   retrieveMovie: async ({id}, {movies}, {environment}) => {
     const apiKey = environment.TMDBApiKey;
     const movie = await retrieveMovie(id, apiKey);
+    // TODO: Do not overwrite the creation date
     return await movies.write(movie);
   },
   searchMovies: async ({ordering, since, direction, query}, {}, {environment}) => {

@@ -1,4 +1,11 @@
 {
+  "name": "movies.kii.ski",
+  "description": "Movie Polls",
+  "author": {
+    "name": "Kimmo Kiiski",
+    "email": "kimmo@kii.ski",
+    "url": "https://kii.ski"
+  },
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,9 +17,11 @@
     "@material-ui/icons": "^3.0.1",
     "@types/react-jss": "^8.6.3",
     "@types/recharts": "^1.1.0",
-    "broilerkit": "^0.15.0",
+    "broilerkit": "^0.16.0",
     "react-jss": "^8.6.1",
     "recharts": "^1.3.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "csv-parse": "^4.4.3"
+  }
 }

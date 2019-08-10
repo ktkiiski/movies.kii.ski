@@ -6,13 +6,14 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import ListIcon from '@material-ui/icons/List';
 import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
 import * as React from 'react';
 import { useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import * as api from '../api';
-import { showPoll } from '../routes';
+import { listRatings, showPoll } from '../routes';
 import AppDrawer from './AppDrawer';
 import Root from './layout/Root';
 import PollList from './PollList';
@@ -63,6 +64,7 @@ function Layout({ title, children, menu, history }: LayoutProps) {
     ? <PollList userId={userId} />
     : <ListItem><Typography variant='caption'>Sign in to see your polls</Typography></ListItem>
     ;
+  const ratingListUrl = listRatings.compile({}).toString();
   return <div>
     <TopBar title={title} onMenuButtonClick={openDrawer} menu={menu} />
     <AppDrawer
@@ -78,6 +80,18 @@ function Layout({ title, children, menu, history }: LayoutProps) {
         <ListItem onClick={openCreateModal} button>
           <ListItemIcon><AddIcon /></ListItemIcon>
           <ListItemText>Create a poll</ListItemText>
+        </ListItem>
+        <ListItem
+          onClick={(event) => {
+            history.push(ratingListUrl);
+            event.preventDefault();
+          }}
+          button
+          component='a'
+          href={ratingListUrl}
+        >
+          <ListItemIcon><ListIcon /></ListItemIcon>
+          <ListItemText>My ratings</ListItemText>
         </ListItem>
         <SignOutListItem onClick={closeDrawer}>
           <ListItemIcon><ExitToAppIcon /></ListItemIcon>
