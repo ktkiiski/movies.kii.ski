@@ -82,7 +82,7 @@ function Layout({ title, children, menu, history }: LayoutProps) {
           <ListItemText>Create a poll</ListItemText>
         </ListItem>
         <ListItem
-          onClick={(event) => {
+          onClick={(event: React.MouseEvent) => {
             history.push(ratingListUrl);
             event.preventDefault();
           }}

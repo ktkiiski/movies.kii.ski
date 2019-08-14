@@ -7,7 +7,7 @@ import * as api from '../api';
 
 const styles = ({ spacing }: Theme) => createStyles({
   root: {
-    paddingLeft: spacing.unit * 2,
+    paddingLeft: spacing(2),
   },
   labelText: {
     whiteSpace: 'nowrap',

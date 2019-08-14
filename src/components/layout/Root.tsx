@@ -3,7 +3,7 @@ import * as React from 'react';
 
 const styles = ({ spacing }: Theme) => createStyles({
   root: {
-    padding: spacing.unit * 2,
+    padding: spacing(2),
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: 1024,

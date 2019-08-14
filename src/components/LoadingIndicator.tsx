@@ -4,7 +4,7 @@ import * as React from 'react';
 
 const styles = (theme: Theme) => createStyles({
   loader: {
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
     textAlign: 'center',
   },
 });

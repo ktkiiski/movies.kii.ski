@@ -74,55 +74,55 @@ function VoteTable({ pollId, movieId, classes }: VoteTableProps) {
   const negativeVotes = (movieVotes || []).filter((vote) => vote.value === -1);
   const sum = (movieVotes || []).reduce((total, vote) => vote.value + total, 0);
 
-  return <Table>
+  return <Table size='small'>
     <TableBody>
       <TableRow>
-        <TableCell padding={'dense'} className={classes.headerColumn + ' ' + classes.positiveColumn} component='th'>
+        <TableCell className={classes.headerColumn + ' ' + classes.positiveColumn} component='th'>
           <PositiveIcon />
         </TableCell>
-        <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.positiveColumn}>
+        <TableCell className={classes.votesColumn + ' ' + classes.positiveColumn}>
           {positiveVotes && positiveVotes.map((vote) => (
             vote.profile && vote.profile.picture &&
             <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={green[400]} />
           ))}
         </TableCell>
-        <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.positiveColumn} align='right'>
+        <TableCell className={classes.sumColumn + ' ' + classes.positiveColumn} align='right'>
           {positiveVotes && positiveVotes.length}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell padding={'dense'} className={classes.headerColumn + ' ' + classes.neutralColumn} component='th'>
+        <TableCell className={classes.headerColumn + ' ' + classes.neutralColumn} component='th'>
           <NeutralIcon />
         </TableCell>
-        <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.neutralColumn}>
+        <TableCell className={classes.votesColumn + ' ' + classes.neutralColumn}>
           {neutralVotes && neutralVotes.map((vote) => (
             vote.profile && vote.profile.picture &&
             <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={yellow[400]} />
           ))}
         </TableCell>
-        <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.neutralColumn} align='right'>
+        <TableCell className={classes.sumColumn + ' ' + classes.neutralColumn} align='right'>
           {neutralVotes && neutralVotes.length}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell padding={'dense'} className={classes.headerColumn + ' ' + classes.negativeColumn} component='th'>
+        <TableCell className={classes.headerColumn + ' ' + classes.negativeColumn} component='th'>
           <NegativeIcon />
         </TableCell>
-        <TableCell padding={'none'} className={classes.votesColumn + ' ' + classes.negativeColumn}>
+        <TableCell className={classes.votesColumn + ' ' + classes.negativeColumn}>
           {negativeVotes && negativeVotes.map((vote) => (
             vote.profile && vote.profile.picture &&
             <ProfileAvatar className={classes.avatar} key={vote.profileId} user={vote.profile} size={22} fade={red[400]} />
           ))}
         </TableCell>
-        <TableCell padding={'dense'} className={classes.sumColumn + ' ' + classes.negativeColumn} align='right'>
+        <TableCell className={classes.sumColumn + ' ' + classes.negativeColumn} align='right'>
           {negativeVotes && negativeVotes.length}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell padding={'dense'} className={classes.headerColumn} component='th'>
+        <TableCell className={classes.headerColumn} component='th'>
           <SeenIcon />
         </TableCell>
-        <TableCell padding={'none'} className={classes.votesColumn}>
+        <TableCell className={classes.votesColumn}>
           {ratings && ratings.map((rating) => (
             rating.profile && rating.profile.picture &&
             <ProfileAvatar
@@ -132,17 +132,17 @@ function VoteTable({ pollId, movieId, classes }: VoteTableProps) {
             />
           ))}
         </TableCell>
-        <TableCell padding={'dense'} className={classes.sumColumn} align='right'>
+        <TableCell className={classes.sumColumn} align='right'>
           {ratings && ratings.length}
         </TableCell>
       </TableRow>
     </TableBody>
     <TableFooter>
       <TableRow>
-        <TableCell padding={'dense'} className={`${classes.headerColumn} ${classes.footer}`}>
+        <TableCell className={`${classes.headerColumn} ${classes.footer}`}>
           Score
         </TableCell>
-        <TableCell colSpan={2} padding={'dense'} className={classes.footer} align='right'>
+        <TableCell colSpan={2} className={classes.footer} align='right'>
           {sum}{typeof score === 'number' ? ` = ${Math.round(score)}%` : null}
         </TableCell>
       </TableRow>

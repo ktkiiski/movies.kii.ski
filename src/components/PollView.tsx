@@ -42,9 +42,6 @@ function PollView({ pollId, history }: PollViewProps) {
   const destroyPollParticipant = useOperation(api.destroyPollParticipant);
   const openUpdateModal = () => setIsUpdateModalOpen(true);
   const closeUpdateModal = () => setIsUpdateModalOpen(false);
-  const onOrderingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSorting(event.target.value as CandidateSorting);
-  };
   const onModalSubmit = async (title: string) => {
     closeUpdateModal();
     const auth = await requireAuth();
@@ -69,7 +66,7 @@ function PollView({ pollId, history }: PollViewProps) {
     ({ profileId }) => userId === profileId,
   );
   return <Layout title={poll && poll.title || ''} menu={menu}>
-    <Grid container direction='row-reverse' justify='center' spacing={16}>
+    <Grid container direction='row-reverse' justify='center' spacing={4}>
       <Grid item md={3} sm={10} xs={12}>
         <VerticalFlow>
           <Typography variant='subtitle1'>Participants</Typography>
@@ -82,7 +79,11 @@ function PollView({ pollId, history }: PollViewProps) {
       <Grid item md={9} sm={10} xs={12}>
         <MovieSearch pollId={pollId} key={pollId}>
           <HorizontalLayout align='bottom' right={
-            <Select displayEmpty value={sorting} onChange={onOrderingChange}>
+            <Select
+              displayEmpty
+              value={sorting}
+              onChange={(event) => setSorting(event.target.value as CandidateSorting)}
+            >
               <MenuItem value={'unvoted'}>Unvoted first</MenuItem>
               <MenuItem value={'top'}>Top voted first</MenuItem>
             </Select>

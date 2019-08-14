@@ -5,7 +5,7 @@ import * as React from 'react';
 
 const styles = ({ spacing }: Theme) => createStyles({
   profile: {
-    padding: spacing.unit * 3,
+    padding: spacing(3),
   },
 });
 

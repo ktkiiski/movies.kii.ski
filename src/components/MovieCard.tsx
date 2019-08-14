@@ -45,16 +45,16 @@ const MovieCard = withStyles(styles)(({ movie, profile, children, content }: Mov
   const backdropPath = movie && movie.backdropPath;
   const backdrop = <MovieCardBackdrop backdropPath={backdropPath}>
     <HorizontalLayout right={content} align='bottom'>
-      <Typography variant='h5'>{movie && movie.title}</Typography>
+      <Typography color='textPrimary' variant='h5'>{movie && movie.title}</Typography>
       {movie && movie.originalTitle !== movie.title
-        ? <Typography variant='subtitle1'><em>{movie.originalTitle}</em></Typography>
+        ? <Typography color='textPrimary' variant='subtitle1'><em>{movie.originalTitle}</em></Typography>
         : null}
-      <Typography variant='subtitle1'>
+      <Typography color='textPrimary' variant='subtitle1'>
         {year}{genres}{' '}{runtime && <Hidden smUp><br /></Hidden>}{runtime}
       </Typography>
       {rating == null ? null : <RatingBar rating={rating} />}
       <Hidden xsDown implementation='css'>
-        <Typography component='p'>
+        <Typography color='textSecondary' component='p'>
           {movie && shortenSentences(movie.overview, 300)}
           {profile && <> Suggested by <strong>{profile.name}</strong></>}
         </Typography>

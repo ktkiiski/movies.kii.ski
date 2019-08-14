@@ -50,7 +50,7 @@ class RatingBar extends React.PureComponent<RatingBarProps> {
     while (stars.length < 10) {
       stars.push(<StarEmptyIcon className={classes.star} key={stars.length} />);
     }
-    return <Typography className={classes.bar}>
+    return <Typography color='textPrimary' className={classes.bar}>
       {stars}
       <span className={classes.ratingText}>{ratingText}</span>
     </Typography>;

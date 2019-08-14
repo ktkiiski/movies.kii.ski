@@ -23,6 +23,24 @@ interface RatingListProps extends WithStyles<typeof styles> {
 
 type Ordering = 'value,desc' | 'value,asc' | 'createdAt,desc' | 'createdAt,asc';
 
+interface RatingListItemProps {
+  linkUrl: string | null;
+  children: React.ReactNode;
+}
+
+function RatingListItem({linkUrl, children}: RatingListItemProps) {
+  if (linkUrl) {
+    return <ListItem
+      component='a'
+      button
+      href={linkUrl}
+      target='_blank'
+      rel='noopener'
+    >{children}</ListItem>;
+  }
+  return <ListItem>{children}</ListItem>;
+}
+
 function RatingList({ userId, classes }: RatingListProps) {
   const [ratings, , isLoading] = useList(api.listUserRatings, {
     ordering: 'createdAt',
@@ -30,9 +48,6 @@ function RatingList({ userId, classes }: RatingListProps) {
     profileId: userId,
   });
   const [selectedOrdering, setOrdering] = React.useState('createdAt,desc');
-  const onOrderingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setOrdering(event.target.value as Ordering);
-  };
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -42,7 +57,11 @@ function RatingList({ userId, classes }: RatingListProps) {
   const [ordering, direction] = selectedOrdering.split(',');
   const orderedRatings = order(ratings, ordering as 'createdAt' | 'value', direction as 'asc' | 'desc');
   return <>
-    <Select displayEmpty value={selectedOrdering} onChange={onOrderingChange}>
+    <Select
+      displayEmpty
+      value={selectedOrdering}
+      onChange={(event) => setOrdering(event.target.value as Ordering)}
+    >
       <MenuItem value={'createdAt,desc'}>Latest first</MenuItem>
       <MenuItem value={'createdAt,asc'}>Oldest first</MenuItem>
       <MenuItem value={'value,desc'}>Top rated first</MenuItem>
@@ -68,19 +87,13 @@ function RatingList({ userId, classes }: RatingListProps) {
           }
         }
         const linkUrl = movie && movie.imdbId && `https://www.imdb.com/title/${movie.imdbId}/`;
-        return <ListItem
-          key={rating.movieId}
-          component='a'
-          button={!!linkUrl}
-          href={linkUrl || undefined}
-          target='_blank'
-        >
+        return <RatingListItem key={rating.movieId} linkUrl={linkUrl}>
           <ListItemText primary={primaryText} secondary={secondaryText} />
           <ListItemSecondaryAction className={classes.secondaryAction}>
             <StarIcon />
             <Typography>{value || '?'}</Typography>
           </ListItemSecondaryAction>
-        </ListItem>;
+        </RatingListItem>;
       })}
     </List>
   </>;

@@ -11,16 +11,10 @@ export const mainTheme = createMuiTheme({
       default: '#f5f5f5',
     },
   },
-  typography: {
-    useNextVariants: true,
-  },
 });
 
 export const darkTheme = createMuiTheme({
   palette: {
     type: 'dark',
-  },
-  typography: {
-    useNextVariants: true,
   },
 });

@@ -12,8 +12,8 @@ const styles = ({ spacing }: Theme) => createStyles({
     flexWrap: 'wrap',
   },
   avatar: {
-    marginRight: spacing.unit,
-    marginBottom: spacing.unit,
+    marginRight: spacing(1),
+    marginBottom: spacing(1),
   },
 });
 

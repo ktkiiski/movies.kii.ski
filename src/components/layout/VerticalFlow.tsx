@@ -4,7 +4,7 @@ import * as React from 'react';
 const styles = (theme: Theme) => createStyles({
   verticalFlow: {
     '& > *': {
-      marginTop: theme.spacing.unit * 2,
+      marginTop: theme.spacing(2),
     },
     '& > *:first-child': {
       marginTop: 0,

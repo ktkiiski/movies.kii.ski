@@ -26,24 +26,22 @@ function PollList({ history, userId }: PollListProps) {
     return null;
   }
   const sortedItems = order(polls, 'title', 'asc');
-  return <>
-    <List>
-      {sortedItems.map((poll) => {
-        const pollUrl = showPoll.compile({ pollId: poll.id }).toString();
-        return <ListItem
-          key={poll.id}
-          button
-          onClick={(event) => {
-            history.push(pollUrl);
-            event.preventDefault();
-          }}
-          component='a'
-          href={pollUrl}>
-          <ListItemText primary={poll.title} />
-        </ListItem>;
-      })}
-    </List>
-  </>;
+  return <List>
+    {sortedItems.map((poll) => {
+      const pollUrl = showPoll.compile({ pollId: poll.id }).toString();
+      return <ListItem
+        key={poll.id}
+        button
+        onClick={(event: React.MouseEvent) => {
+          history.push(pollUrl);
+          event.preventDefault();
+        }}
+        component='a'
+        href={pollUrl}>
+        <ListItemText primary={poll.title} />
+      </ListItem>;
+    })}
+  </List>;
 }
 
 export default withRouter(PollList);
