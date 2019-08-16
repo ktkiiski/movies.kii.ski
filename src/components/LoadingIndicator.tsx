@@ -1,14 +1,15 @@
+import { makeStyles } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import * as React from 'react';
 
-const styles = (theme: Theme) => createStyles({
+const useStyles = makeStyles((theme) => ({
   loader: {
     padding: theme.spacing(2),
     textAlign: 'center',
   },
-});
+}));
 
-export default withStyles(styles)(({ classes }: WithStyles<typeof styles>) => (
-  <div className={classes.loader}><CircularProgress /></div>
-));
+export default function LoadingIndicator() {
+  const classes = useStyles();
+  return <div className={classes.loader}><CircularProgress /></div>;
+}

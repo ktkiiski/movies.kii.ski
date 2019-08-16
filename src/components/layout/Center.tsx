@@ -1,7 +1,7 @@
-import { createStyles, withStyles, WithStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import * as React from 'react';
 
-const styles = createStyles({
+const useStyles = makeStyles({
   center: {
     display: 'flex',
     flexFlow: 'column nowrap',
@@ -11,10 +11,9 @@ const styles = createStyles({
   },
 });
 
-interface CenterProps extends React.HTMLAttributes<HTMLElement>, WithStyles<typeof styles> { }
+function Center({ children, className, ...props }: React.HTMLAttributes<HTMLElement>) {
+  const classes = useStyles();
+  return <div className={className ? `${classes.center} ${classes}` : classes.center} {...props}>{children}</div>;
+}
 
-const Center = ({ classes, children, className, ...props }: CenterProps) => (
-  <div className={className ? `${classes.center} ${classes}` : classes.center} {...props}>{children}</div>
-);
-
-export default withStyles(styles)(Center);
+export default Center;

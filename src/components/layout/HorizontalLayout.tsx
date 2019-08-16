@@ -1,22 +1,23 @@
 import Grid from '@material-ui/core/Grid';
-import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import * as React from 'react';
 
-const styles = createStyles({
+const useStyles = makeStyles({
   main: {
     flex: 1,
   },
 });
 
-interface HorizontalLayoutProps extends WithStyles<typeof styles> {
+interface HorizontalLayoutProps {
   left?: React.ReactNode;
   right?: React.ReactNode;
   align?: 'top' | 'center' | 'bottom';
   children?: React.ReactNode;
 }
 
-const HorizontalLayout = ({ classes, children, left, right, align, ...props }: HorizontalLayoutProps) => (
-  <div>
+function HorizontalLayout({ children, left, right, align, ...props }: HorizontalLayoutProps) {
+  const classes = useStyles();
+  return <div>
     <Grid
       container
       direction='row'
@@ -28,7 +29,7 @@ const HorizontalLayout = ({ classes, children, left, right, align, ...props }: H
       {React.Children.count(children) ? <Grid item className={classes.main}>{children}</Grid> : null}
       {right && <Grid item>{right}</Grid>}
     </Grid>
-  </div>
-);
+  </div>;
+}
 
-export default withStyles(styles)(HorizontalLayout);
+export default HorizontalLayout;

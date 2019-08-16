@@ -1,19 +1,20 @@
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 import * as React from 'react';
 
-const styles = ({ spacing }: Theme) => createStyles({
+const useStyles = makeStyles(({ spacing }) => ({
   root: {
     padding: spacing(2),
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: 1024,
   },
-});
+}));
 
-interface RootProps extends WithStyles<typeof styles> {
+interface RootProps {
   children?: React.ReactNode;
 }
 
-export default withStyles(styles)(({ classes, children }: RootProps) => (
-  <div className={classes.root}>{children}</div>
-));
+export default ({ children }: RootProps) => {
+  const classes = useStyles();
+  return <div className={classes.root}>{children}</div>;
+};

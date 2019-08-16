@@ -1,19 +1,16 @@
+import { makeStyles } from '@material-ui/core';
 import Drawer, { DrawerProps } from '@material-ui/core/Drawer';
-import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import * as React from 'react';
 
-const styles = createStyles({
+const useStyles = makeStyles({
   drawerContents: {
     width: 250,
   },
 });
 
-type AppDrawerProps = Omit<DrawerProps, 'classes'> & WithStyles<typeof styles>;
-
-const AppDrawer = ({ classes, children, ...props }: AppDrawerProps) => (
-  <Drawer {...props}>
+export default function AppDrawer({ children, ...props }: DrawerProps) {
+  const classes = useStyles();
+  return <Drawer {...props}>
     <div className={classes.drawerContents}>{children}</div>
-  </Drawer>
-);
-
-export default withStyles(styles)(AppDrawer);
+  </Drawer>;
+}

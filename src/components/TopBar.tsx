@@ -1,6 +1,6 @@
+import { makeStyles } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import IconButton from '@material-ui/core/IconButton';
-import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -9,7 +9,7 @@ import * as React from 'react';
 import Dropdown from './Dropdown';
 import TopBarProfile from './TopBarProfile';
 
-const styles = () => createStyles({
+const useStyles = makeStyles({
   flex: {
     flex: 1,
   },
@@ -22,14 +22,15 @@ const styles = () => createStyles({
   },
 });
 
-interface TopBarProps extends WithStyles<typeof styles> {
+interface TopBarProps {
   title?: string;
   onMenuButtonClick: () => void;
   menu?: React.ReactNode;
 }
 
-const TopBar = withStyles(styles)(({ classes, title, onMenuButtonClick, menu }: TopBarProps) => (
-  <React.Fragment>
+function TopBar({ title, onMenuButtonClick, menu }: TopBarProps) {
+  const classes = useStyles();
+  return <React.Fragment>
     <AppBar >
       <Toolbar>
         <IconButton className={classes.menuButton} color='inherit' aria-label='Menu' onClick={onMenuButtonClick}>
@@ -46,7 +47,7 @@ const TopBar = withStyles(styles)(({ classes, title, onMenuButtonClick, menu }: 
       </Toolbar>
     </AppBar>
     <div className={classes.push} />
-  </React.Fragment>
-));
+  </React.Fragment>;
+}
 
 export default TopBar;

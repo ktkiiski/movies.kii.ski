@@ -1,18 +1,19 @@
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 import * as React from 'react';
 
-const styles = (theme: Theme) => createStyles({
+const useStyles = makeStyles((theme) => ({
   spacer: {
     padding: theme.spacing(2),
   },
-});
+}));
 
-interface SpacerProps extends WithStyles<typeof styles> {
+interface SpacerProps {
   children?: React.ReactNode;
 }
 
-const Spacer = ({ classes, children }: SpacerProps) => (
-  <div className={classes.spacer}>{children}</div>
-);
+const Spacer = ({ children }: SpacerProps) => {
+  const classes = useStyles();
+  return <div className={classes.spacer}>{children}</div>;
+};
 
-export default withStyles(styles)(Spacer);
+export default Spacer;

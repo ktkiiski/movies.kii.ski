@@ -2,7 +2,6 @@ import { CardActionArea } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Hidden from '@material-ui/core/Hidden';
-import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { shortenSentences } from 'broilerkit/utils/strings';
@@ -12,31 +11,14 @@ import HorizontalLayout from './layout/HorizontalLayout';
 import MovieCardBackdrop from './MovieCardBackdrop';
 import RatingBar from './RatingBar';
 
-const styles = createStyles({
-  poster: {
-    width: 100,
-    height: 150,
-  },
-  blankPoster: {
-    width: 100,
-    height: 150,
-    backgroundColor: '#ddd',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-    fontSize: '46px',
-  },
-});
-
-interface MovieCardProps extends WithStyles<typeof styles> {
+interface MovieCardProps {
   movie: Movie | null;
   profile?: PublicProfile | null;
   content?: React.ReactNode;
   children?: React.ReactNode;
 }
 
-const MovieCard = withStyles(styles)(({ movie, profile, children, content }: MovieCardProps) => {
+function MovieCard({ movie, profile, children, content }: MovieCardProps) {
   const year = movie && movie.releasedOn && movie.releasedOn.getFullYear();
   const genres = movie && [''].concat(movie.genres).join(', ');
   const runtime = movie && getRuntime(movie.runtime);
@@ -73,7 +55,7 @@ const MovieCard = withStyles(styles)(({ movie, profile, children, content }: Mov
     </Hidden>
     {children}
   </Card>;
-});
+}
 
 function getRuntime(minutes: number | null): React.ReactNode {
   if (minutes === null) {

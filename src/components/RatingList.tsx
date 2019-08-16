@@ -1,4 +1,4 @@
-import { createStyles, ListItemSecondaryAction, MenuItem, Select, Typography, WithStyles, withStyles } from '@material-ui/core';
+import { ListItemSecondaryAction, makeStyles, MenuItem, Select, Typography } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -9,7 +9,7 @@ import * as React from 'react';
 import * as api from '../api';
 import LoadingIndicator from './LoadingIndicator';
 
-const styles = createStyles({
+const useStyles = makeStyles({
   secondaryAction: {
     display: 'flex',
     flexDirection: 'row',
@@ -17,7 +17,7 @@ const styles = createStyles({
   },
 });
 
-interface RatingListProps extends WithStyles<typeof styles> {
+interface RatingListProps {
   userId: string;
 }
 
@@ -41,7 +41,8 @@ function RatingListItem({linkUrl, children}: RatingListItemProps) {
   return <ListItem>{children}</ListItem>;
 }
 
-function RatingList({ userId, classes }: RatingListProps) {
+function RatingList({ userId }: RatingListProps) {
+  const classes = useStyles();
   const [ratings, , isLoading] = useList(api.listUserRatings, {
     ordering: 'createdAt',
     direction: 'asc',
@@ -99,4 +100,4 @@ function RatingList({ userId, classes }: RatingListProps) {
   </>;
 }
 
-export default withStyles(styles)(RatingList);
+export default RatingList;

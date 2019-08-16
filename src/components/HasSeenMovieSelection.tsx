@@ -1,27 +1,29 @@
-import { Checkbox, createStyles, FormControlLabel, FormGroup, Hidden, Theme, withStyles, WithStyles } from '@material-ui/core';
+import { Checkbox, FormControlLabel, FormGroup, Hidden } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import { identifier } from 'broilerkit/id';
 import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
 import * as api from '../api';
 
-const styles = ({ spacing }: Theme) => createStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
-    paddingLeft: spacing(2),
+    paddingLeft: theme.spacing(2),
   },
   labelText: {
     whiteSpace: 'nowrap',
   },
-});
+}));
 
-interface HasSeenMovieSelectionProps extends WithStyles<typeof styles> {
+interface HasSeenMovieSelectionProps {
   style?: React.CSSProperties;
   pollId: string;
   movieId: number;
   hasSeen: boolean;
 }
 
-function HasSeenMovieSelection({ movieId, pollId, classes, hasSeen, ...props }: HasSeenMovieSelectionProps) {
+function HasSeenMovieSelection({ movieId, pollId, hasSeen, ...props }: HasSeenMovieSelectionProps) {
+  const classes = useStyles();
   const requireAuth = useRequireAuth();
   const createPollRating = useOperation(api.createPollRating);
   const destroyPollCandidateRating = useOperation(api.destroyPollCandidateRating);
@@ -63,4 +65,4 @@ function HasSeenMovieSelection({ movieId, pollId, classes, hasSeen, ...props }: 
   </FormGroup>;
 }
 
-export default React.memo(withStyles(styles)(HasSeenMovieSelection));
+export default React.memo(HasSeenMovieSelection);

@@ -1,11 +1,11 @@
+import { makeStyles } from '@material-ui/core';
 import CardMedia from '@material-ui/core/CardMedia';
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 import * as React from 'react';
 import { darkTheme } from '../themes';
 
 const ratio = `${(100 * 9 / 16).toFixed(2)}%`; // 16:9
-const styles = (theme: Theme) => createStyles({
+const useStyles = makeStyles((theme) => ({
   backdrop: {
     height: 0,
     minHeight: 256,
@@ -33,14 +33,15 @@ const styles = (theme: Theme) => createStyles({
     right: theme.spacing(1),
     zIndex: 1,
   },
-});
+}));
 
-interface MovieCardProps extends WithStyles<typeof styles> {
+interface MovieCardProps {
   backdropPath: string | null | undefined;
   children?: React.ReactNode;
 }
 
-const MovieCardBackdrop = withStyles(styles)(({ classes, backdropPath, children }: MovieCardProps) => {
+function MovieCardBackdrop({ backdropPath, children }: MovieCardProps) {
+  const classes = useStyles();
   const backdropUrl = backdropPath && `https://image.tmdb.org/t/p/w1280${backdropPath}` || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOMi439DwAEUgIZT0JltgAAAABJRU5ErkJggg==';
   return (
     <ThemeProvider theme={darkTheme}>
@@ -51,6 +52,6 @@ const MovieCardBackdrop = withStyles(styles)(({ classes, backdropPath, children 
       </CardMedia>
     </ThemeProvider>
   );
-});
+}
 
 export default MovieCardBackdrop;

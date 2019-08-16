@@ -1,21 +1,22 @@
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { useAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
 
-const styles = ({ spacing }: Theme) => createStyles({
+const useStyles = makeStyles(({ spacing }) => ({
   profile: {
     padding: spacing(3),
   },
-});
+}));
 
-interface ProfileContainerStyles extends WithStyles<typeof styles> {
+interface ProfileContainerStyles {
   children?: React.ReactNode;
 }
 
-const ProfileContainer = withStyles(styles)(({ classes, children }: ProfileContainerStyles) => (
-  <div className={classes.profile}>{children}</div>
-));
+function ProfileContainer({ children }: ProfileContainerStyles) {
+  const classes = useStyles();
+  return <div className={classes.profile}>{children}</div>;
+}
 
 function Profile() {
   const user = useAuth();

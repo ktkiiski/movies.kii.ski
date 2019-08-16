@@ -1,5 +1,5 @@
+import { makeStyles } from '@material-ui/core';
 import { green, red, yellow } from '@material-ui/core/colors';
-import { createStyles, withStyles, WithStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -15,7 +15,7 @@ import * as api from '../api';
 import { getMovieScore } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
 
-const styles = createStyles({
+const useStyles = makeStyles({
   avatar: {
     float: 'left',
     marginRight: 5,
@@ -48,12 +48,13 @@ const styles = createStyles({
   },
 });
 
-interface VoteTableProps extends WithStyles<typeof styles> {
+interface VoteTableProps {
   pollId: string;
   movieId: number;
 }
 
-function VoteTable({ pollId, movieId, classes }: VoteTableProps) {
+function VoteTable({ pollId, movieId }: VoteTableProps) {
+  const classes = useStyles();
   const [ratings] = useList(
     api.listPollRatings,
     { pollId, ordering: 'createdAt', direction: 'asc' },
@@ -150,4 +151,4 @@ function VoteTable({ pollId, movieId, classes }: VoteTableProps) {
   </Table>;
 }
 
-export default withStyles(styles)(VoteTable);
+export default VoteTable;

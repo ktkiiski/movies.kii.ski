@@ -1,11 +1,11 @@
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 import { useList } from 'broilerkit/react/api';
 import { isNotNully } from 'broilerkit/utils/compare';
 import * as React from 'react';
 import { listPollParticipants } from '../api';
 import ProfileVoteAvatar from './ProfileVoteAvatar';
 
-const styles = ({ spacing }: Theme) => createStyles({
+const useStyles = makeStyles(({ spacing }) => ({
   container: {
     display: 'flex',
     flexDirection: 'row',
@@ -15,13 +15,14 @@ const styles = ({ spacing }: Theme) => createStyles({
     marginRight: spacing(1),
     marginBottom: spacing(1),
   },
-});
+}));
 
-interface ParticipantListProps extends WithStyles<typeof styles> {
+interface ParticipantListProps {
   pollId: string;
 }
 
-function ParticipantList({ pollId, classes }: ParticipantListProps) {
+function ParticipantList({ pollId }: ParticipantListProps) {
+  const classes = useStyles();
   const [participants] = useList(listPollParticipants, {
     pollId,
     ordering: 'createdAt',
@@ -40,4 +41,4 @@ function ParticipantList({ pollId, classes }: ParticipantListProps) {
   </div>;
 }
 
-export default React.memo(withStyles(styles)(ParticipantList));
+export default React.memo(ParticipantList);

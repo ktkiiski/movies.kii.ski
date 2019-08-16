@@ -1,7 +1,7 @@
-import { createStyles, withStyles, WithStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import * as React from 'react';
 
-const styles = createStyles({
+const useStyles = makeStyles({
   stack: {
     'position': 'relative',
     '& > *': {
@@ -14,10 +14,9 @@ const styles = createStyles({
   },
 });
 
-interface StackProps extends React.HTMLAttributes<HTMLElement>, WithStyles<typeof styles> { }
+function Stack({ children, className, ...props }: React.HTMLAttributes<HTMLElement>) {
+  const classes = useStyles();
+  return <div className={className ? `${classes.stack} ${classes}` : classes.stack} {...props}>{children}</div>;
+}
 
-const Stack = ({ classes, children, className, ...props }: StackProps) => (
-  <div className={className ? `${classes.stack} ${classes}` : classes.stack} {...props}>{children}</div>
-);
-
-export default withStyles(styles)(Stack);
+export default Stack;

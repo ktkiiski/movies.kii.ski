@@ -1,7 +1,7 @@
-import { createStyles, Theme, withStyles, WithStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core';
 import * as React from 'react';
 
-const styles = (theme: Theme) => createStyles({
+const useStyles = makeStyles((theme) => ({
   verticalFlow: {
     '& > *': {
       marginTop: theme.spacing(2),
@@ -10,12 +10,11 @@ const styles = (theme: Theme) => createStyles({
       marginTop: 0,
     },
   },
-});
+}));
 
-interface VerticalFlowProps extends React.HTMLAttributes<HTMLElement>, WithStyles<typeof styles> { }
+function VerticalFlow({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
+  const classes = useStyles();
+  return <div {...props} className={classes.verticalFlow}>{children}</div>;
+}
 
-const VerticalFlow = ({ classes, children, ...props }: VerticalFlowProps) => (
-  <div {...props} className={classes.verticalFlow}>{children}</div>
-);
-
-export default withStyles(styles)(VerticalFlow);
+export default VerticalFlow;
