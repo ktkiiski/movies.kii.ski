@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 import { Rating, Vote } from '../resources';
 import Center from './layout/Center';
+import ClientOnly from './layout/ClientOnly';
 import Stack from './layout/Stack';
 
 interface VotePieProps {
@@ -41,14 +42,16 @@ function VotePie({ size, votes, maxCount, ratings, children }: VotePieProps) {
     color: 'rgba(0,0,0,0)',
   }];
   return <Stack>
-    <PieChart width={size} height={size}>
-      <Pie innerRadius={size * 0.32} outerRadius={size * 0.4} data={ratingsData} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
-        {ratingsData.map(({ name, color }) => <Cell fill={color} key={name} />)}
-      </Pie>
-      <Pie innerRadius={size * 0.4} outerRadius={size * 0.5} data={data} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
-        {data.map(({ name, color }) => <Cell fill={color} key={name} />)}
-      </Pie>
-    </PieChart>
+    <ClientOnly>
+      <PieChart width={size} height={size}>
+        <Pie innerRadius={size * 0.32} outerRadius={size * 0.4} data={ratingsData} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
+          {ratingsData.map(({ name, color }) => <Cell fill={color} key={name} />)}
+        </Pie>
+        <Pie innerRadius={size * 0.4} outerRadius={size * 0.5} data={data} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
+          {data.map(({ name, color }) => <Cell fill={color} key={name} />)}
+        </Pie>
+      </PieChart>
+    </ClientOnly>
     {children && <Center>{children}</Center>}
   </Stack>;
 }
