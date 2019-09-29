@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ClientOnlyProps {
   children: React.ReactNode;
@@ -7,7 +7,7 @@ interface ClientOnlyProps {
 
 function ClientOnly({ children }: ClientOnlyProps) {
   const [isRendered, setIsRendered] = useState(false);
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsRendered(true);
   }, []);
   return isRendered ? <>{children}</> : null;
