@@ -1,13 +1,13 @@
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
-import { AuthUser } from 'broilerkit/auth';
+import { Auth } from 'broilerkit/auth';
 import * as React from 'react';
 import DropdownMenu from './DropdownMenu';
 import ProfileAvatar from './ProfileAvatar';
 
 interface TopBarProfileMenuProps {
-  user: AuthUser | null;
+  user: Auth | null;
   onLogout: () => void;
 }
 

@@ -6,8 +6,8 @@ export const profile = resource({
   name: 'profile',
   fields: {
     id: user.fields.id,
-    name: user.fields.name,
-    email: user.fields.email,
+    name: nullable(user.fields.name),
+    email: nullable(user.fields.email),
     picture: user.fields.picture,
     groups: list(string()),
     version: id(),

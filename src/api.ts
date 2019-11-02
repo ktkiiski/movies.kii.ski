@@ -163,7 +163,6 @@ const pollRatingCollection = endpoint(pollRating, pattern`/api/polls/${'pollId'}
   .join({ profile: publicProfile })
 ;
 export const listPollRatings = listable(pollRatingCollection, {
-  auth: 'user',
   orderingKeys: ['createdAt'],
 });
 export const createPollRating = creatable(pollRatingCollection, {

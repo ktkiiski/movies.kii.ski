@@ -1,11 +1,11 @@
 import { NotFound } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { requestJson } from 'broilerkit/request';
-import { retryWithBackoff } from 'broilerkit/retry';
+import { retryRequestWithBackoff } from 'broilerkit/retry';
 import { movie, Movie, MovieSearchResult, movieSearchResult } from './resources';
 
 async function requestTMDB(url: string, query: {[key: string]: string}): Promise<any> {
-  const { data } = await retryWithBackoff(20, (retryCount) => {
+  const { data } = await retryRequestWithBackoff(20, (retryCount) => {
     if (retryCount > 0) {
       // tslint:disable-next-line:no-console
       console.warn(`Retrying request to ${url} with attempt ${retryCount}`);

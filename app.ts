@@ -31,6 +31,8 @@ export default app({
     prod: {
       // The AWS region to which the web app will be deployed.
       region: 'us-east-1',
+      // The VPC to use for this stage deployment
+      vpc: 'kiiski',
       // Root URL where the website is hosted
       serverRoot: 'https://movies.kii.ski',
       // Root URL where all the indefinitely-cached static assets are hosted
@@ -42,6 +44,8 @@ export default app({
     dev: {
       // The AWS region to which the web app will be deployed.
       region: 'us-east-1',
+      // The VPC to use for this stage deployment
+      vpc: 'kiiski',
       // Root URL where the website is hosted
       serverRoot: 'https://movies-dev.kii.ski',
       // Root URL where all the indefinitely-cached static assets are hosted
@@ -89,6 +93,10 @@ export default app({
    * The API endpoints for this app.
    */
   serverFile: 'server.ts',
+  /**
+   * The database table configuration file.
+   */
+  databaseFile: 'db.ts',
   /**
    * The website file for this app.
    */
