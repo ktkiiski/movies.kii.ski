@@ -2,7 +2,7 @@ import { useList } from 'broilerkit/react/api';
 import * as React from 'react';
 import * as api from '../api';
 import ProfileAvatar from './ProfileAvatar';
-import VotePie from './VotePie';
+import VoteCountPie from './VoteCountPie';
 
 interface ProfileVoteAvatarProps {
   pollId: string;
@@ -11,9 +11,14 @@ interface ProfileVoteAvatarProps {
     name?: string | null;
     picture?: string | null;
   };
+  participant: {
+    positiveVoteCount: number;
+    neutralVoteCount: number;
+    negativeVoteCount: number;
+  };
 }
 
-function ProfileVoteAvatar({ pollId, user }: ProfileVoteAvatarProps) {
+function ProfileVoteAvatar({ pollId, user, participant }: ProfileVoteAvatarProps) {
   const [votes] = useList(api.listPollVotes, {
     pollId, ordering: 'createdAt', direction: 'asc',
   }, {
@@ -34,9 +39,16 @@ function ProfileVoteAvatar({ pollId, user }: ProfileVoteAvatarProps) {
     pollCandidates.some((candidate) => candidate.movieId === rating.movieId)
   ));
   const movieCount = pollCandidates.length;
-  return <VotePie votes={votes} ratings={ratings} maxCount={movieCount} size={56}>
+  return <VoteCountPie
+    ratings={ratings}
+    maxCount={movieCount}
+    size={56}
+    positiveVoteCount={participant.positiveVoteCount}
+    neutralVoteCount={participant.neutralVoteCount}
+    negativeVoteCount={participant.negativeVoteCount}
+  >
     <ProfileAvatar user={user} size={36} />
-  </VotePie>;
+  </VoteCountPie>;
 }
 
 export default ProfileVoteAvatar;

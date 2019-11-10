@@ -1,6 +1,5 @@
 import { makeStyles } from '@material-ui/core';
 import { useList } from 'broilerkit/react/api';
-import { isNotNully } from 'broilerkit/utils/compare';
 import * as React from 'react';
 import { listPollParticipants } from '../api';
 import ProfileVoteAvatar from './ProfileVoteAvatar';
@@ -31,11 +30,10 @@ function ParticipantList({ pollId }: ParticipantListProps) {
   if (!participants) {
     return null;
   }
-  const profiles = participants.map(({ profile }) => profile).filter(isNotNully);
   return <div className={classes.container}>{
-    profiles.map((profile) => (
-      <div className={classes.avatar} key={profile.id}>
-        <ProfileVoteAvatar pollId={pollId} user={profile} />
+    participants.map(({ profile, ...participant }) => (
+      !profile ? null : <div className={classes.avatar} key={participant.profileId}>
+        <ProfileVoteAvatar pollId={pollId} user={profile} participant={participant} />
       </div>
     ))}
   </div>;
