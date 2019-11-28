@@ -16,7 +16,7 @@ export const profile = resource({
   versionBy: 'version',
 });
 
-export const publicProfile = profile.subset(['name', 'picture']);
+export const publicProfile = profile.subset(['id', 'name', 'picture']);
 
 export type PublicProfile = Deserialization<typeof publicProfile>;
 

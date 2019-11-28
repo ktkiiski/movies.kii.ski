@@ -4,12 +4,13 @@ import { Created, HttpStatus, isResponse, OK } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { implementAll } from 'broilerkit/server';
 import { order } from 'broilerkit/utils/arrays';
-import { isNotNully } from 'broilerkit/utils/compare';
 import { buildObject } from 'broilerkit/utils/objects';
 import * as api from './api';
 import { candidates, movies, participants, polls, profiles, ratings, votes } from './db';
 import { parseImdbRatingsCsv } from './imdb';
 import { retrieveMovie, retrieveMovieByImdbId, searchMovies } from './tmdb';
+
+const publicProfiles = profiles.pick(['id', 'name', 'picture']);
 
 export default implementAll(api).using({
   listUserPolls: async (query, {db}) => db.run(polls.list(query)),
@@ -52,24 +53,10 @@ export default implementAll(api).using({
   },
   destroyUserPoll: async ({id}, {db}) => db.run(polls.destroy({id})),
   retrievePoll: async ({id}, {db}) => db.run(polls.retrieve({id})),
-  listPollCandidates: async (query, {db}) => {
-    const {results, next} = await db.run(candidates.list(query));
-    const nestedMoviesPromise = db.run(movies.batchRetrieve(
-      results.map(({movieId}) => ({id: movieId})),
-    ));
-    const nestedUsersPromise = db.run(profiles.batchRetrieve(
-      results.map(({profileId}) => ({id: profileId})),
-    ));
-    const [nestedMovies, nestedUsers] = await Promise.all([nestedMoviesPromise, nestedUsersPromise]);
-    return {
-      next,
-      results: results.map((item, index) => ({
-        ...item,
-        movie: nestedMovies[index],
-        profile: nestedUsers[index],
-      })),
-    };
-  },
+  listPollCandidates: async (query, {db}) => db.run(candidates
+    .nest('movie', movies, { id: 'movieId' })
+    .nest('profile', publicProfiles, { id: 'profileId' })
+    .list(query)),
   createPollCandidate: async (input, {db, auth}) => {
     const now = new Date();
     const [profile, movie, candidate] = await db.batch([
@@ -91,19 +78,9 @@ export default implementAll(api).using({
     });
   },
   destroyPollCandidate: async (query, {db}) => db.run(candidates.destroy(query)),
-  listPollParticipants: async (query, {db}) => {
-    const {results, next} = await db.run(participants.list(query));
-    const nestedUsers = await db.run(profiles.batchRetrieve(
-      results.map(({profileId: id}) => ({id})),
-    ));
-    return {
-      next,
-      results: results.map((item, index) => ({
-        ...item,
-        profile: nestedUsers[index],
-      })),
-    };
-  },
+  listPollParticipants: async (query, {db}) => db.run(participants
+    .nest('profile', publicProfiles, { id: 'profileId' })
+    .list(query)),
   createPollParticipant: async ({ pollId }, {db, auth}) => {
     const now = new Date();
     const profileId = auth.id;
@@ -145,19 +122,9 @@ export default implementAll(api).using({
     });
   },
   destroyPollParticipant: async (query, {db}) => db.run(participants.destroy(query)),
-  listPollVotes: async (query, {db}) => {
-    const {results, next} = await db.run(votes.list(query));
-    const nestedProfiles = await db.run(profiles.batchRetrieve(
-      results.map(({profileId}) => ({id: profileId})),
-    ));
-    return {
-      next,
-      results: results.map((item, index) => ({
-        ...item,
-        profile: nestedProfiles[index],
-      })),
-    };
-  },
+  listPollVotes: async (query, {db}) => db.run(votes
+    .nest('profile', publicProfiles, {id: 'profileId'})
+    .list(query)),
   createPollVote: async ({value, ...input}, {db, auth}) => {
     const now = new Date();
     const profileId = auth.id;
@@ -180,19 +147,11 @@ export default implementAll(api).using({
     }
     return new OK({ ...vote, profile });
   },
-  listUserRatings: async ({profileId, ordering, since, direction}, {db}) => {
-    const {results, next} = await db.run(ratings.list({ profileId, ordering, since, direction }));
-    const nestedMovies = await db.run(movies.batchRetrieve(
-      results.map(({ movieId }) => ({ id: movieId })),
-    ));
-    return {
-      next,
-      results: results.map((item, index) => ({
-        ...item,
-        movie: nestedMovies[index],
-      })),
-    };
-  },
+  listUserRatings: async ({profileId, ordering, since, direction}, {db}) => (
+    db.run(ratings
+      .nest('movie', movies, { id: 'movieId' })
+      .list({ profileId, ordering, since, direction }))
+  ),
   createUserRating: async (input, {db}) => {
     // Ensure that the movie exists
     const movie = await db.run(movies.retrieve({ id: input.movieId }));
@@ -275,39 +234,13 @@ export default implementAll(api).using({
     });
   },
   listPollRatings: async ({pollId, ordering, direction, since}, {db}) => {
-    const [profileIds, movieIds] = await Promise.all([
-      toArray(flatMapAsync(
-        db.scan(participants.scan({ pollId, ordering: 'createdAt', direction: 'asc' })),
-        (items) => items.map(({profileId}) => profileId),
-      )),
-      toArray(flatMapAsync(
-        db.scan(candidates.scan({ pollId, ordering: 'createdAt', direction: 'asc' })),
-        (items) => items.map(({movieId}) => movieId),
-      )),
-    ]);
-    const [{ results, next }, pollProfiles] = await Promise.all([
-      db.run(ratings.list({
-        profileId: profileIds,
-        movieId: movieIds,
-        ordering, direction, since,
-      })),
-      db.run(profiles.batchRetrieve(profileIds.map((id) => ({id})))),
-    ]);
-    const publicProfiles = pollProfiles
-      .filter(isNotNully)
-      .map(({id, name, picture}) => ({id, name, picture}))
-    ;
-    return {
-      results: results.map((rating) => ({
-        pollId,
-        profile: publicProfiles.find(({id}) => rating.profileId === id) || null,
-        ...rating,
-      })),
-      next: next && {
-        since: next.since,
-        pollId, ordering, direction,
-      },
-    };
+    const pollCandidateRatings = ratings
+      .join(participants, { profileId: 'profileId' }, { pollId: 'pollId' })
+      .join(candidates, { pollId: 'pollId', movieId: 'movieId' }, {})
+      .nest('profile', publicProfiles, { id: 'profileId' });
+    return db.run(pollCandidateRatings.list({
+      pollId, ordering, direction, since,
+    }));
   },
   createPollRating: async ({pollId, movieId, value}, {db, auth}) => {
     const now = new Date();

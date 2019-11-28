@@ -17,7 +17,7 @@
     "@material-ui/icons": "^4.5.1",
     "@material-ui/styles": "^4.6.0",
     "@types/recharts": "^1.8.2",
-    "broilerkit": "^0.19.0",
+    "broilerkit": "^0.20.0",
     "recharts": "^1.8.5"
   },
   "dependencies": {
