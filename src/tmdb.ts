@@ -2,7 +2,7 @@ import { NotFound } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { requestJson } from 'broilerkit/request';
 import { retryRequestWithBackoff } from 'broilerkit/retry';
-import { movie, Movie, MovieSearchResult, movieSearchResult } from './resources';
+import { Movie, movies, MovieSearchResult, movieSearchResults } from './resources';
 
 async function requestTMDB(url: string, query: {[key: string]: string}): Promise<any> {
   const { data } = await retryRequestWithBackoff(20, (retryCount) => {
@@ -21,7 +21,7 @@ export async function retrieveMovie(id: number, apiKey: string): Promise<Movie> 
     const data = await requestTMDB(`https://api.themoviedb.org/3/movie/${id}`, {
       api_key: apiKey,
     });
-    return movie.deserialize({
+    return movies.deserialize({
       id: data.id,
       type: 'movie',
       version: identifier(now),
@@ -61,7 +61,7 @@ export async function retrieveSeries(id: number, apiKey: string, imdbId: string)
     const data = await requestTMDB(`https://api.themoviedb.org/3/tv/${id}`, {
       api_key: apiKey,
     });
-    return movie.deserialize({
+    return movies.deserialize({
       id: data.id,
       type: 'series',
       version: identifier(now),
@@ -124,6 +124,6 @@ export async function searchMovies(query: string, apiKey: string): Promise<Movie
   });
   const results = data.results as any[];
   return results.map(
-    ({ id }, index) => movieSearchResult.deserialize({ id, index, query }),
+    ({ id }, index) => movieSearchResults.deserialize({ id, index, query }),
   );
 }

@@ -1,66 +1,68 @@
-import { table } from 'broilerkit/db';
-import { candidate, movie, participant, poll, profile, rating, vote } from './resources';
+import { database } from 'broilerkit/db';
+import { candidates, movies, participants, polls, profiles, ratings, votes } from './resources';
 
-export const profiles = table(profile, 'profiles')
-  .index('name')
-;
-export const movies = table(movie, 'movies')
-  .migrate({ type: 'movie' })
-  .index('title')
-;
-export const polls = table(poll, 'polls')
-  .index('profileId', 'createdAt')
-  .migrate({
+const db = database();
+
+db.addTable(profiles, {
+  indexes: [
+    ['name'],
+  ],
+});
+db.addTable(movies, {
+  migrate: { type: 'movie' },
+  indexes: [
+    ['title'],
+  ],
+});
+db.addTable(polls, {
+  indexes: [
+    ['profileId', 'createdAt'],
+  ],
+  migrate: {
     candidateCount: 0,
     participantCount: 0,
     voteCount: 0,
-  })
-;
-export const candidates = table(candidate, 'candidates')
-  .index('pollId', 'createdAt')
-  .index('movieId', 'createdAt')
-  .index('profileId', 'createdAt')
-  .aggregate(polls).count('candidateCount', { id: 'pollId' })
-;
-export const participants = table(participant, 'participants')
-  .index('profileId', 'createdAt')
-  .index('pollId', 'createdAt')
-  .aggregate(polls).count('participantCount', { id: 'pollId' })
-  .migrate({
+  },
+});
+db.addTable(candidates, {
+  indexes: [
+    ['pollId', 'createdAt'],
+    ['movieId', 'createdAt'],
+    ['profileId', 'createdAt'],
+  ],
+});
+db.aggregateCount(candidates, polls, 'candidateCount', { id: 'pollId' });
+db.addTable(participants, {
+  indexes: [
+    ['profileId', 'createdAt'],
+    ['pollId', 'createdAt'],
+  ],
+  migrate: {
     voteCount: 0,
     positiveVoteCount: 0,
     neutralVoteCount: 0,
     negativeVoteCount: 0,
-  })
-;
-export const votes = table(vote, 'votes')
-  .index('pollId', 'createdAt')
-  .index('movieId', 'createdAt')
-  .index('profileId', 'createdAt')
-  .aggregate(polls).count(
-    'voteCount', { id: 'pollId' },
-  )
-  .aggregate(participants).count(
-    'voteCount', { pollId: 'pollId', profileId: 'profileId' },
-  )
-  .aggregate(participants).count(
-    'positiveVoteCount',
-    { pollId: 'pollId', profileId: 'profileId' },
-    { value: 1 },
-  )
-  .aggregate(participants).count(
-    'neutralVoteCount',
-    { pollId: 'pollId', profileId: 'profileId' },
-    { value: 0 },
-  )
-  .aggregate(participants).count(
-    'negativeVoteCount',
-    { pollId: 'pollId', profileId: 'profileId' },
-    { value: -1 },
-  )
-;
-export const ratings = table(rating, 'ratings')
-  .index('profileId', 'createdAt')
-  .index('movieId', 'createdAt')
-  .index('movieId', 'profileId', 'createdAt')
-;
+  },
+});
+db.aggregateCount(participants, polls, 'participantCount', { id: 'pollId' });
+db.addTable(votes, {
+  indexes: [
+    ['pollId', 'createdAt'],
+    ['movieId', 'createdAt'],
+    ['profileId', 'createdAt'],
+  ],
+});
+db.aggregateCount(votes, polls, 'voteCount', { id: 'pollId' });
+db.aggregateCount(votes, participants, 'voteCount', { pollId: 'pollId', profileId: 'profileId' });
+db.aggregateCount(votes, participants, 'positiveVoteCount', { pollId: 'pollId', profileId: 'profileId' }, { value: 1 });
+db.aggregateCount(votes, participants, 'neutralVoteCount', { pollId: 'pollId', profileId: 'profileId' }, { value: 0 });
+db.aggregateCount(votes, participants, 'negativeVoteCount', { pollId: 'pollId', profileId: 'profileId' }, { value: -1 });
+db.addTable(ratings, {
+  indexes: [
+    ['profileId', 'createdAt'],
+    ['movieId', 'createdAt'],
+    ['movieId', 'profileId', 'createdAt'],
+  ],
+});
+
+export default db;

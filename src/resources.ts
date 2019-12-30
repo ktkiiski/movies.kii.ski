@@ -1,28 +1,25 @@
 import { boolean, choice, constant, date, datetime, decimal, id, integer, list, matching, nullable, number, string, text, url } from 'broilerkit/fields';
-import { Deserialization, junction, relation, resource } from 'broilerkit/resources';
-import { user } from 'broilerkit/users';
+import { Deserialization, resource } from 'broilerkit/resources';
+import { users } from 'broilerkit/users';
 
-export const profile = resource({
-  name: 'profile',
-  fields: {
-    id: user.fields.id,
-    name: nullable(user.fields.name),
-    email: nullable(user.fields.email),
-    picture: user.fields.picture,
+export const profiles = resource('profile')
+  .fields({
+    id: users.fields.id,
+    name: nullable(users.fields.name),
+    email: nullable(users.fields.email),
+    picture: users.fields.picture,
     groups: list(string()),
     version: id(),
-  },
-  identifyBy: ['id'],
-  versionBy: 'version',
-});
+  })
+  .identifyBy(['id'], 'version');
 
-export const publicProfile = profile.subset(['id', 'name', 'picture']);
+export const publicProfiles = profiles
+  .subset(['id', 'name', 'picture']);
 
-export type PublicProfile = Deserialization<typeof publicProfile>;
+export type PublicProfile = Deserialization<typeof publicProfiles>;
 
-export const movie = resource({
-  name: 'movie',
-  fields: {
+export const movies = resource('movie')
+  .fields({
     id: integer(),
     version: id(),
     createdAt: datetime(),
@@ -51,156 +48,121 @@ export const movie = resource({
 
     genres: list(string()),
     languages: list(string()),
-  },
-  identifyBy: ['id'],
-  versionBy: 'version',
-});
+  })
+  .identifyBy(['id'], 'version');
 
-export type Movie = Deserialization<typeof movie>;
+export type Movie = Deserialization<typeof movies>;
 
-export const movieSearchResult = resource({
-  name: 'movieSearchResult',
-  fields: {
+export const movieSearchResults = resource('movieSearchResult')
+  .fields({
     id: integer(),
     query: string(),
     index: integer(),
-  },
-  identifyBy: ['id'],
-});
+  })
+  .identifyBy(['id']);
 
-export type MovieSearchResult = Deserialization<typeof movieSearchResult>;
+export type MovieSearchResult = Deserialization<typeof movieSearchResults>;
 
-export const poll = resource({
-  name: 'poll',
-  fields: {
+export const polls = resource('poll')
+  .fields({
     id: id(),
     version: id(),
     title: string(),
     description: text(),
-    profileId: profile.fields.id,
+    profileId: profiles.fields.id,
     createdAt: datetime(),
     updatedAt: datetime(),
     candidateCount: integer(),
     participantCount: integer(),
     voteCount: integer(),
-  },
-  identifyBy: ['id'],
-  versionBy: 'version',
-});
+  })
+  .identifyBy(['id'], 'version');
 
-export const participant = resource({
-  name: 'participant',
-  fields: {
+export const participants = resource('participant')
+  .fields({
     version: id(),
-    pollId: poll.fields.id,
-    profileId: publicProfile.fields.id,
+    pollId: polls.fields.id,
+    profileId: publicProfiles.fields.id,
     createdAt: datetime(),
     updatedAt: datetime(),
     voteCount: integer(),
     positiveVoteCount: integer(),
     neutralVoteCount: integer(),
     negativeVoteCount: integer(),
-  },
-  identifyBy: ['pollId', 'profileId'],
-  versionBy: 'version',
-});
+  })
+  .identifyBy(['pollId', 'profileId'], 'version');
 
-export const candidate = resource({
-  name: 'candidate',
-  fields: {
+export const pollParticipants = participants
+  .nest('profile', publicProfiles, { id: 'profileId' });
+
+export const candidates = resource('candidate')
+  .fields({
     version: id(),
-    pollId: poll.fields.id,
-    movieId: movie.fields.id,
-    profileId: profile.fields.id,
+    pollId: polls.fields.id,
+    movieId: movies.fields.id,
+    profileId: profiles.fields.id,
     createdAt: datetime(),
     updatedAt: datetime(),
-  },
-  identifyBy: ['pollId', 'movieId'],
-  versionBy: 'version',
-});
+  })
+  .identifyBy(['pollId', 'movieId'], 'version');
 
-export type Candidate = Deserialization<typeof candidate>;
+export const pollCandidates = candidates
+  .nest('movie', movies, { id: 'movieId' })
+  .nest('profile', publicProfiles, { id: 'profileId' });
+
+export type Candidate = Deserialization<typeof candidates>;
 
 export interface DetailedCandidate extends Candidate {
   movie: Movie | null;
   profile: PublicProfile | null;
 }
 
-export const vote = resource({
-  name: 'vote',
-  fields: {
+export const votes = resource('vote')
+  .fields({
     version: id(),
-    pollId: poll.fields.id,
-    movieId: movie.fields.id,
-    profileId: profile.fields.id,
+    pollId: polls.fields.id,
+    movieId: movies.fields.id,
+    profileId: profiles.fields.id,
     value: constant([-1, 0, 1]),
     createdAt: datetime(),
     updatedAt: datetime(),
-  },
-  identifyBy: ['pollId', 'movieId', 'profileId'],
-  versionBy: 'version',
-});
+  })
+  .identifyBy(['pollId', 'movieId', 'profileId'], 'version');
 
-export type Vote = Deserialization<typeof vote>;
+export const pollVotes = votes
+  .nest('profile', publicProfiles, { id: 'profileId' });
 
-export const rating = resource({
-  name: 'rating',
-  fields: {
+export type Vote = Deserialization<typeof votes>;
+
+export const ratings = resource('rating')
+  .fields({
     version: id(),
-    profileId: profile.fields.id,
-    movieId: movie.fields.id,
+    profileId: profiles.fields.id,
+    movieId: movies.fields.id,
     value: nullable(integer({
       min: 1,
       max: 10,
     })),
     createdAt: datetime(),
     updatedAt: datetime(),
-  },
-  identifyBy: ['profileId', 'movieId'],
-  versionBy: 'version',
-});
+  })
+  .identifyBy(['profileId', 'movieId'], 'version');
 
-export type Rating = Deserialization<typeof rating>;
+export const userRatings = ratings
+  .nest('movie', movies, { id: 'movieId' });
 
-export const ratingUpload = resource({
-  name: 'ratingUpload',
-  fields: {
+export type Rating = Deserialization<typeof ratings>;
+
+export const pollRatings = ratings
+  .join(participants, { profileId: 'profileId' }, { pollId: 'pollId' })
+  .join(candidates, { movieId: 'movieId', pollId: 'pollId' }, {})
+  .nest('profile', publicProfiles, { id: 'profileId' });
+
+export const ratingUploads = resource('ratingUpload')
+  .fields({
     id: id(),
     createdAt: datetime(),
-    profileId: profile.fields.id,
+    profileId: profiles.fields.id,
     ratingCount: integer(),
-  },
-  identifyBy: ['id'],
-});
-
-export const pollRating = junction(
-  relation({
-    resource: participant,
-    relation: {
-      pollId: 'pollId',
-      profileId: 'profileId',
-    },
-    fields: {},
-  }),
-  relation({
-    resource: candidate,
-    relation: {
-      movieId: 'movieId',
-      pollId: 'pollId',
-    },
-    fields: {},
-  }),
-  relation({
-    resource: rating,
-    relation: {
-      profileId: 'profileId',
-      movieId: 'movieId',
-    },
-    fields: {
-      value: 'value',
-      version: 'version',
-      createdAt: 'createdAt',
-      updatedAt: 'updatedAt',
-    },
-  }),
-);
+  })
+  .identifyBy(['id']);
