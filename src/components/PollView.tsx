@@ -5,6 +5,7 @@ import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import { useList, useOperation, useResource } from 'broilerkit/react/api';
 import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
+import { useClient } from 'broilerkit/react/client';
 import { useTitle } from 'broilerkit/react/meta';
 import * as React from 'react';
 import { useState } from 'react';
@@ -28,6 +29,7 @@ interface PollViewProps extends RouteComponentProps {
 function PollView({ pollId, history }: PollViewProps) {
   const userId = useUserId();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [sorting, setSorting] = useState<CandidateSorting>('unvoted');
   const requireAuth = useRequireAuth();
   const [poll] = useResource(api.retrievePoll, { id: pollId });
@@ -37,6 +39,7 @@ function PollView({ pollId, history }: PollViewProps) {
     direction: 'asc',
   });
   useTitle(poll && poll.title || `Movie poll`);
+  const client = useClient();
   const updatePoll = useOperation(api.updateUserPoll);
   const destroyPoll = useOperation(api.destroyUserPoll);
   const destroyPollParticipant = useOperation(api.destroyPollParticipant);
@@ -58,6 +61,14 @@ function PollView({ pollId, history }: PollViewProps) {
       await destroyPollParticipant.delete({ pollId, profileId: auth.id });
     }
   };
+  const onRefreshClick = async () => {
+    setIsRefreshing(true);
+    try {
+      await client.refreshAll();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
   const menu = poll && userId && userId === poll.profileId ? [
     <MenuItem key='rename' onClick={openUpdateModal}>Rename poll</MenuItem>,
     <MenuItem key='delete' onClick={onDeleteClick}>Delete poll</MenuItem>,
@@ -68,13 +79,30 @@ function PollView({ pollId, history }: PollViewProps) {
   return <Layout title={poll && poll.title || ''} menu={menu}>
     <Grid container direction='row-reverse' justify='center' spacing={4}>
       <Grid item md={3} sm={10} xs={12}>
-        <VerticalFlow>
-          <Typography variant='subtitle1'>Participants</Typography>
-          <ParticipantList pollId={pollId} />
-          {isParticipating ? <Button size='small' onClick={onLeaveClick}>
-            Leave from this poll
-                    </Button> : null}
-        </VerticalFlow>
+        <Grid container direction='row' spacing={4} alignItems='flex-end'>
+          <Grid item sm={8} xs={12} md={12}>
+            <VerticalFlow>
+              <Typography variant='subtitle1'>Participants</Typography>
+              <ParticipantList pollId={pollId} />
+            </VerticalFlow>
+          </Grid>
+          <Grid item sm={4} xs={12} md={12}>
+            <VerticalFlow>
+              {!isParticipating ? null : (
+                <div>
+                  <Button size='small' onClick={onLeaveClick}>
+                    Leave the poll
+                  </Button>
+                </div>
+              )}
+              <div>
+                <Button size='small' disabled={isRefreshing} onClick={onRefreshClick}>
+                  Refresh
+                </Button>
+              </div>
+            </VerticalFlow>
+          </Grid>
+        </Grid>
       </Grid>
       <Grid item md={9} sm={10} xs={12}>
         <MovieSearch pollId={pollId} key={pollId}>

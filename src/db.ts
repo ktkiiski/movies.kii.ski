@@ -1,63 +1,55 @@
 import { database } from 'broilerkit/db';
-import { candidates, movies, participants, polls, profiles, ratings, votes } from './resources';
+import { BasePoll, Candidate, Movie, Participant, ParticipantVoteCounter, ParticipantVoteValueCounter, PollCandidateCounter, PollParticipantCounter, PollVoteCounter, Profile, Rating, Vote } from './resources';
 
 const db = database();
 
-db.addTable(profiles, {
+db.addTable(Profile, {
   indexes: [
     ['name'],
   ],
 });
-db.addTable(movies, {
+db.addTable(Movie, {
   migrate: { type: 'movie' },
   indexes: [
     ['title'],
   ],
 });
-db.addTable(polls, {
+db.addTable(BasePoll, {
   indexes: [
     ['profileId', 'createdAt'],
   ],
-  migrate: {
-    candidateCount: 0,
-    participantCount: 0,
-    voteCount: 0,
-  },
 });
-db.addTable(candidates, {
+db.addTable(PollCandidateCounter);
+db.addTable(PollParticipantCounter);
+db.addTable(PollVoteCounter);
+db.addTable(Candidate, {
   indexes: [
     ['pollId', 'createdAt'],
     ['movieId', 'createdAt'],
     ['profileId', 'createdAt'],
   ],
 });
-db.aggregateCount(candidates, polls, 'candidateCount', { id: 'pollId' });
-db.addTable(participants, {
+db.aggregateCount(Candidate, PollCandidateCounter, 'count', { pollId: 'pollId' });
+db.addTable(Participant, {
   indexes: [
     ['profileId', 'createdAt'],
     ['pollId', 'createdAt'],
   ],
-  migrate: {
-    voteCount: 0,
-    positiveVoteCount: 0,
-    neutralVoteCount: 0,
-    negativeVoteCount: 0,
-  },
 });
-db.aggregateCount(participants, polls, 'participantCount', { id: 'pollId' });
-db.addTable(votes, {
+db.aggregateCount(Participant, PollParticipantCounter, 'count', { pollId: 'pollId' });
+db.addTable(Vote, {
   indexes: [
     ['pollId', 'createdAt'],
     ['movieId', 'createdAt'],
     ['profileId', 'createdAt'],
   ],
 });
-db.aggregateCount(votes, polls, 'voteCount', { id: 'pollId' });
-db.aggregateCount(votes, participants, 'voteCount', { pollId: 'pollId', profileId: 'profileId' });
-db.aggregateCount(votes, participants, 'positiveVoteCount', { pollId: 'pollId', profileId: 'profileId' }, { value: 1 });
-db.aggregateCount(votes, participants, 'neutralVoteCount', { pollId: 'pollId', profileId: 'profileId' }, { value: 0 });
-db.aggregateCount(votes, participants, 'negativeVoteCount', { pollId: 'pollId', profileId: 'profileId' }, { value: -1 });
-db.addTable(ratings, {
+db.aggregateCount(Vote, PollVoteCounter, 'count', { pollId: 'pollId' });
+db.addTable(ParticipantVoteCounter);
+db.addTable(ParticipantVoteValueCounter);
+db.aggregateCount(Vote, ParticipantVoteCounter, 'count', { pollId: 'pollId', profileId: 'profileId' });
+db.aggregateCount(Vote, ParticipantVoteValueCounter, 'count', { pollId: 'pollId', profileId: 'profileId', value: 'value' });
+db.addTable(Rating, {
   indexes: [
     ['profileId', 'createdAt'],
     ['movieId', 'createdAt'],
