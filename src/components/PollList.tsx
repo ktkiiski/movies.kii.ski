@@ -2,7 +2,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { useList } from 'broilerkit/react/api';
-import { order } from 'broilerkit/utils/arrays';
+import order from 'immuton/order';
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import * as api from '../api';

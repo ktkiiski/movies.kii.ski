@@ -4,7 +4,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import StarIcon from '@material-ui/icons/Star';
 import { useList } from 'broilerkit/react/api';
-import { order } from 'broilerkit/utils/arrays';
+import order from 'immuton/order';
 import * as React from 'react';
 import * as api from '../api';
 import LoadingIndicator from './LoadingIndicator';

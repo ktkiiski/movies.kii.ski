@@ -17,10 +17,11 @@
     "@material-ui/icons": "^4.5.1",
     "@material-ui/styles": "^4.7.1",
     "@types/recharts": "^1.8.4",
-    "broilerkit": "^0.22.0",
+    "broilerkit": "^0.23.0",
     "recharts": "^1.8.5"
   },
   "dependencies": {
-    "csv-parse": "^4.8.3"
+    "csv-parse": "^4.8.3",
+    "immuton": "^1.0.1"
   }
 }

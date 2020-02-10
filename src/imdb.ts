@@ -1,6 +1,5 @@
 import { datetime, integer, nullable, string } from 'broilerkit/fields';
 import { Encoding, serializer } from 'broilerkit/serializers';
-import { transformKeys } from 'broilerkit/utils/objects';
 import * as parseCSV from 'csv-parse/lib/sync';
 
 const fieldTransforms: Record<string, string> = {
@@ -31,9 +30,11 @@ export function parseImdbRatingsCsv(data: string) {
     relax_column_count: true,
   });
   return items.map((item) => {
-    const entry = transformKeys(item, (key) => {
+    const entry: Encoding = {};
+    Object.keys(item).forEach((key) => {
       const lowerKey = key.toLowerCase();
-      return fieldTransforms[lowerKey] || lowerKey;
+      const newKey = fieldTransforms[lowerKey] || lowerKey;
+      entry[newKey] = item[key];
     });
     return imdbRatingSerializer.decode(entry);
   });

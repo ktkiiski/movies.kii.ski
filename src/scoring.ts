@@ -1,6 +1,7 @@
 import { useList } from 'broilerkit/react/api';
 import { useUserId } from 'broilerkit/react/auth';
-import { order, sort } from 'broilerkit/utils/arrays';
+import order from 'immuton/order';
+import sort from 'immuton/sort';
 import { useMemo } from 'react';
 import * as api from './api';
 import { Vote } from './resources';

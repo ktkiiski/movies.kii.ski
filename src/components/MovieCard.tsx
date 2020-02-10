@@ -4,7 +4,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Hidden from '@material-ui/core/Hidden';
 import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
-import { shortenSentences } from 'broilerkit/utils/strings';
+import { shortenSentences } from 'broilerkit/strings';
 import * as React from 'react';
 import { Movie, PublicProfile } from '../resources';
 import HorizontalLayout from './layout/HorizontalLayout';

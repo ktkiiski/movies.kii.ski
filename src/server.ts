@@ -1,11 +1,11 @@
 import { chunkify, flatMapAsync, flatMapAsyncParallel, toArray, toFlattenArray } from 'broilerkit/async';
-import { create, destroy, retrieve, scan, update, upsert, write } from 'broilerkit/db';
+import { create, destroy, initiate, retrieve, scan, update, upsert, write } from 'broilerkit/db';
 import { catchNotFound } from 'broilerkit/errors';
 import { Created, HttpStatus, isResponse, OK } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { implementAll } from 'broilerkit/server';
-import { order } from 'broilerkit/utils/arrays';
-import { buildObject } from 'broilerkit/utils/objects';
+import build from 'immuton/build';
+import order from 'immuton/order';
 import * as api from './api';
 import { parseImdbRatingsCsv } from './imdb';
 import { BasePoll, Candidate, Movie, Participant, Poll, PollParticipant, Profile, Rating, Vote } from './resources';
@@ -98,23 +98,30 @@ export default implementAll(api).using({
     });
   },
   destroyPollParticipant: async (query, {db}) => db.run(destroy(Participant, query)),
-  createPollVote: async ({value, ...input}, {db, auth}) => {
+  createPollVote: async ({value, pollId, movieId}, {db, auth}) => {
     const now = new Date();
     const profileId = auth.id;
-    const [profile, movie] = await db.batch([
-      write(Profile, { ...auth, version: identifier(now) }),
-      // Also ensure that the movie exists
-      retrieve(Movie, {id: input.movieId}),
-    ]);
     const version = identifier(now);
-    const vote = await db.run(upsert(Vote, {
-      ...input,
-      profileId, value, version,
-      createdAt: now,
-      updatedAt: now,
-    }, {
-      value, version, updatedAt: now,
-    }));
+    const [movie, profile, , vote] = await db.batch([
+      // Also ensure that the movie exists
+      retrieve(Movie, {id: movieId}),
+      // Ensure that the user profile is up-to-date
+      write(Profile, { ...auth, version: identifier(now) }),
+      // Ensure that the user is a participant of the poll
+      initiate(Participant, {
+        pollId, profileId, version,
+        createdAt: now, updatedAt: now,
+      }),
+      // Upsert the vote
+      upsert(Vote, {
+        pollId, movieId,
+        profileId, value, version,
+        createdAt: now,
+        updatedAt: now,
+      }, {
+        value, version, updatedAt: now,
+      }),
+    ]);
     if (vote.createdAt === now) {
       return new Created({ ...vote, profile, movie });
     }
@@ -143,7 +150,7 @@ export default implementAll(api).using({
       direction: 'asc',
     })));
     const existingMovies = await toFlattenArray(movieChunks);
-    const moviesByImdbId = buildObject(existingMovies, (movie) => [movie.imdbId as string, movie]);
+    const moviesByImdbId = build(existingMovies, (movie) => [movie.imdbId as string, movie]);
     const resultRatings = await toArray(flatMapAsyncParallel(4, rawRatings, async function*(rawRating) {
       const imdbId = rawRating.id;
       let movie = moviesByImdbId[imdbId];
@@ -233,25 +240,29 @@ export default implementAll(api).using({
       destroy(Rating, {profileId, movieId}),
     ]);
   },
-  updatePollVote: async ({value, ...input}, {db, auth}) => {
+  updatePollVote: async ({value, profileId, pollId, movieId}, {db, auth}) => {
     // Find the related resources, ensuring that they exist
     const now = new Date();
-    const [profile, movie] = await db.batch([
-      write(Profile, {
-        ...auth,
-        version: identifier(now),
+    const version = identifier(now);
+    const [movie, profile, , vote] = await db.batch([
+      // Also ensure that the movie exists
+      retrieve(Movie, {id: movieId}),
+      // Ensure that the user profile is up-to-date
+      write(Profile, { ...auth, version }),
+      // Ensure that the user is a participant of the poll
+      initiate(Participant, {
+        pollId, profileId, version,
+        createdAt: now, updatedAt: now,
       }),
-      retrieve(Movie, {id: input.movieId}),
+      // Upsert the vote
+      update(Vote, { profileId, pollId, movieId }, {
+        value,
+        version,
+        updatedAt: now,
+      }),
     ]);
     // Vote already exists -> update it
-    return new OK({
-      ...await db.run(update(Vote, {...input}, {
-        value,
-        version: identifier(now),
-        updatedAt: now,
-      })),
-      profile, movie,
-    });
+    return new OK({ ...vote, profile, movie });
   },
   destroyPollVote: async (query, {db}) => db.run(destroy(Vote, query)),
   retrieveMovie: async ({id}, {db, environment}) => {

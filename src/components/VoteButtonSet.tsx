@@ -39,17 +39,12 @@ interface VoteButtonSetProps {
 
 function VoteButtonSet({ movieId, pollId, currentValue }: VoteButtonSetProps) {
   const requireAuth = useRequireAuth();
-  const createPollParticipantOperation = useOperation(api.createPollParticipant);
   const createPollVoteOperation = useOperation(api.createPollVote);
   const destroyPollVoteOperation = useOperation(api.destroyPollVote);
   const updatePollVote = useOperation(api.updatePollVote);
 
   const onSelect = async (value: VoteValue, oldValue?: VoteValue | null) => {
     const auth = await requireAuth();
-    if (value !== oldValue) {
-      // Ensure that the user is the participant in this poll
-      createPollParticipantOperation.post({ pollId });
-    }
     if (oldValue == null) {
       // Create a new vote
       const now = new Date();
