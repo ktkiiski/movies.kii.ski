@@ -21,7 +21,7 @@ function HorizontalLayout({ children, left, right, align, ...props }: Horizontal
     <Grid
       container
       direction='row'
-      spacing={8}
+      spacing={2}
       alignItems={align === 'center' ? 'center' : align === 'bottom' ? 'flex-end' : 'flex-start'}
       {...props}
     >

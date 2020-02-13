@@ -13,15 +13,15 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@material-ui/core": "^4.8.1",
-    "@material-ui/icons": "^4.5.1",
-    "@material-ui/styles": "^4.7.1",
-    "@types/recharts": "^1.8.4",
+    "@material-ui/core": "^4.9.2",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/styles": "^4.9.0",
+    "@types/recharts": "^1.8.5",
     "broilerkit": "^0.23.2",
     "recharts": "^1.8.5"
   },
   "dependencies": {
-    "csv-parse": "^4.8.3",
+    "csv-parse": "^4.8.5",
     "immuton": "^1.0.2"
   }
 }
