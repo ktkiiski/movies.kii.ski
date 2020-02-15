@@ -38,8 +38,8 @@ function VoteResult({ pollId, movieId }: VoteTableProps) {
       </VotePie>
     </Hidden>
     <Hidden smUp implementation='js'>
-      <VotePie size={75} votes={movieVotes} maxCount={participantCount} ratings={movieRatings}>
-        {isFinite(score) ? <Typography color='textPrimary' style={{ fontSize: 20 }}>{Math.round(score)}%</Typography> : null}
+      <VotePie size={64} votes={movieVotes} maxCount={participantCount} ratings={movieRatings}>
+        {isFinite(score) ? <Typography color='textPrimary' style={{ fontSize: 15 }}>{Math.round(score)}%</Typography> : null}
       </VotePie>
     </Hidden>
   </>;
