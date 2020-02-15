@@ -8,6 +8,7 @@ interface VotePieProps {
   maxCount: number;
   ratings: Rating[];
   children?: React.ReactNode;
+  animate: boolean;
 }
 
 function VotePie({ votes, ...props }: VotePieProps) {

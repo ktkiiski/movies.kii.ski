@@ -34,7 +34,7 @@ function ProfileVoteAvatar({ pollId, user }: ProfileVoteAvatarProps) {
     pollCandidates.some((candidate) => candidate.movieId === rating.movieId)
   ));
   const movieCount = pollCandidates.length;
-  return <VotePie votes={votes} ratings={ratings} maxCount={movieCount} size={56}>
+  return <VotePie votes={votes} ratings={ratings} maxCount={movieCount} size={56} animate={false}>
     <ProfileAvatar user={user} size={36} />
   </VotePie>;
 }

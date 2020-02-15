@@ -33,12 +33,12 @@ function VoteResult({ pollId, movieId }: VoteTableProps) {
 
   return <>
     <Hidden xsDown implementation='js'>
-      <VotePie size={120} votes={movieVotes} maxCount={participantCount} ratings={movieRatings}>
+      <VotePie size={120} votes={movieVotes} maxCount={participantCount} ratings={movieRatings} animate>
         {isFinite(score) ? <Typography color='textPrimary' style={{ fontSize: 24 }}>{Math.round(score)}%</Typography> : null}
       </VotePie>
     </Hidden>
     <Hidden smUp implementation='js'>
-      <VotePie size={64} votes={movieVotes} maxCount={participantCount} ratings={movieRatings}>
+      <VotePie size={64} votes={movieVotes} maxCount={participantCount} ratings={movieRatings} animate>
         {isFinite(score) ? <Typography color='textPrimary' style={{ fontSize: 15 }}>{Math.round(score)}%</Typography> : null}
       </VotePie>
     </Hidden>

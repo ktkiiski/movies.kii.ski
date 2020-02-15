@@ -14,11 +14,12 @@ interface VoteCountPieProps {
   maxCount: number;
   ratings: Rating[];
   children?: React.ReactNode;
+  animate: boolean;
 }
 
 function VoteCountPie(props: VoteCountPieProps) {
   const {
-    size, maxCount, ratings, children,
+    size, maxCount, ratings, children, animate,
     positiveVoteCount, neutralVoteCount, negativeVoteCount,
   } = props;
   const voteCount = positiveVoteCount + neutralVoteCount + negativeVoteCount;
@@ -48,13 +49,31 @@ function VoteCountPie(props: VoteCountPieProps) {
     value: maxCount - ratings.length,
     color: 'rgba(0,0,0,0)',
   }];
-  return <Stack>
+  return <Stack style={{ width: `${size}px`, height: `${size}px` }}>
     <ClientOnly>
       <PieChart width={size} height={size}>
-        <Pie innerRadius={size * 0.32} outerRadius={size * 0.4} data={ratingsData} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
+        <Pie
+          innerRadius={size * 0.32}
+          outerRadius={size * 0.4}
+          data={ratingsData}
+          dataKey={'value'}
+          stroke={0}
+          animationBegin={0}
+          animationDuration={700}
+          isAnimationActive={animate}
+        >
           {ratingsData.map(({ name, color }) => <Cell fill={color} key={name} />)}
         </Pie>
-        <Pie innerRadius={size * 0.4} outerRadius={size * 0.5} data={data} dataKey={'value'} stroke={0} animationBegin={0} animationDuration={700}>
+        <Pie
+          innerRadius={size * 0.4}
+          outerRadius={size * 0.5}
+          data={data}
+          dataKey={'value'}
+          stroke={0}
+          animationBegin={0}
+          animationDuration={700}
+          isAnimationActive={animate}
+        >
           {data.map(({ name, color }) => <Cell fill={color} key={name} />)}
         </Pie>
       </PieChart>
