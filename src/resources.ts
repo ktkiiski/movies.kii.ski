@@ -5,8 +5,8 @@ import { users } from 'broilerkit/users';
 export const Profile = resource('profile')
   .fields({
     id: users.fields.id,
-    name: nullable(users.fields.name),
-    email: nullable(users.fields.email),
+    name: users.fields.name,
+    email: users.fields.email,
     picture: users.fields.picture,
     groups: list(string()),
     version: id(),
