@@ -9,9 +9,8 @@ export const Profile = resource('profile')
     email: users.fields.email,
     picture: users.fields.picture,
     groups: list(string()),
-    version: id(),
   })
-  .identifyBy(['id'], 'version');
+  .identifyBy('id');
 
 export const PublicProfile = Profile
   .subset(['id', 'name', 'picture']);
@@ -21,7 +20,6 @@ export type PublicProfile = Deserialization<typeof PublicProfile>;
 export const Movie = resource('movie')
   .fields({
     id: integer(),
-    version: id(),
     createdAt: datetime(),
     updatedAt: datetime(),
 
@@ -49,7 +47,7 @@ export const Movie = resource('movie')
     genres: list(string()),
     languages: list(string()),
   })
-  .identifyBy(['id'], 'version');
+  .identifyBy('id');
 
 export type Movie = Deserialization<typeof Movie>;
 
@@ -59,42 +57,41 @@ export const MovieSearchResult = resource('movieSearchResult')
     query: string(),
     index: integer(),
   })
-  .identifyBy(['id']);
+  .identifyBy('id');
 
 export type MovieSearchResult = Deserialization<typeof MovieSearchResult>;
 
 export const BasePoll = resource('poll')
   .fields({
     id: id(),
-    version: id(),
     title: string(),
     description: text(),
     profileId: Profile.fields.id,
     createdAt: datetime(),
     updatedAt: datetime(),
   })
-  .identifyBy(['id'], 'version');
+  .identifyBy('id');
 
 export const PollCandidateCounter = resource('pollCandidateCounter')
   .fields({
     pollId: BasePoll.fields.id,
     count: integer(),
   })
-  .identifyBy(['pollId']);
+  .identifyBy('pollId');
 
 export const PollParticipantCounter = resource('pollParticipantCounter')
   .fields({
     pollId: BasePoll.fields.id,
     count: integer(),
   })
-  .identifyBy(['pollId']);
+  .identifyBy('pollId');
 
 export const PollVoteCounter = resource('pollVoteCounter')
   .fields({
     pollId: BasePoll.fields.id,
     count: integer(),
   })
-  .identifyBy(['pollId']);
+  .identifyBy('pollId');
 
 export const Poll = BasePoll
   .leftJoin(PollCandidateCounter, { pollId: 'id' }, { candidateCount: 'count' }, { candidateCount: 0 })
@@ -103,7 +100,6 @@ export const Poll = BasePoll
 
 export const Vote = resource('vote')
   .fields({
-    version: id(),
     pollId: Poll.fields.id,
     movieId: Movie.fields.id,
     profileId: Profile.fields.id,
@@ -111,7 +107,7 @@ export const Vote = resource('vote')
     createdAt: datetime(),
     updatedAt: datetime(),
   })
-  .identifyBy(['pollId', 'movieId', 'profileId'], 'version');
+  .identifyBy('pollId', 'movieId', 'profileId');
 
 export const PollVote = Vote
   .nest('profile', PublicProfile, { id: 'profileId' });
@@ -120,13 +116,12 @@ export type Vote = Deserialization<typeof Vote>;
 
 export const Participant = resource('participant')
   .fields({
-    version: id(),
     pollId: Poll.fields.id,
     profileId: PublicProfile.fields.id,
     createdAt: datetime(),
     updatedAt: datetime(),
   })
-  .identifyBy(['pollId', 'profileId'], 'version');
+  .identifyBy('pollId', 'profileId');
 
 export const ParticipantVoteCounter = resource('participantVoteCounter')
   .fields({
@@ -134,7 +129,7 @@ export const ParticipantVoteCounter = resource('participantVoteCounter')
     profileId: PublicProfile.fields.id,
     count: integer(),
   })
-  .identifyBy(['pollId', 'profileId']);
+  .identifyBy('pollId', 'profileId');
 
 export const ParticipantVoteValueCounter = resource('participantVoteValueCounter')
   .fields({
@@ -143,7 +138,7 @@ export const ParticipantVoteValueCounter = resource('participantVoteValueCounter
     value: Vote.fields.value,
     count: integer(),
   })
-  .identifyBy(['pollId', 'profileId', 'value']);
+  .identifyBy('pollId', 'profileId', 'value');
 
 export const PollParticipant = Participant
   .nest('profile', PublicProfile, { id: 'profileId' })
@@ -174,14 +169,13 @@ export const PollParticipant = Participant
 
 export const Candidate = resource('candidate')
   .fields({
-    version: id(),
     pollId: Poll.fields.id,
     movieId: Movie.fields.id,
     profileId: Profile.fields.id,
     createdAt: datetime(),
     updatedAt: datetime(),
   })
-  .identifyBy(['pollId', 'movieId'], 'version');
+  .identifyBy('pollId', 'movieId');
 
 export const PollCandidate = Candidate
   .nest('movie', Movie, { id: 'movieId' })
@@ -196,7 +190,6 @@ export interface DetailedCandidate extends Candidate {
 
 export const Rating = resource('rating')
   .fields({
-    version: id(),
     profileId: Profile.fields.id,
     movieId: Movie.fields.id,
     value: nullable(integer({
@@ -206,7 +199,7 @@ export const Rating = resource('rating')
     createdAt: datetime(),
     updatedAt: datetime(),
   })
-  .identifyBy(['profileId', 'movieId'], 'version');
+  .identifyBy('profileId', 'movieId');
 
 export const UserRating = Rating
   .nest('movie', Movie, { id: 'movieId' });
@@ -225,4 +218,4 @@ export const RatingUpload = resource('ratingUpload')
     profileId: Profile.fields.id,
     ratingCount: integer(),
   })
-  .identifyBy(['id']);
+  .identifyBy('id');

@@ -3,7 +3,6 @@ import IconButton from '@material-ui/core/IconButton';
 import SelectedNegativeIcon from '@material-ui/icons/ThumbDown';
 import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
-import { identifier } from 'broilerkit/id';
 import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
@@ -57,7 +56,6 @@ function VoteButtonSet({ movieId, pollId, currentValue }: VoteButtonSetProps) {
         movieId, pollId, value,
         profileId: auth.id,
         profile: auth,
-        version: identifier(),
         createdAt: now,
         updatedAt: now,
       });

@@ -19,7 +19,6 @@ export default implementAll(api).using({
       create(BasePoll, {
         ...input,
         id,
-        version: identifier(now),
         profileId: auth.id,
         createdAt: now,
         updatedAt: now,
@@ -27,7 +26,6 @@ export default implementAll(api).using({
       retrieve(Poll, { id }),
       write(Profile, {
         ...auth,
-        version: identifier(now),
       }),
     ]);
     return new Created(poll);
@@ -35,15 +33,8 @@ export default implementAll(api).using({
   updateUserPoll: async ({id, ...changes}, {db, auth}) => {
     const now = new Date();
     const [poll] = await db.batch([
-      update(Poll, {id}, {
-        ...changes,
-        version: identifier(now),
-        updatedAt: now,
-      }),
-      write(Profile, {
-        ...auth,
-        version: identifier(now),
-      }),
+      update(Poll, {id}, { ...changes, updatedAt: now }),
+      write(Profile, auth),
     ]);
     return new OK(poll);
   },
@@ -51,14 +42,10 @@ export default implementAll(api).using({
   createPollCandidate: async (input, {db, auth}) => {
     const now = new Date();
     const [profile, movie, candidate] = await db.batch([
-      write(Profile, {
-        ...auth,
-        version: identifier(now),
-      }),
+      write(Profile, auth),
       retrieve(Movie, {id: input.movieId}),
       create(Candidate, {
         ...input,
-        version: identifier(now),
         profileId: auth.id,
         createdAt: now,
         updatedAt: now,
@@ -73,20 +60,13 @@ export default implementAll(api).using({
     const now = new Date();
     const profileId = auth.id;
     const [profile, , participant] = await db.batch([
-      upsert(Profile, {
-        ...auth,
-        version: identifier(now),
-      }, {
-        version: identifier(now),
-      }),
+      write(Profile, auth),
       upsert(Participant, {
         pollId,
-        version: identifier(now),
         profileId,
         createdAt: now,
         updatedAt: now,
       }, {
-        version: identifier(now),
         updatedAt: now,
       }),
       retrieve(PollParticipant, {
@@ -101,25 +81,24 @@ export default implementAll(api).using({
   createPollVote: async ({value, pollId, movieId}, {db, auth}) => {
     const now = new Date();
     const profileId = auth.id;
-    const version = identifier(now);
     const [movie, profile, , vote] = await db.batch([
       // Also ensure that the movie exists
       retrieve(Movie, {id: movieId}),
       // Ensure that the user profile is up-to-date
-      write(Profile, { ...auth, version: identifier(now) }),
+      write(Profile, auth),
       // Ensure that the user is a participant of the poll
       initiate(Participant, {
-        pollId, profileId, version,
+        pollId, profileId,
         createdAt: now, updatedAt: now,
       }),
       // Upsert the vote
       upsert(Vote, {
         pollId, movieId,
-        profileId, value, version,
+        profileId, value,
         createdAt: now,
         updatedAt: now,
       }, {
-        value, version, updatedAt: now,
+        value, updatedAt: now,
       }),
     ]);
     if (vote.createdAt === now) {
@@ -133,7 +112,6 @@ export default implementAll(api).using({
     const now = new Date();
     const rating = await db.run(create(Rating, {
       ...input,
-      version: identifier(now),
       createdAt: now,
       updatedAt: now,
     }));
@@ -166,7 +144,7 @@ export default implementAll(api).using({
           }
         }
         const { createdAt, ...movieUpdate } = movie;
-        await db.run(upsert(Movie, movie, { ...movieUpdate, version: identifier() }));
+        await db.run(upsert(Movie, movie, movieUpdate));
         // tslint:disable-next-line:no-console
         console.log(`Inserted/updated details about a ${movie.type} ${movie.originalTitle} (#${movie.id})`);
       }
@@ -177,11 +155,9 @@ export default implementAll(api).using({
       const existingRating = await catchNotFound(
         db.run(retrieve(Rating, { profileId, movieId })),
       );
-      const version = identifier();
       if (!existingRating) {
         // Create a new rating
         yield await db.run(create(Rating, {
-          version,
           createdAt: updatedAt,
           updatedAt,
           movieId,
@@ -191,7 +167,7 @@ export default implementAll(api).using({
         // tslint:disable-next-line:no-console
         console.log(`Created a new rating for the ${movie.type} ${movieId} of user ${profileId} with value ${value}`);
       } else if (updatedAt > existingRating.updatedAt) {
-        yield await db.run(update(Rating, { movieId, profileId }, { version, value, updatedAt }));
+        yield await db.run(update(Rating, { movieId, profileId }, { value, updatedAt }));
         // tslint:disable-next-line:no-console
         console.log(`Updated the rating for the ${movie.type} ${movieId} of user ${profileId} with value ${value}`);
       } else {
@@ -216,11 +192,10 @@ export default implementAll(api).using({
       retrieve(Movie, { id: movieId }),
       retrieve(Candidate, { pollId, movieId }),
       retrieve(Participant, { pollId, profileId }),
-      write(Profile, { ...auth, version: identifier(now) }),
+      write(Profile, { ...auth }),
     ]);
     const rating = await db.run(write(Rating, {
       movieId, profileId,
-      version: identifier(now),
       value,
       createdAt: now,
       updatedAt: now,
@@ -243,21 +218,19 @@ export default implementAll(api).using({
   updatePollVote: async ({value, profileId, pollId, movieId}, {db, auth}) => {
     // Find the related resources, ensuring that they exist
     const now = new Date();
-    const version = identifier(now);
     const [movie, profile, , vote] = await db.batch([
       // Also ensure that the movie exists
       retrieve(Movie, {id: movieId}),
       // Ensure that the user profile is up-to-date
-      write(Profile, { ...auth, version }),
+      write(Profile, auth),
       // Ensure that the user is a participant of the poll
       initiate(Participant, {
-        pollId, profileId, version,
+        pollId, profileId,
         createdAt: now, updatedAt: now,
       }),
       // Upsert the vote
       update(Vote, { profileId, pollId, movieId }, {
         value,
-        version,
         updatedAt: now,
       }),
     ]);

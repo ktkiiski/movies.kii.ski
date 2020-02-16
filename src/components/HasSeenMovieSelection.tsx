@@ -1,6 +1,5 @@
 import { Checkbox, FormControlLabel, FormGroup, Hidden } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
-import { identifier } from 'broilerkit/id';
 import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
@@ -40,7 +39,6 @@ function HasSeenMovieSelection({ movieId, pollId, hasSeen, ...props }: HasSeenMo
         value: null,
         createdAt: now,
         updatedAt: now,
-        version: identifier(),
       });
     } else {
       await destroyPollCandidateRating.delete({
