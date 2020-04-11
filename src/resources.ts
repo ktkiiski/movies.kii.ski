@@ -1,5 +1,7 @@
 import { boolean, choice, constant, date, datetime, decimal, id, integer, list, matching, nullable, number, string, text, url } from 'broilerkit/fields';
 import { Deserialization, resource } from 'broilerkit/resources';
+import { nested } from 'broilerkit/serializers';
+import { uploadFormSerializer } from 'broilerkit/uploads';
 import { users } from 'broilerkit/users';
 
 export const Profile = resource('profile')
@@ -216,6 +218,6 @@ export const RatingUpload = resource('ratingUpload')
     id: id(),
     createdAt: datetime(),
     profileId: Profile.fields.id,
-    ratingCount: integer(),
+    form: nested(uploadFormSerializer),
   })
   .identifyBy('id');

@@ -101,4 +101,13 @@ export default app({
    * The website file for this app.
    */
   siteFile: 'App.tsx',
+  /**
+   * Configuration file for all the additional S3 buckets for this app,
+   * for example, the file uploads by the users.
+   */
+  bucketsFile: 'buckets.ts',
+  /**
+   * File defining background triggers on backend events.
+   */
+  triggersFile: 'triggers.ts',
 });

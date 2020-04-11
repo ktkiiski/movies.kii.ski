@@ -1,5 +1,5 @@
 import { endpoint } from 'broilerkit/endpoints';
-import { creatable, destroyable, listable, retrievable, updateable, uploadable } from 'broilerkit/operations';
+import { creatable, destroyable, listable, retrievable, updateable } from 'broilerkit/operations';
 import { pattern } from 'broilerkit/url';
 import { Movie, MovieSearchResult, Poll, PollCandidate, PollParticipant, PollRating, PollVote, RatingUpload, UserRating } from './resources';
 
@@ -134,13 +134,12 @@ export const destroyUserRating = destroyable(userRatingResource, {
 });
 
 const userRatingUploadCollection = endpoint(RatingUpload, pattern`/api/users/${'profileId'}/ratings_uploads`);
-export const uploadUserRatings = uploadable(userRatingUploadCollection, {
+export const createRatingUpload = creatable(userRatingUploadCollection, {
   auth: 'owner',
   ownership: 'profileId',
   required: [],
   optional: [],
   defaults: {},
-  files: ['file'],
 });
 
 /**
