@@ -39,7 +39,7 @@ function ProfileAvatar(props: ProfileAvatarProps) {
     fontSize,
   };
   if (picture) {
-    return <Tooltip title={name}>
+    return <Tooltip title={name || ''}>
       <Avatar style={style} src={picture} classes={fade ? { img: classes.fadedImg } : undefined} {...avatarProps} />
     </Tooltip>;
   }
@@ -55,7 +55,7 @@ function ProfileAvatar(props: ProfileAvatarProps) {
       }
     }
   }
-  return <Tooltip title={name}>
+  return <Tooltip title={name || ''}>
     <Avatar style={style} {...props}>{initials || <PersonIcon />}</Avatar>
   </Tooltip>;
 }
