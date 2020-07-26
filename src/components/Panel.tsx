@@ -7,8 +7,10 @@ interface PanelProps {
   elevation?: number;
 }
 
-const Panel = (({ children, elevation = 1 }: PanelProps) => (
-  <Paper elevation={elevation}><Spacer>{children}</Spacer></Paper>
-));
+const Panel = ({ children, elevation = 1 }: PanelProps) => (
+  <Paper elevation={elevation}>
+    <Spacer>{children}</Spacer>
+  </Paper>
+);
 
 export default Panel;

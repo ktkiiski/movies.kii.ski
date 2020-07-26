@@ -14,7 +14,11 @@ const useStyles = makeStyles((theme) => ({
 
 function VerticalFlow({ children, ...props }: React.HTMLAttributes<HTMLElement>) {
   const classes = useStyles();
-  return <div {...props} className={classes.verticalFlow}>{children}</div>;
+  return (
+    <div {...props} className={classes.verticalFlow}>
+      {children}
+    </div>
+  );
 }
 
 export default VerticalFlow;

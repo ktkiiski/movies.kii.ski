@@ -14,29 +14,45 @@ interface ProfileVoteAvatarProps {
 }
 
 function ProfileVoteAvatar({ pollId, user }: ProfileVoteAvatarProps) {
-  const [votes] = useList(api.listPollVotes, {
-    pollId, ordering: 'createdAt', direction: 'asc',
-  }, {
-    profileId: user.id,
-  });
-  const [userRatings] = useList(api.listPollRatings, {
-    pollId, ordering: 'createdAt', direction: 'asc',
-  }, {
-    profileId: user.id,
-  });
+  const [votes] = useList(
+    api.listPollVotes,
+    {
+      pollId,
+      ordering: 'createdAt',
+      direction: 'asc',
+    },
+    {
+      profileId: user.id,
+    },
+  );
+  const [userRatings] = useList(
+    api.listPollRatings,
+    {
+      pollId,
+      ordering: 'createdAt',
+      direction: 'asc',
+    },
+    {
+      profileId: user.id,
+    },
+  );
   const [pollCandidates] = useList(api.listPollCandidates, {
-    pollId, ordering: 'createdAt', direction: 'asc',
+    pollId,
+    ordering: 'createdAt',
+    direction: 'asc',
   });
   if (!votes || !userRatings || !pollCandidates) {
     return null;
   }
-  const ratings = userRatings.filter((rating) => (
-    pollCandidates.some((candidate) => candidate.movieId === rating.movieId)
-  ));
+  const ratings = userRatings.filter((rating) =>
+    pollCandidates.some((candidate) => candidate.movieId === rating.movieId),
+  );
   const movieCount = pollCandidates.length;
-  return <VotePie votes={votes} ratings={ratings} maxCount={movieCount} size={56} animate={false}>
-    <ProfileAvatar user={user} size={36} />
-  </VotePie>;
+  return (
+    <VotePie votes={votes} ratings={ratings} maxCount={movieCount} size={56} animate={false}>
+      <ProfileAvatar user={user} size={36} />
+    </VotePie>
+  );
 }
 
 export default ProfileVoteAvatar;

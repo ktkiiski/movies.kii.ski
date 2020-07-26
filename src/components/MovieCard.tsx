@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import { shortenSentences } from 'broilerkit/strings';
 import * as React from 'react';
-import { Movie, PublicProfile } from '../resources';
+import type { Movie, PublicProfile } from '../resources';
 import HorizontalLayout from './layout/HorizontalLayout';
 import MovieCardBackdrop from './MovieCardBackdrop';
 import RatingBar from './RatingBar';
@@ -25,36 +25,67 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
   const rating = movie && movie.voteAverage;
   const linkUrl = movie && movie.imdbId && `https://www.imdb.com/title/${movie.imdbId}/`;
   const backdropPath = movie && movie.backdropPath;
-  const backdrop = <MovieCardBackdrop backdropPath={backdropPath}>
-    <HorizontalLayout right={content} align='bottom'>
-      <Typography color='textPrimary' variant='h5'>{movie && movie.title}</Typography>
-      {movie && movie.originalTitle !== movie.title
-        ? <Typography color='textPrimary' variant='subtitle1'><em>{movie.originalTitle}</em></Typography>
-        : null}
-      <Typography color='textPrimary' variant='subtitle1'>
-        {year}{genres}{' '}{runtime && <Hidden smUp><br /></Hidden>}{runtime}
-      </Typography>
-      {rating == null ? null : <RatingBar rating={rating} />}
-      <Hidden xsDown implementation='css'>
-        <Typography color='textSecondary' component='p'>
-          {movie && shortenSentences(movie.overview, 300)}
-          {profile && <> Suggested by <strong>{profile.name}</strong></>}
+  const backdrop = (
+    <MovieCardBackdrop backdropPath={backdropPath}>
+      <HorizontalLayout right={content} align="bottom">
+        <Typography color="textPrimary" variant="h5">
+          {movie && movie.title}
         </Typography>
+        {movie && movie.originalTitle !== movie.title ? (
+          <Typography color="textPrimary" variant="subtitle1">
+            <em>{movie.originalTitle}</em>
+          </Typography>
+        ) : null}
+        <Typography color="textPrimary" variant="subtitle1">
+          {year}
+          {genres}{' '}
+          {runtime && (
+            <Hidden smUp>
+              <br />
+            </Hidden>
+          )}
+          {runtime}
+        </Typography>
+        {rating == null ? null : <RatingBar rating={rating} />}
+        <Hidden xsDown implementation="css">
+          <Typography color="textSecondary" component="p">
+            {movie && shortenSentences(movie.overview, 300)}
+            {profile && (
+              <>
+                {' Suggested by  '}
+                <strong>{profile.name}</strong>
+              </>
+            )}
+          </Typography>
+        </Hidden>
+      </HorizontalLayout>
+    </MovieCardBackdrop>
+  );
+  return (
+    <Card>
+      {linkUrl ? (
+        <CardActionArea href={linkUrl} target="_blank">
+          {backdrop}
+        </CardActionArea>
+      ) : (
+        backdrop
+      )}
+      <Hidden smUp implementation="css">
+        <CardContent>
+          <Typography component="p" color="textSecondary">
+            {movie && movie.overview}
+            {profile && (
+              <>
+                {' Suggested by '}
+                <strong>{profile.name}</strong>
+              </>
+            )}
+          </Typography>
+        </CardContent>
       </Hidden>
-    </HorizontalLayout>
-  </MovieCardBackdrop>;
-  return <Card>
-    {linkUrl ? <CardActionArea href={linkUrl} target='_blank'>{backdrop}</CardActionArea> : backdrop}
-    <Hidden smUp implementation='css'>
-      <CardContent>
-        <Typography component='p' color='textSecondary'>
-          {movie && movie.overview}
-          {profile && <> Suggested by <strong>{profile.name}</strong></>}
-        </Typography>
-      </CardContent>
-    </Hidden>
-    {children}
-  </Card>;
+      {children}
+    </Card>
+  );
 }
 
 function getRuntime(minutes: number | null): React.ReactNode {
@@ -62,11 +93,14 @@ function getRuntime(minutes: number | null): React.ReactNode {
     return '';
   }
   const hours = Math.floor(minutes / 60);
+  // eslint-disable-next-line no-param-reassign
   minutes = Math.floor(minutes % 60);
-  return <>
-    <ScheduleIcon fontSize='inherit' />
-    {hours ? ` ${hours}h ${minutes}min` : ` ${minutes}min`}
-  </>;
+  return (
+    <>
+      <ScheduleIcon fontSize="inherit" />
+      {hours ? ` ${hours}h ${minutes}min` : ` ${minutes}min`}
+    </>
+  );
 }
 
 export default MovieCard;

@@ -32,13 +32,15 @@ function ParticipantList({ pollId }: ParticipantListProps) {
     return null;
   }
   const profiles = participants.map(({ profile }) => profile).filter(isNotNully);
-  return <div className={classes.container}>{
-    profiles.map((profile) => (
-      <div className={classes.avatar} key={profile.id}>
-        <ProfileVoteAvatar pollId={pollId} user={profile} />
-      </div>
-    ))}
-  </div>;
+  return (
+    <div className={classes.container}>
+      {profiles.map((profile) => (
+        <div className={classes.avatar} key={profile.id}>
+          <ProfileVoteAvatar pollId={pollId} user={profile} />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default React.memo(ParticipantList);

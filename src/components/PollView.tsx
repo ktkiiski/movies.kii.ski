@@ -9,7 +9,7 @@ import { useClient } from 'broilerkit/react/client';
 import { useTitle } from 'broilerkit/react/meta';
 import * as React from 'react';
 import { useState } from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { useHistory } from 'react-router';
 import * as api from '../api';
 import { home } from '../routes';
 import Layout from './Layout';
@@ -22,11 +22,12 @@ import PromptModal from './PromptModal';
 
 type CandidateSorting = 'unvoted' | 'top';
 
-interface PollViewProps extends RouteComponentProps {
+interface PollViewProps {
   pollId: string;
 }
 
-function PollView({ pollId, history }: PollViewProps) {
+function PollView({ pollId }: PollViewProps) {
+  const history = useHistory();
   const userId = useUserId();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -38,7 +39,7 @@ function PollView({ pollId, history }: PollViewProps) {
     ordering: 'createdAt',
     direction: 'asc',
   });
-  useTitle(poll && poll.title || `Movie poll`);
+  useTitle((poll && poll.title) || `Movie poll`);
   const client = useClient();
   const updatePoll = useOperation(api.updateUserPoll);
   const destroyPoll = useOperation(api.destroyUserPoll);
@@ -56,7 +57,8 @@ function PollView({ pollId, history }: PollViewProps) {
     history.push(home.compile({}).toString());
   };
   const onLeaveClick = async () => {
-    if (confirm(`Are you sure you want to unparticipate this poll?`)) {
+    // eslint-disable-next-line no-alert
+    if (window.confirm(`Are you sure you want to unparticipate this poll?`)) {
       const auth = await requireAuth();
       await destroyPollParticipant.delete({ pollId, profileId: auth.id });
     }
@@ -69,70 +71,80 @@ function PollView({ pollId, history }: PollViewProps) {
       setIsRefreshing(false);
     }
   };
-  const menu = poll && userId && userId === poll.profileId ? [
-    <MenuItem key='rename' onClick={openUpdateModal}>Rename poll</MenuItem>,
-    <MenuItem key='delete' onClick={onDeleteClick}>Delete poll</MenuItem>,
-  ] : null;
-  const isParticipating = !!userId && !!participants && participants.some(
-    ({ profileId }) => userId === profileId,
-  );
-  return <Layout title={poll && poll.title || ''} menu={menu}>
-    <Grid container direction='row-reverse' justify='center' spacing={4}>
-      <Grid item md={3} sm={10} xs={12}>
-        <Grid container direction='row' spacing={4} alignItems='flex-end'>
-          <Grid item sm={8} xs={12} md={12}>
-            <VerticalFlow>
-              <Typography variant='subtitle1'>Participants</Typography>
-              <ParticipantList pollId={pollId} />
-            </VerticalFlow>
-          </Grid>
-          <Grid item sm={4} xs={12} md={12}>
-            <VerticalFlow>
-              {!isParticipating ? null : (
+  const menu =
+    poll && userId && userId === poll.profileId
+      ? [
+          <MenuItem key="rename" onClick={openUpdateModal}>
+            Rename poll
+          </MenuItem>,
+          <MenuItem key="delete" onClick={onDeleteClick}>
+            Delete poll
+          </MenuItem>,
+        ]
+      : null;
+  const isParticipating = !!userId && !!participants && participants.some(({ profileId }) => userId === profileId);
+  return (
+    <Layout title={(poll && poll.title) || ''} menu={menu}>
+      <Grid container direction="row-reverse" justify="center" spacing={4}>
+        <Grid item md={3} sm={10} xs={12}>
+          <Grid container direction="row" spacing={4} alignItems="flex-end">
+            <Grid item sm={8} xs={12} md={12}>
+              <VerticalFlow>
+                <Typography variant="subtitle1">Participants</Typography>
+                <ParticipantList pollId={pollId} />
+              </VerticalFlow>
+            </Grid>
+            <Grid item sm={4} xs={12} md={12}>
+              <VerticalFlow>
+                {!isParticipating ? null : (
+                  <div>
+                    <Button size="small" onClick={onLeaveClick}>
+                      Leave the poll
+                    </Button>
+                  </div>
+                )}
                 <div>
-                  <Button size='small' onClick={onLeaveClick}>
-                    Leave the poll
+                  <Button size="small" disabled={isRefreshing} onClick={onRefreshClick}>
+                    Refresh
                   </Button>
                 </div>
-              )}
-              <div>
-                <Button size='small' disabled={isRefreshing} onClick={onRefreshClick}>
-                  Refresh
-                </Button>
-              </div>
-            </VerticalFlow>
+              </VerticalFlow>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
-      <Grid item md={9} sm={10} xs={12}>
-        <MovieSearch pollId={pollId} key={pollId}>
-          <HorizontalLayout align='bottom' right={
-            <Select
-              displayEmpty
-              value={sorting}
-              onChange={(event) => setSorting(event.target.value as CandidateSorting)}
+        <Grid item md={9} sm={10} xs={12}>
+          <MovieSearch pollId={pollId} key={pollId}>
+            <HorizontalLayout
+              align="bottom"
+              right={
+                <Select
+                  displayEmpty
+                  value={sorting}
+                  onChange={(event) => setSorting(event.target.value as CandidateSorting)}
+                >
+                  <MenuItem value="unvoted">Unvoted first</MenuItem>
+                  <MenuItem value="top">Top voted first</MenuItem>
+                </Select>
+              }
             >
-              <MenuItem value={'unvoted'}>Unvoted first</MenuItem>
-              <MenuItem value={'top'}>Top voted first</MenuItem>
-            </Select>
-          }>
-            <Typography variant='h5'>Suggested movies</Typography>
-          </HorizontalLayout>
-          <MovieCandidateList pollId={pollId} sorting={sorting} />
-        </MovieSearch>
+              <Typography variant="h5">Suggested movies</Typography>
+            </HorizontalLayout>
+            <MovieCandidateList pollId={pollId} sorting={sorting} />
+          </MovieSearch>
+        </Grid>
       </Grid>
-    </Grid>
-    <PromptModal
-      open={isUpdateModalOpen}
-      onClose={closeUpdateModal}
-      onSubmit={onModalSubmit}
-      defaultValue={poll && poll.title}
-      title='Rename the list'
-      label='List name'
-      closeButtonText='Cancel'
-      submitButtonText='Rename'
-    />
-  </Layout>;
+      <PromptModal
+        open={isUpdateModalOpen}
+        onClose={closeUpdateModal}
+        onSubmit={onModalSubmit}
+        defaultValue={poll && poll.title}
+        title="Rename the list"
+        label="List name"
+        closeButtonText="Cancel"
+        submitButtonText="Rename"
+      />
+    </Layout>
+  );
 }
 
-export default withRouter(PollView);
+export default PollView;

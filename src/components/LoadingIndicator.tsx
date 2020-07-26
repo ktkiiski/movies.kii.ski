@@ -11,5 +11,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function LoadingIndicator() {
   const classes = useStyles();
-  return <div className={classes.loader}><CircularProgress /></div>;
+  return (
+    <div className={classes.loader}>
+      <CircularProgress />
+    </div>
+  );
 }

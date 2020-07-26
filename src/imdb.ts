@@ -23,6 +23,7 @@ const imdbRatingSerializer = serializer({
   modified: null,
 });
 
+// eslint-disable-next-line import/prefer-default-export
 export function parseImdbRatingsCsv(data: string) {
   const items: Encoding[] = parseCSV(data, {
     columns: true,

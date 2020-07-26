@@ -1,5 +1,5 @@
-import { Checkbox, FormControlLabel, FormGroup, Hidden } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core';
+import { Checkbox, FormControlLabel, FormGroup, Hidden, makeStyles } from '@material-ui/core';
+
 import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
@@ -48,19 +48,19 @@ function HasSeenMovieSelection({ movieId, pollId, hasSeen, ...props }: HasSeenMo
       });
     }
   };
-  return <FormGroup className={classes.root} {...props}>
-    <FormControlLabel
-      control={
-        <Checkbox
-          checked={hasSeen}
-          onChange={onChange}
-        />
-      }
-      label={<span className={classes.labelText}>
-        I've seen this <Hidden xsDown>movie</Hidden>
-      </span>}
-    />
-  </FormGroup>;
+  return (
+    <FormGroup className={classes.root} {...props}>
+      <FormControlLabel
+        control={<Checkbox checked={hasSeen} onChange={onChange} />}
+        label={
+          <span className={classes.labelText}>
+            {"I've seen this "}
+            <Hidden xsDown>movie</Hidden>
+          </span>
+        }
+      />
+    </FormGroup>
+  );
 }
 
 export default React.memo(HasSeenMovieSelection);

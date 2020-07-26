@@ -21,15 +21,17 @@ export default function FileUpload(props: FileUploadProps) {
     }
   }
 
-  return <>
-    <input
-      style={{ display: 'none' }}
-      {...inputProps}
-      type='file'
-      id={inputId}
-      onChange={onFileSelect}
-      ref={fileRef}
-    />
-    <label htmlFor={inputId}>{children}</label>
-  </>;
+  return (
+    <>
+      <input
+        style={{ display: 'none' }}
+        {...inputProps}
+        type="file"
+        id={inputId}
+        onChange={onFileSelect}
+        ref={fileRef}
+      />
+      <label htmlFor={inputId}>{children}</label>
+    </>
+  );
 }

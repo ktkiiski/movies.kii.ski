@@ -10,7 +10,9 @@ const useStyles = makeStyles({
 
 export default function AppDrawer({ children, ...props }: DrawerProps) {
   const classes = useStyles();
-  return <Drawer {...props}>
-    <div className={classes.drawerContents}>{children}</div>
-  </Drawer>;
+  return (
+    <Drawer {...props}>
+      <div className={classes.drawerContents}>{children}</div>
+    </Drawer>
+  );
 }

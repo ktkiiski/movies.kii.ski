@@ -1,4 +1,20 @@
-import { boolean, choice, constant, date, datetime, decimal, id, integer, list, matching, nullable, number, string, text, url } from 'broilerkit/fields';
+import {
+  boolean,
+  choice,
+  constant,
+  date,
+  datetime,
+  decimal,
+  id,
+  integer,
+  list,
+  matching,
+  nullable,
+  number,
+  string,
+  text,
+  url,
+} from 'broilerkit/fields';
 import { Deserialization, resource } from 'broilerkit/resources';
 import { nested } from 'broilerkit/serializers';
 import { uploadFormSerializer } from 'broilerkit/uploads';
@@ -14,8 +30,7 @@ export const Profile = resource('profile')
   })
   .identifyBy('id');
 
-export const PublicProfile = Profile
-  .subset(['id', 'name', 'picture']);
+export const PublicProfile = Profile.subset(['id', 'name', 'picture']);
 
 export type PublicProfile = Deserialization<typeof PublicProfile>;
 
@@ -95,8 +110,12 @@ export const PollVoteCounter = resource('pollVoteCounter')
   })
   .identifyBy('pollId');
 
-export const Poll = BasePoll
-  .leftJoin(PollCandidateCounter, { pollId: 'id' }, { candidateCount: 'count' }, { candidateCount: 0 })
+export const Poll = BasePoll.leftJoin(
+  PollCandidateCounter,
+  { pollId: 'id' },
+  { candidateCount: 'count' },
+  { candidateCount: 0 },
+)
   .leftJoin(PollParticipantCounter, { pollId: 'id' }, { participantCount: 'count' }, { participantCount: 0 })
   .leftJoin(PollVoteCounter, { pollId: 'id' }, { voteCount: 'count' }, { voteCount: 0 });
 
@@ -111,8 +130,7 @@ export const Vote = resource('vote')
   })
   .identifyBy('pollId', 'movieId', 'profileId');
 
-export const PollVote = Vote
-  .nest('profile', PublicProfile, { id: 'profileId' });
+export const PollVote = Vote.nest('profile', PublicProfile, { id: 'profileId' });
 
 export type Vote = Deserialization<typeof Vote>;
 
@@ -142,8 +160,7 @@ export const ParticipantVoteValueCounter = resource('participantVoteValueCounter
   })
   .identifyBy('pollId', 'profileId', 'value');
 
-export const PollParticipant = Participant
-  .nest('profile', PublicProfile, { id: 'profileId' })
+export const PollParticipant = Participant.nest('profile', PublicProfile, { id: 'profileId' })
   .leftJoin(
     ParticipantVoteCounter,
     { pollId: 'pollId', profileId: 'profileId' },
@@ -179,9 +196,9 @@ export const Candidate = resource('candidate')
   })
   .identifyBy('pollId', 'movieId');
 
-export const PollCandidate = Candidate
-  .nest('movie', Movie, { id: 'movieId' })
-  .nest('profile', PublicProfile, { id: 'profileId' });
+export const PollCandidate = Candidate.nest('movie', Movie, { id: 'movieId' }).nest('profile', PublicProfile, {
+  id: 'profileId',
+});
 
 export type Candidate = Deserialization<typeof Candidate>;
 
@@ -194,22 +211,22 @@ export const Rating = resource('rating')
   .fields({
     profileId: Profile.fields.id,
     movieId: Movie.fields.id,
-    value: nullable(integer({
-      min: 1,
-      max: 10,
-    })),
+    value: nullable(
+      integer({
+        min: 1,
+        max: 10,
+      }),
+    ),
     createdAt: datetime(),
     updatedAt: datetime(),
   })
   .identifyBy('profileId', 'movieId');
 
-export const UserRating = Rating
-  .nest('movie', Movie, { id: 'movieId' });
+export const UserRating = Rating.nest('movie', Movie, { id: 'movieId' });
 
 export type Rating = Deserialization<typeof Rating>;
 
-export const PollRating = Rating
-  .join(Participant, { profileId: 'profileId' }, { pollId: 'pollId' })
+export const PollRating = Rating.join(Participant, { profileId: 'profileId' }, { pollId: 'pollId' })
   .join(Candidate, { movieId: 'movieId', pollId: 'pollId' }, {})
   .nest('profile', PublicProfile, { id: 'profileId' });
 

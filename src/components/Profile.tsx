@@ -20,12 +20,12 @@ function ProfileContainer({ children }: ProfileContainerStyles) {
 
 function Profile() {
   const user = useAuth();
-  return user ?
+  return user ? (
     <ProfileContainer>
-      <Typography variant='h6'>{user.name}</Typography>
-      <Typography variant='subtitle1'>{user.email}</Typography>
+      <Typography variant="h6">{user.name}</Typography>
+      <Typography variant="subtitle1">{user.email}</Typography>
     </ProfileContainer>
-    : null;
+  ) : null;
 }
 
 export default Profile;

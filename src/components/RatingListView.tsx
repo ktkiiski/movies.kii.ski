@@ -20,38 +20,46 @@ function RatingListView() {
   const uploadRatings = useUpload();
 
   async function onUpload(files: FileList) {
-    const [file] = files;
+    const [file] = files;
     if (file) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(`Uploading file ${file.name}…`, file);
       const auth = await requireAuth();
       // Get the upload form fields
       const { form } = await createRatingUpload.post({ profileId: auth.id });
       // Upload the file
       const result = await uploadRatings(file, form);
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.log(`Successfully uploaded the ratings:`, result);
     }
   }
 
   if (userId === null) {
     // Not logged in
-    return <Layout title={title}>
-      <Typography>Please sign in to see your ratings.</Typography>
-    </Layout>;
+    return (
+      <Layout title={title}>
+        <Typography>Please sign in to see your ratings.</Typography>
+      </Layout>
+    );
   }
   if (!userId) {
     // Logging in...
-    return <Layout title={title}><LoadingIndicator /></Layout>;
+    return (
+      <Layout title={title}>
+        <LoadingIndicator />
+      </Layout>
+    );
   }
-  return <Layout title={title}>
-    <div>
-      <FileUploadButton accept='text/csv' onUpload={onUpload}>
-        Upload exported IMDb ratings
-      </FileUploadButton>
-    </div>
-    <RatingList userId={userId} />
-  </Layout>;
+  return (
+    <Layout title={title}>
+      <div>
+        <FileUploadButton accept="text/csv" onUpload={onUpload}>
+          Upload exported IMDb ratings
+        </FileUploadButton>
+      </div>
+      <RatingList userId={userId} />
+    </Layout>
+  );
 }
 
 export default RatingListView;

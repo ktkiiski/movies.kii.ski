@@ -16,13 +16,16 @@ interface MovieSearchResultListItemProps {
 }
 
 function MovieSearchResultListItem(props: MovieSearchResultListItemProps) {
-  const [movie] = useResource(api.retrieveMovie, { id: props.movieId });
-  return <MovieCard movie={movie}>{props.children}</MovieCard>;
+  const { movieId, children } = props;
+  const [movie] = useResource(api.retrieveMovie, { id: movieId });
+  return <MovieCard movie={movie}>{children}</MovieCard>;
 }
 
-const alreadyAddedButton = <Button size='small' color='primary' disabled>
-  <CheckIcon /> Already added
-</Button>;
+const alreadyAddedButton = (
+  <Button size="small" color="primary" disabled>
+    <CheckIcon /> Already added
+  </Button>
+);
 
 interface AddMovieCandidateButtonProps {
   movieId: number;
@@ -41,9 +44,14 @@ function AddMovieCandidateButton({ pollId, movieId, onClick }: AddMovieCandidate
     return null;
   }
   const isAlreadyAdded = pollCandidates.some((candidate) => candidate.movieId === movieId);
-  return isAlreadyAdded ? alreadyAddedButton : <Button size='small' color='primary' onClick={onClick}>
-    <AddIcon /> Suggest this movie
-    </Button>;
+  if (isAlreadyAdded) {
+    return alreadyAddedButton;
+  }
+  return (
+    <Button size="small" color="primary" onClick={onClick}>
+      <AddIcon /> Suggest this movie
+    </Button>
+  );
 }
 
 interface MovieSearchResultListProps {
@@ -64,21 +72,21 @@ function MovieSearchResultList({ pollId, query, onSelect }: MovieSearchResultLis
   if (!searchResults.length) {
     return (
       <Center>
-        <Typography>No results matching "{query}"!</Typography>
+        <Typography>{`No results matching "${query}"!`}</Typography>
       </Center>
     );
   }
-  return <>{searchResults.map((result) => (
-    <MovieSearchResultListItem movieId={result.id} key={result.id}>
-      <CardActions>
-        <AddMovieCandidateButton
-          movieId={result.id}
-          pollId={pollId}
-          onClick={() => onSelect(result.id)}
-        />
-      </CardActions>
-    </MovieSearchResultListItem>
-  ))}</>;
+  return (
+    <>
+      {searchResults.map((result) => (
+        <MovieSearchResultListItem movieId={result.id} key={result.id}>
+          <CardActions>
+            <AddMovieCandidateButton movieId={result.id} pollId={pollId} onClick={() => onSelect(result.id)} />
+          </CardActions>
+        </MovieSearchResultListItem>
+      ))}
+    </>
+  );
 }
 
 export default MovieSearchResultList;

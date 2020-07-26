@@ -30,24 +30,33 @@ interface TopBarProps {
 
 function TopBar({ title, onMenuButtonClick, menu }: TopBarProps) {
   const classes = useStyles();
-  return <React.Fragment>
-    <AppBar >
-      <Toolbar>
-        <IconButton className={classes.menuButton} color='inherit' aria-label='Menu' onClick={onMenuButtonClick}>
-          <MenuIcon />
-        </IconButton>
-        <Typography variant='h6' color='inherit' className={classes.flex}>{title}</Typography>
-        <TopBarProfile />
-        {menu &&
-          <Dropdown button={
-            <IconButton color='inherit'>
-              <MoreVertIcon />
-            </IconButton>
-          }>{menu}</Dropdown>}
-      </Toolbar>
-    </AppBar>
-    <div className={classes.push} />
-  </React.Fragment>;
+  return (
+    <>
+      <AppBar>
+        <Toolbar>
+          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={onMenuButtonClick}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" color="inherit" className={classes.flex}>
+            {title}
+          </Typography>
+          <TopBarProfile />
+          {menu && (
+            <Dropdown
+              button={
+                <IconButton color="inherit">
+                  <MoreVertIcon />
+                </IconButton>
+              }
+            >
+              {menu}
+            </Dropdown>
+          )}
+        </Toolbar>
+      </AppBar>
+      <div className={classes.push} />
+    </>
+  );
 }
 
 export default TopBar;

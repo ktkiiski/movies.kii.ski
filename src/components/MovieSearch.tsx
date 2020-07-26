@@ -25,43 +25,50 @@ function MovieSearch({ pollId, children }: MovieSearchProps) {
       return undefined;
     }
     return {
-      endAdornment: <InputAdornment position='end'>
-        <IconButton onClick={resetQuery}>
-          <ClearIcon />
-        </IconButton>
-      </InputAdornment>,
+      endAdornment: (
+        <InputAdornment position="end">
+          <IconButton onClick={resetQuery}>
+            <ClearIcon />
+          </IconButton>
+        </InputAdornment>
+      ),
     };
-  }, [query]);
+  }, [query, resetQuery]);
   const createPollParticipant = useOperation(api.createPollParticipant);
   const createPollCandidate = useOperation(api.createPollCandidate);
-  const onMovieSearchResultSelect = useCallback(async (movieId: number) => {
-    // tslint:disable-next-line:no-console
-    console.log(`Adding movie ${movieId} as a candidate to the poll ${pollId}`);
-    createPollParticipant.post({ pollId });
-    await createPollCandidate.post({ pollId, movieId });
-    resetQuery();
-  }, [pollId]);
+  const onMovieSearchResultSelect = useCallback(
+    async (movieId: number) => {
+      // eslint-disable-next-line no-console
+      console.log(`Adding movie ${movieId} as a candidate to the poll ${pollId}`);
+      createPollParticipant.post({ pollId });
+      await createPollCandidate.post({ pollId, movieId });
+      resetQuery();
+    },
+    [pollId, createPollParticipant, createPollCandidate, resetQuery],
+  );
   const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setQuery(event.target.value), []);
-  return <VerticalFlow>
-    <TextField
-      style={{ marginTop: -8 }}
-      label='Search for a movie'
-      placeholder='Type a movie name'
-      fullWidth
-      margin='none'
-      onChange={onChange}
-      value={query || ''}
-      InputProps={inputProps}
-    />
-    {!search ? children : <>
-      <Typography variant='h5'>Search results</Typography>
-      <MovieSearchResultList
-        query={search}
-        pollId={pollId}
-        onSelect={onMovieSearchResultSelect}
+  return (
+    <VerticalFlow>
+      <TextField
+        style={{ marginTop: -8 }}
+        label="Search for a movie"
+        placeholder="Type a movie name"
+        fullWidth
+        margin="none"
+        onChange={onChange}
+        value={query || ''}
+        InputProps={inputProps}
       />
-    </>}
-  </VerticalFlow>;
+      {!search ? (
+        children
+      ) : (
+        <>
+          <Typography variant="h5">Search results</Typography>
+          <MovieSearchResultList query={search} pollId={pollId} onSelect={onMovieSearchResultSelect} />
+        </>
+      )}
+    </VerticalFlow>
+  );
 }
 
 export default MovieSearch;

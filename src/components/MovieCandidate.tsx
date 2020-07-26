@@ -6,7 +6,7 @@ import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
 import * as React from 'react';
 import { useState } from 'react';
 import * as api from '../api';
-import { DetailedCandidate } from '../resources';
+import type { DetailedCandidate } from '../resources';
 import Dropdown from './Dropdown';
 import HasSeenMovieSelection from './HasSeenMovieSelection';
 import ExpandIcon from './icons/ExpandIcon';
@@ -20,7 +20,11 @@ interface MovieCandidateProps {
   candidate: DetailedCandidate;
 }
 
-const menuButton = <IconButton><MenuIcon /></IconButton>;
+const menuButton = (
+  <IconButton>
+    <MenuIcon />
+  </IconButton>
+);
 
 function MovieCandidate({ pollId, candidate }: MovieCandidateProps) {
   const { movie, movieId, profileId, profile } = candidate;
@@ -32,28 +36,28 @@ function MovieCandidate({ pollId, candidate }: MovieCandidateProps) {
     const auth = await requireAuth();
     await destroyPollCandidate.delete({ pollId, movieId, profileId: auth.id });
   };
-  const voteButtonSet = userId
-    ? <UserVoteButtonSet pollId={pollId} movieId={movieId} userId={userId} />
-    : <VoteButtonSet pollId={pollId} movieId={movieId} currentValue={null} />
-  ;
-  const hasSeenSelection = userId
-    ? <UserHasSeenMovieSelection movieId={movieId} userId={userId} pollId={pollId} />
-    : <HasSeenMovieSelection movieId={movieId} hasSeen={false} pollId={pollId} />
-  ;
+  const voteButtonSet = userId ? (
+    <UserVoteButtonSet pollId={pollId} movieId={movieId} userId={userId} />
+  ) : (
+    <VoteButtonSet pollId={pollId} movieId={movieId} currentValue={null} />
+  );
+  const hasSeenSelection = userId ? (
+    <UserHasSeenMovieSelection movieId={movieId} userId={userId} pollId={pollId} />
+  ) : (
+    <HasSeenMovieSelection movieId={movieId} hasSeen={false} pollId={pollId} />
+  );
   return (
     // TODO: Use classes instead of `style` props for better performance
-    <MovieCard movie={movie} key={movieId} profile={profile} content={
-      <VoteResult pollId={pollId} movieId={movieId} />
-    }>
+    <MovieCard movie={movie} key={movieId} profile={profile} content={<VoteResult pollId={pollId} movieId={movieId} />}>
       <CardActions style={{ flexFlow: 'row wrap', justifyContent: 'stretch' }}>
         {voteButtonSet}
         <div style={{ display: 'flex', flexFlow: 'row nowrap', flex: 1 }}>
           <div style={{ flex: 1 }}>{hasSeenSelection}</div>
-          {profileId !== userId ? null : <Dropdown button={menuButton} align='right'>
-            <MenuItem onClick={onDestroyClick}>
-              Remove the movie suggestion
-                        </MenuItem>
-          </Dropdown>}
+          {profileId !== userId ? null : (
+            <Dropdown button={menuButton} align="right">
+              <MenuItem onClick={onDestroyClick}>Remove the movie suggestion</MenuItem>
+            </Dropdown>
+          )}
           <IconButton onClick={() => setIsExpanded(!isExpanded)}>
             <ExpandIcon up={isExpanded} />
           </IconButton>
@@ -95,11 +99,10 @@ function UserHasSeenMovieSelection({ movieId, userId, pollId }: UserHasSeenMovie
     { pollId, ordering: 'createdAt', direction: 'asc' },
     { movieId, profileId: userId },
   );
-  return !ratings ? null : <HasSeenMovieSelection
-    movieId={movieId}
-    hasSeen={ratings.length > 0}
-    pollId={pollId}
-  />;
+  if (!ratings) {
+    return null;
+  }
+  return <HasSeenMovieSelection movieId={movieId} hasSeen={ratings.length > 0} pollId={pollId} />;
 }
 
 export default React.memo(MovieCandidate);

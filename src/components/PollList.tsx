@@ -4,16 +4,17 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { useList } from 'broilerkit/react/api';
 import order from 'immuton/order';
 import * as React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
+import { useHistory } from 'react-router';
 import * as api from '../api';
 import { showPoll } from '../routes';
 import LoadingIndicator from './LoadingIndicator';
 
-interface PollListProps extends RouteComponentProps {
+interface PollListProps {
   userId: string;
 }
 
-function PollList({ history, userId }: PollListProps) {
+function PollList({ userId }: PollListProps) {
+  const history = useHistory();
   const [polls, , isLoading] = useList(api.listUserPolls, {
     ordering: 'createdAt',
     direction: 'asc',
@@ -26,22 +27,27 @@ function PollList({ history, userId }: PollListProps) {
     return null;
   }
   const sortedItems = order(polls, 'title', 'asc');
-  return <List>
-    {sortedItems.map((poll) => {
-      const pollUrl = showPoll.compile({ pollId: poll.id }).toString();
-      return <ListItem
-        key={poll.id}
-        button
-        onClick={(event: React.MouseEvent) => {
-          history.push(pollUrl);
-          event.preventDefault();
-        }}
-        component='a'
-        href={pollUrl}>
-        <ListItemText primary={poll.title} />
-      </ListItem>;
-    })}
-  </List>;
+  return (
+    <List>
+      {sortedItems.map((poll) => {
+        const pollUrl = showPoll.compile({ pollId: poll.id }).toString();
+        return (
+          <ListItem
+            key={poll.id}
+            button
+            onClick={(event: React.MouseEvent) => {
+              history.push(pollUrl);
+              event.preventDefault();
+            }}
+            component="a"
+            href={pollUrl}
+          >
+            <ListItemText primary={poll.title} />
+          </ListItem>
+        );
+      })}
+    </List>
+  );
 }
 
-export default withRouter(PollList);
+export default PollList;

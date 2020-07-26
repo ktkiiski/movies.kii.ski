@@ -14,7 +14,7 @@ interface RootProps {
   children?: React.ReactNode;
 }
 
-export default ({ children }: RootProps) => {
+export default function Root({ children }: RootProps) {
   const classes = useStyles();
   return <div className={classes.root}>{children}</div>;
-};
+}

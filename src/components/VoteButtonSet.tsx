@@ -7,7 +7,7 @@ import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
 import * as api from '../api';
-import { Vote } from '../resources';
+import type { Vote } from '../resources';
 import NegativeIcon from './icons/ThumbDownOutline';
 import NeutralIcon from './icons/ThumbsUpDownOutline';
 import PositiveIcon from './icons/ThumbUpOutline';
@@ -22,12 +22,13 @@ interface VoteButtonProps {
 }
 
 const VoteButton = ({ children, value, buttonValue, onSelect }: VoteButtonProps) => {
+  // eslint-disable-next-line no-nested-ternary
   const color = buttonValue === 1 ? 'primary' : buttonValue === -1 ? 'secondary' : 'inherit';
-  return <IconButton
-    onClick={() => onSelect(buttonValue, value)}
-    color={color}>
-    {children}
-  </IconButton>;
+  return (
+    <IconButton onClick={() => onSelect(buttonValue, value)} color={color}>
+      {children}
+    </IconButton>
+  );
 };
 
 interface VoteButtonSetProps {
@@ -52,14 +53,18 @@ function VoteButtonSet({ movieId, pollId, currentValue }: VoteButtonSetProps) {
     if (oldValue == null) {
       // Create a new vote
       const now = new Date();
-      return await createPollVoteOperation.postOptimistically({
-        movieId, pollId, value,
+      await createPollVoteOperation.postOptimistically({
+        movieId,
+        pollId,
+        value,
         profileId: auth.id,
         profile: auth,
         createdAt: now,
         updatedAt: now,
       });
-    } else if (value === oldValue) {
+      return;
+    }
+    if (value === oldValue) {
       // Remove old value
       destroyPollVoteOperation.delete({ movieId, pollId, profileId: auth.id });
     } else {
@@ -67,25 +72,27 @@ function VoteButtonSet({ movieId, pollId, currentValue }: VoteButtonSetProps) {
       updatePollVote.patch({ movieId, pollId, value, profileId: auth.id });
     }
   };
-  return <div>
-    <Grid container spacing={0} item direction='row'>
-      <Grid item>
-        <VoteButton value={currentValue} buttonValue={1} onSelect={onSelect}>
-          {currentValue === 1 ? <SelectedPositiveIcon /> : <PositiveIcon />}
-        </VoteButton>
+  return (
+    <div>
+      <Grid container spacing={0} item direction="row">
+        <Grid item>
+          <VoteButton value={currentValue} buttonValue={1} onSelect={onSelect}>
+            {currentValue === 1 ? <SelectedPositiveIcon /> : <PositiveIcon />}
+          </VoteButton>
+        </Grid>
+        <Grid item>
+          <VoteButton value={currentValue} buttonValue={0} onSelect={onSelect}>
+            {currentValue === 0 ? <SelectedNeutralIcon /> : <NeutralIcon />}
+          </VoteButton>
+        </Grid>
+        <Grid item>
+          <VoteButton value={currentValue} buttonValue={-1} onSelect={onSelect}>
+            {currentValue === -1 ? <SelectedNegativeIcon /> : <NegativeIcon />}
+          </VoteButton>
+        </Grid>
       </Grid>
-      <Grid item>
-        <VoteButton value={currentValue} buttonValue={0} onSelect={onSelect}>
-          {currentValue === 0 ? <SelectedNeutralIcon /> : <NeutralIcon />}
-        </VoteButton>
-      </Grid>
-      <Grid item>
-        <VoteButton value={currentValue} buttonValue={-1} onSelect={onSelect}>
-          {currentValue === -1 ? <SelectedNegativeIcon /> : <NegativeIcon />}
-        </VoteButton>
-      </Grid>
-    </Grid>
-  </div>;
+    </div>
+  );
 }
 
 export default React.memo(VoteButtonSet);

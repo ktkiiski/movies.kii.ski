@@ -1,23 +1,30 @@
 import { database } from 'broilerkit/db';
-import { BasePoll, Candidate, Movie, Participant, ParticipantVoteCounter, ParticipantVoteValueCounter, PollCandidateCounter, PollParticipantCounter, PollVoteCounter, Profile, Rating, Vote } from './resources';
+import {
+  BasePoll,
+  Candidate,
+  Movie,
+  Participant,
+  ParticipantVoteCounter,
+  ParticipantVoteValueCounter,
+  PollCandidateCounter,
+  PollParticipantCounter,
+  PollVoteCounter,
+  Profile,
+  Rating,
+  Vote,
+} from './resources';
 
 const db = database();
 
 db.addTable(Profile, {
-  indexes: [
-    ['name'],
-  ],
+  indexes: [['name']],
 });
 db.addTable(Movie, {
   migrate: { type: 'movie' },
-  indexes: [
-    ['title'],
-  ],
+  indexes: [['title']],
 });
 db.addTable(BasePoll, {
-  indexes: [
-    ['profileId', 'createdAt'],
-  ],
+  indexes: [['profileId', 'createdAt']],
 });
 db.addTable(PollCandidateCounter);
 db.addTable(PollParticipantCounter);
@@ -48,7 +55,11 @@ db.aggregateCount(Vote, PollVoteCounter, 'count', { pollId: 'pollId' });
 db.addTable(ParticipantVoteCounter);
 db.addTable(ParticipantVoteValueCounter);
 db.aggregateCount(Vote, ParticipantVoteCounter, 'count', { pollId: 'pollId', profileId: 'profileId' });
-db.aggregateCount(Vote, ParticipantVoteValueCounter, 'count', { pollId: 'pollId', profileId: 'profileId', value: 'value' });
+db.aggregateCount(Vote, ParticipantVoteValueCounter, 'count', {
+  pollId: 'pollId',
+  profileId: 'profileId',
+  value: 'value',
+});
 db.addTable(Rating, {
   indexes: [
     ['profileId', 'createdAt'],

@@ -4,7 +4,7 @@ import { ThemeProvider } from '@material-ui/styles';
 import * as React from 'react';
 import { darkTheme } from '../themes';
 
-const ratio = `${(100 * 9 / 16).toFixed(2)}%`; // 16:9
+const ratio = `${((100 * 9) / 16).toFixed(2)}%`; // 16:9
 const useStyles = makeStyles((theme) => ({
   backdrop: {
     height: 0,
@@ -42,13 +42,17 @@ interface MovieCardProps {
 
 function MovieCardBackdrop({ backdropPath, children }: MovieCardProps) {
   const classes = useStyles();
-  const backdropUrl = backdropPath && `https://image.tmdb.org/t/p/w1280${backdropPath}` || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOMi439DwAEUgIZT0JltgAAAABJRU5ErkJggg==';
+  const backdropUrl =
+    (backdropPath && `https://image.tmdb.org/t/p/w1280${backdropPath}`) ||
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOMi439DwAEUgIZT0JltgAAAABJRU5ErkJggg==';
   return (
     <ThemeProvider theme={darkTheme}>
       <CardMedia image={backdropUrl} className={classes.backdrop}>
-        {!React.Children.count(children) ? null : <div className={classes.content}>
-          <div className={classes.heading}>{children}</div>
-        </div>}
+        {!React.Children.count(children) ? null : (
+          <div className={classes.content}>
+            <div className={classes.heading}>{children}</div>
+          </div>
+        )}
       </CardMedia>
     </ThemeProvider>
   );

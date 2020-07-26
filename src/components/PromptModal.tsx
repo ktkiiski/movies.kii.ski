@@ -28,57 +28,59 @@ class PromptModal extends React.Component<PromptModalProps, PromptModalState> {
       value: props.defaultValue || '',
     };
   }
+
   public componentDidUpdate(oldProps: PromptModalProps) {
-    const value = this.props.defaultValue || '';
+    const { defaultValue } = this.props;
+    const value = defaultValue || '';
     const oldDefaultValue = oldProps.defaultValue || '';
     if (oldDefaultValue !== value) {
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ value });
     }
   }
-  public render() {
-    const { open, onClose } = this.props;
-    return <Dialog
-      aria-labelledby='prompt-modal-title'
-      open={open}
-      onClose={onClose}
-    ><form>
-      <DialogTitle id='prompt-modal-title'>
-        {this.props.title}
-      </DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          margin='normal'
-          label={this.props.label}
-          value={this.state.value}
-          onChange={this.onChange}
-          fullWidth
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button color='secondary' onClick={onClose}>
-          {this.props.closeButtonText}
-        </Button>
-        <Button color='primary' type='submit' onClick={this.onSubmit} disabled={!this.isNonEmptyValue()}>
-          {this.props.submitButtonText}
-        </Button>
-      </DialogActions>
-    </form></Dialog>;
-  }
-  private onChange = (event: React.ChangeEvent<HTMLInputElement>) => this.setState({
-    value: event.target.value,
-  })
+
+  private onChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    this.setState({
+      value: event.target.value,
+    });
+
   private onSubmit: React.FormEventHandler<HTMLElement> = async (event) => {
     // Do not actually submit the form
+    const { onSubmit, defaultValue } = this.props;
+    const { value } = this.state;
     event.preventDefault();
     if (this.isNonEmptyValue()) {
-      await this.props.onSubmit(this.state.value.trim());
-      this.setState({ value: this.props.defaultValue || '' });
+      await onSubmit(value.trim());
+      this.setState({ value: defaultValue || '' });
     }
-  }
+  };
+
   private isNonEmptyValue = () => {
     const { value } = this.state;
     return !!(value && value.trim());
+  };
+
+  public render() {
+    const { open, onClose, label, title, closeButtonText, submitButtonText } = this.props;
+    const { value } = this.state;
+    return (
+      <Dialog aria-labelledby="prompt-modal-title" open={open} onClose={onClose}>
+        <form>
+          <DialogTitle id="prompt-modal-title">{title}</DialogTitle>
+          <DialogContent>
+            <TextField autoFocus margin="normal" label={label} value={value} onChange={this.onChange} fullWidth />
+          </DialogContent>
+          <DialogActions>
+            <Button color="secondary" onClick={onClose}>
+              {closeButtonText}
+            </Button>
+            <Button color="primary" type="submit" onClick={this.onSubmit} disabled={!this.isNonEmptyValue()}>
+              {submitButtonText}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    );
   }
 }
 

@@ -1,7 +1,17 @@
 import { endpoint } from 'broilerkit/endpoints';
 import { creatable, destroyable, listable, retrievable, updateable } from 'broilerkit/operations';
 import { pattern } from 'broilerkit/url';
-import { Movie, MovieSearchResult, Poll, PollCandidate, PollParticipant, PollRating, PollVote, RatingUpload, UserRating } from './resources';
+import {
+  Movie,
+  MovieSearchResult,
+  Poll,
+  PollCandidate,
+  PollParticipant,
+  PollRating,
+  PollVote,
+  RatingUpload,
+  UserRating,
+} from './resources';
 
 /**
  * Polls
@@ -55,7 +65,10 @@ export const createPollCandidate = creatable(pollCandidateCollection, {
   defaults: {},
 });
 
-const pollCandidateResource = endpoint(PollCandidate, pattern`/api/polls/${'pollId'}/users/${'profileId'}/candidates/${'movieId'}`);
+const pollCandidateResource = endpoint(
+  PollCandidate,
+  pattern`/api/polls/${'pollId'}/users/${'profileId'}/candidates/${'movieId'}`,
+);
 export const destroyPollCandidate = destroyable(pollCandidateResource, {
   auth: 'owner',
   ownership: 'profileId',
@@ -157,7 +170,10 @@ export const createPollRating = creatable(pollRatingCollection, {
   defaults: {},
 });
 
-const pollCandidateRatingResource = endpoint(PollRating, pattern`/api/polls/${'pollId'}/candidates/${'movieId'}/ratings/${'profileId'}`);
+const pollCandidateRatingResource = endpoint(
+  PollRating,
+  pattern`/api/polls/${'pollId'}/candidates/${'movieId'}/ratings/${'profileId'}`,
+);
 export const destroyPollCandidateRating = destroyable(pollCandidateRatingResource, {
   auth: 'owner',
   ownership: 'profileId',
@@ -172,7 +188,10 @@ export const retrieveMovie = retrievable(movieResource);
 /**
  * Search results
  */
-const queryMovieSearchResultCollection = endpoint(MovieSearchResult, pattern`/api/queries/${'query'}/movie_search_results`);
+const queryMovieSearchResultCollection = endpoint(
+  MovieSearchResult,
+  pattern`/api/queries/${'query'}/movie_search_results`,
+);
 export const searchMovies = listable(queryMovieSearchResultCollection, {
   orderingKeys: ['index'],
 });

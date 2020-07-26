@@ -15,32 +15,37 @@ import { mainTheme } from './themes';
 
 const NotFound = () => {
   useTitle(`Page not found`);
-  return <Root>
-    <Typography>Page not found</Typography>
-  </Root>;
+  return (
+    <Root>
+      <Typography>Page not found</Typography>
+    </Root>
+  );
 };
 
-function App() {
-  return <ThemeProvider theme={mainTheme}>
-    <CssBaseline />
-    <Switch>
-      {renderRoute(home, Home, NotFound)}
-      {renderRoute(listRatings, RatingListView, NotFound)}
-      {renderRoute(showPoll, PollView, NotFound)}
-      {renderStaticRoute(NotFound, HttpStatus.NotFound)}
-    </Switch>
-  </ThemeProvider>;
-}
-
-export default React.memo(() => {
+const App = React.memo(() => {
   const sheets = typeof window === 'undefined' ? new ServerStyleSheets() : null;
-  const app = sheets ? sheets.collect(<App/>) : <App/>;
+  const core = (
+    <ThemeProvider theme={mainTheme}>
+      <CssBaseline />
+      <Switch>
+        {renderRoute(home, Home, NotFound)}
+        {renderRoute(listRatings, RatingListView, NotFound)}
+        {renderRoute(showPoll, PollView, NotFound)}
+        {renderStaticRoute(NotFound, HttpStatus.NotFound)}
+      </Switch>
+    </ThemeProvider>
+  );
+  const app = sheets ? sheets.collect(core) : core;
 
-  useCss(() => (
+  useCss(() =>
     // On server-side, render the stylesheets manually.
     // On client-side on the other hand, render nothing, as this will be handled by JSS
-    sheets ? sheets.toString() : null
-  ));
+    sheets ? sheets.toString() : null,
+  );
 
   return app;
 });
+
+App.displayName = 'App';
+
+export default App;

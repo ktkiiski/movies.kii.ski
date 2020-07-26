@@ -10,19 +10,22 @@ interface DropdownState {
 }
 
 class Dropdown extends React.Component<DropdownProps, DropdownState> {
-
-  public state = { anchorEl: undefined };
+  constructor(props: DropdownProps) {
+    super(props);
+    this.state = { anchorEl: undefined };
+  }
 
   public handleOpen: React.MouseEventHandler<HTMLElement> = (event) => {
     this.setState({ anchorEl: event.currentTarget });
-  }
+  };
 
   public handleClose: React.MouseEventHandler<HTMLElement> = () => {
     this.setState({ anchorEl: undefined });
-  }
+  };
 
   public renderChildren() {
-    return React.Children.map(this.props.children, (child) => {
+    const { children } = this.props;
+    return React.Children.map(children, (child) => {
       if (typeof child === 'object' && child && 'props' in child) {
         const { props } = child;
         const onClick = 'onClick' in props && typeof props.onClick === 'function' && props.onClick;
@@ -43,16 +46,14 @@ class Dropdown extends React.Component<DropdownProps, DropdownState> {
     const { anchorEl } = this.state;
     const { children, button, ...dropdownProps } = this.props;
     const isOpen = Boolean(anchorEl);
-    return <>
-      {React.cloneElement(button, { onClick: this.handleOpen })}
-      <DropdownMenu
-        anchorEl={anchorEl}
-        open={isOpen}
-        onClose={this.handleClose}
-        {...dropdownProps}>
-        {this.renderChildren()}
-      </DropdownMenu>
-    </>;
+    return (
+      <>
+        {React.cloneElement(button, { onClick: this.handleOpen })}
+        <DropdownMenu anchorEl={anchorEl} open={isOpen} onClose={this.handleClose} {...dropdownProps}>
+          {this.renderChildren()}
+        </DropdownMenu>
+      </>
+    );
   }
 }
 

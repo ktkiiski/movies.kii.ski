@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ClientOnlyProps {
   children: React.ReactNode;
@@ -10,7 +10,10 @@ function ClientOnly({ children }: ClientOnlyProps) {
   useEffect(() => {
     setIsRendered(true);
   }, []);
-  return isRendered ? <>{children}</> : null;
+  if (!isRendered) {
+    return null;
+  }
+  return <>{children}</>;
 }
 
 export default ClientOnly;

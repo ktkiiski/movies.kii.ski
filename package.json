@@ -1,6 +1,7 @@
 {
   "name": "movies.kii.ski",
   "description": "Movie Polls",
+  "prettier": "eslint-config-broilerplate/prettier.config",
   "author": {
     "name": "Kimmo Kiiski",
     "email": "kimmo@kii.ski",
@@ -10,18 +11,21 @@
   "private": true,
   "scripts": {
     "start": "broilerkit serve --debug",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
-  "devDependencies": {
+  "dependencies": {
     "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/styles": "^4.9.10",
-    "@types/recharts": "^1.8.9",
-    "broilerkit": "^0.25.0",
+    "broilerkit": "^0.26.0",
+    "csv-parse": "^4.8.8",
+    "immuton": "^1.0.2",
     "recharts": "^1.8.5"
   },
-  "dependencies": {
-    "csv-parse": "^4.8.8",
-    "immuton": "^1.0.2"
+  "devDependencies": {
+    "@types/recharts": "^1.8.9",
+    "eslint-config-broilerplate": "^1.0.2"
   }
 }

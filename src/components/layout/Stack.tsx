@@ -16,7 +16,11 @@ const useStyles = makeStyles({
 
 function Stack({ children, className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const classes = useStyles();
-  return <div className={className ? `${classes.stack} ${classes}` : classes.stack} {...props}>{children}</div>;
+  return (
+    <div className={className ? `${classes.stack} ${classes}` : classes.stack} {...props}>
+      {children}
+    </div>
+  );
 }
 
 export default Stack;

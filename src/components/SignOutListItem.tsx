@@ -16,7 +16,14 @@ function SignOutListItem({ onClick, children }: SignOutListItemProps) {
       onClick(event);
     }
   };
-  return user ? <ListItem onClick={onItemClick} button>{children}</ListItem> : null;
+  if (!user) {
+    return null;
+  }
+  return (
+    <ListItem onClick={onItemClick} button>
+      {children}
+    </ListItem>
+  );
 }
 
 export default SignOutListItem;

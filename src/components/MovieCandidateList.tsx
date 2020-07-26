@@ -9,9 +9,13 @@ interface MovieCandidateListProps {
 
 function MovieCandidateList({ pollId, sorting }: MovieCandidateListProps) {
   const candidates = useSortedCandidates(pollId, sorting);
-  return <>{candidates.map((candidate) => (
-    <MovieCandidate key={candidate.movieId} pollId={pollId} candidate={candidate} />
-  ))}</>;
+  return (
+    <>
+      {candidates.map((candidate) => (
+        <MovieCandidate key={candidate.movieId} pollId={pollId} candidate={candidate} />
+      ))}
+    </>
+  );
 }
 
 export default React.memo(MovieCandidateList);

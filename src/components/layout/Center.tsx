@@ -13,7 +13,11 @@ const useStyles = makeStyles({
 
 function Center({ children, className, ...props }: React.HTMLAttributes<HTMLElement>) {
   const classes = useStyles();
-  return <div className={className ? `${classes.center} ${classes}` : classes.center} {...props}>{children}</div>;
+  return (
+    <div className={className ? `${classes.center} ${classes}` : classes.center} {...props}>
+      {children}
+    </div>
+  );
 }
 
 export default Center;

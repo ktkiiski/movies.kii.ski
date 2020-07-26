@@ -28,7 +28,7 @@ interface RatingBarProps {
 
 function RatingBar({ rating }: RatingBarProps) {
   const classes = useStyles();
-  const stars: Array<React.ReactElement<any>> = [];
+  const stars: Array<React.ReactElement> = [];
   let ratingText: string;
   let halvesCount: number;
   if (typeof rating === 'number') {
@@ -49,10 +49,12 @@ function RatingBar({ rating }: RatingBarProps) {
   while (stars.length < 10) {
     stars.push(<StarEmptyIcon className={classes.star} key={stars.length} />);
   }
-  return <Typography color='textPrimary' className={classes.bar}>
-    {stars}
-    <span className={classes.ratingText}>{ratingText}</span>
-  </Typography>;
+  return (
+    <Typography color="textPrimary" className={classes.bar}>
+      {stars}
+      <span className={classes.ratingText}>{ratingText}</span>
+    </Typography>
+  );
 }
 
 export default RatingBar;
