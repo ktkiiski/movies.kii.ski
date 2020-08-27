@@ -13,12 +13,12 @@ import { useHistory } from 'react-router';
 import * as api from '../api';
 import { home } from '../routes';
 import Layout from './Layout';
-import HorizontalLayout from './layout/HorizontalLayout';
-import VerticalFlow from './layout/VerticalFlow';
 import MovieCandidateList from './MovieCandidateList';
 import MovieSearch from './MovieSearch';
 import ParticipantList from './ParticipantList';
 import PromptModal from './PromptModal';
+import HorizontalLayout from './layout/HorizontalLayout';
+import VerticalFlow from './layout/VerticalFlow';
 
 type CandidateSorting = 'unvoted' | 'top';
 

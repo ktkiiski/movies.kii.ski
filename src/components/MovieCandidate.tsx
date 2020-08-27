@@ -9,11 +9,11 @@ import * as api from '../api';
 import type { DetailedCandidate } from '../resources';
 import Dropdown from './Dropdown';
 import HasSeenMovieSelection from './HasSeenMovieSelection';
-import ExpandIcon from './icons/ExpandIcon';
 import MovieCard from './MovieCard';
 import VoteButtonSet from './VoteButtonSet';
 import VoteResult from './VoteResult';
 import VoteTable from './VoteTable';
+import ExpandIcon from './icons/ExpandIcon';
 
 interface MovieCandidateProps {
   pollId: string;

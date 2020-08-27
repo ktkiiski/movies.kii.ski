@@ -1,14 +1,14 @@
 import { makeStyles } from '@material-ui/core';
-import { green, red, yellow } from '@material-ui/core/colors';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableFooter from '@material-ui/core/TableFooter';
 import TableRow from '@material-ui/core/TableRow';
+import { green, red, yellow } from '@material-ui/core/colors';
 import SeenIcon from '@material-ui/icons/CheckBox';
 import NegativeIcon from '@material-ui/icons/ThumbDown';
-import NeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import PositiveIcon from '@material-ui/icons/ThumbUp';
+import NeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import { useList } from 'broilerkit/react/api';
 import * as React from 'react';
 import * as api from '../api';

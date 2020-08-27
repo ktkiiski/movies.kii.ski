@@ -1,16 +1,16 @@
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import SelectedNegativeIcon from '@material-ui/icons/ThumbDown';
-import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
+import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
 import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
 import * as api from '../api';
 import type { Vote } from '../resources';
 import NegativeIcon from './icons/ThumbDownOutline';
-import NeutralIcon from './icons/ThumbsUpDownOutline';
 import PositiveIcon from './icons/ThumbUpOutline';
+import NeutralIcon from './icons/ThumbsUpDownOutline';
 
 type VoteValue = Vote['value'];
 

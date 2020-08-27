@@ -19,13 +19,13 @@
     "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/styles": "^4.9.10",
-    "broilerkit": "^0.26.0",
+    "broilerkit": "^0.27.0",
     "csv-parse": "^4.8.8",
-    "immuton": "^1.0.2",
+    "immuton": "^1.1.1",
     "recharts": "^1.8.5"
   },
   "devDependencies": {
     "@types/recharts": "^1.8.9",
-    "eslint-config-broilerplate": "^1.0.2"
+    "eslint-config-broilerplate": "^2.0.0"
   }
 }

@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
-import { recomposeColor } from '@material-ui/core/styles/colorManipulator';
 import Tooltip from '@material-ui/core/Tooltip';
+import { recomposeColor } from '@material-ui/core/styles/colorManipulator';
 import PersonIcon from '@material-ui/icons/Person';
 import * as React from 'react';
 

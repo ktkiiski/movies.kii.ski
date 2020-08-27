@@ -1,5 +1,4 @@
 import { Checkbox, FormControlLabel, FormGroup, Hidden, makeStyles } from '@material-ui/core';
-
 import { useOperation } from 'broilerkit/react/api';
 import { useRequireAuth } from 'broilerkit/react/auth';
 import * as React from 'react';

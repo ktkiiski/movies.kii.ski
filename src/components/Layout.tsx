@@ -17,12 +17,12 @@ import { useHistory } from 'react-router';
 import * as api from '../api';
 import { listRatings, showPoll } from '../routes';
 import AppDrawer from './AppDrawer';
-import Root from './layout/Root';
 import PollList from './PollList';
 import Profile from './Profile';
 import PromptModal from './PromptModal';
 import SignOutListItem from './SignOutListItem';
 import TopBar from './TopBar';
+import Root from './layout/Root';
 
 interface LayoutProps {
   title: string;

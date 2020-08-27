@@ -8,8 +8,8 @@ import { useDebouncedValue } from 'broilerkit/react/hooks';
 import { useCallback, useMemo, useState } from 'react';
 import * as React from 'react';
 import * as api from '../api';
-import VerticalFlow from './layout/VerticalFlow';
 import MovieSearchResultList from './MovieSearchResultList';
+import VerticalFlow from './layout/VerticalFlow';
 
 interface MovieSearchProps {
   pollId: string;

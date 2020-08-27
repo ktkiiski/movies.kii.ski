@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
-import { yellow } from '@material-ui/core/colors';
 import Typography from '@material-ui/core/Typography';
+import { yellow } from '@material-ui/core/colors';
 import StarFullIcon from '@material-ui/icons/Star';
 import StarEmptyIcon from '@material-ui/icons/StarBorder';
 import StarHalfIcon from '@material-ui/icons/StarHalf';

@@ -6,9 +6,9 @@ import CheckIcon from '@material-ui/icons/Check';
 import { useList, useResource } from 'broilerkit/react/api';
 import * as React from 'react';
 import * as api from '../api';
-import Center from './layout/Center';
 import LoadingIndicator from './LoadingIndicator';
 import MovieCard from './MovieCard';
+import Center from './layout/Center';
 
 interface MovieSearchResultListItemProps {
   movieId: number;
