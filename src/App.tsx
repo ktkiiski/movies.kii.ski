@@ -9,6 +9,7 @@ import Home from './components/Home';
 import NotFoundView from './components/NotFoundView';
 import PollView from './components/PollView';
 import RatingListView from './components/RatingListView';
+import SignInDialogProvider from './components/SignInDialogProvider';
 import { home, listRatings, showPoll } from './routes';
 import { mainTheme } from './themes';
 
@@ -17,12 +18,14 @@ const App = React.memo(() => {
   const core = (
     <ThemeProvider theme={mainTheme}>
       <CssBaseline />
-      <Switch>
-        {renderRoute(home, Home, NotFoundView)}
-        {renderRoute(listRatings, RatingListView, NotFoundView)}
-        {renderRoute(showPoll, PollView, NotFoundView)}
-        {renderStaticRoute(NotFoundView, HttpStatus.NotFound)}
-      </Switch>
+      <SignInDialogProvider>
+        <Switch>
+          {renderRoute(home, Home, NotFoundView)}
+          {renderRoute(listRatings, RatingListView, NotFoundView)}
+          {renderRoute(showPoll, PollView, NotFoundView)}
+          {renderStaticRoute(NotFoundView, HttpStatus.NotFound)}
+        </Switch>
+      </SignInDialogProvider>
     </ThemeProvider>
   );
   const app = sheets ? sheets.collect(core) : core;

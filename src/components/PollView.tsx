@@ -4,7 +4,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import { useList, useOperation, useResource } from 'broilerkit/react/api';
-import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
+import { useUserId } from 'broilerkit/react/auth';
 import { useClient } from 'broilerkit/react/client';
 import { useTitle } from 'broilerkit/react/meta';
 import * as React from 'react';
@@ -17,6 +17,7 @@ import MovieCandidateList from './MovieCandidateList';
 import MovieSearch from './MovieSearch';
 import ParticipantList from './ParticipantList';
 import PromptModal from './PromptModal';
+import { useRequireAuth } from './SignInDialogProvider';
 import HorizontalLayout from './layout/HorizontalLayout';
 import VerticalFlow from './layout/VerticalFlow';
 

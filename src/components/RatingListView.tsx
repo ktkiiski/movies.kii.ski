@@ -1,6 +1,6 @@
 import { Typography } from '@material-ui/core';
 import { useOperation } from 'broilerkit/react/api';
-import { useRequireAuth, useUserId } from 'broilerkit/react/auth';
+import { useUserId } from 'broilerkit/react/auth';
 import { useUpload } from 'broilerkit/react/client';
 import { useTitle } from 'broilerkit/react/meta';
 import * as React from 'react';
@@ -9,6 +9,7 @@ import FileUploadButton from './FileUploadButton';
 import Layout from './Layout';
 import LoadingIndicator from './LoadingIndicator';
 import RatingList from './RatingList';
+import { useRequireAuth } from './SignInDialogProvider';
 
 function RatingListView() {
   const userId = useUserId();
