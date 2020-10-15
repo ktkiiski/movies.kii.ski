@@ -30,16 +30,16 @@ export const createUserPoll = creatable(userPollCollection, {
   defaults: {},
 });
 
-const userPollResource = endpoint(Poll, pattern`/api/users/${'profileId'}/polls/${'id'}`);
-export const retrieveUserPoll = retrievable(userPollResource, {
+const userPollMember = endpoint(Poll, pattern`/api/users/${'profileId'}/polls/${'id'}`);
+export const retrieveUserPoll = retrievable(userPollMember, {
   auth: 'owner',
   ownership: 'profileId',
 });
-export const destroyUserPoll = destroyable(userPollResource, {
+export const destroyUserPoll = destroyable(userPollMember, {
   auth: 'owner',
   ownership: 'profileId',
 });
-export const updateUserPoll = updateable(userPollResource, {
+export const updateUserPoll = updateable(userPollMember, {
   auth: 'owner',
   ownership: 'profileId',
   required: ['title'],
@@ -47,8 +47,8 @@ export const updateUserPoll = updateable(userPollResource, {
   defaults: {},
 });
 
-const pollResource = endpoint(Poll, pattern`/api/polls/${'id'}`);
-export const retrievePoll = retrievable(pollResource);
+const pollMember = endpoint(Poll, pattern`/api/polls/${'id'}`);
+export const retrievePoll = retrievable(pollMember);
 
 /**
  * Candidates
@@ -65,11 +65,11 @@ export const createPollCandidate = creatable(pollCandidateCollection, {
   defaults: {},
 });
 
-const pollCandidateResource = endpoint(
+const pollCandidateMember = endpoint(
   PollCandidate,
   pattern`/api/polls/${'pollId'}/users/${'profileId'}/candidates/${'movieId'}`,
 );
-export const destroyPollCandidate = destroyable(pollCandidateResource, {
+export const destroyPollCandidate = destroyable(pollCandidateMember, {
   auth: 'owner',
   ownership: 'profileId',
 });
@@ -89,15 +89,15 @@ export const createPollVote = creatable(pollVoteCollection, {
   defaults: {},
 });
 
-const pollVoteResource = endpoint(PollVote, pattern`/api/polls/${'pollId'}/users/${'profileId'}/votes/${'movieId'}`);
-export const updatePollVote = updateable(pollVoteResource, {
+const pollVoteMember = endpoint(PollVote, pattern`/api/polls/${'pollId'}/users/${'profileId'}/votes/${'movieId'}`);
+export const updatePollVote = updateable(pollVoteMember, {
   auth: 'owner',
   ownership: 'profileId',
   required: ['value'],
   optional: [],
   defaults: {},
 });
-export const destroyPollVote = destroyable(pollVoteResource, {
+export const destroyPollVote = destroyable(pollVoteMember, {
   auth: 'owner',
   ownership: 'profileId',
 });
@@ -116,8 +116,8 @@ export const createPollParticipant = creatable(pollParticipantCollection, {
   defaults: {},
 });
 
-const pollParticipantResource = endpoint(PollParticipant, pattern`/api/polls/${'pollId'}/participants/${'profileId'}`);
-export const destroyPollParticipant = destroyable(pollParticipantResource, {
+const pollParticipantMember = endpoint(PollParticipant, pattern`/api/polls/${'pollId'}/participants/${'profileId'}`);
+export const destroyPollParticipant = destroyable(pollParticipantMember, {
   auth: 'owner',
   ownership: 'profileId',
 });
@@ -140,8 +140,8 @@ export const createUserRating = creatable(userRatingCollection, {
   defaults: {},
 });
 
-const userRatingResource = endpoint(UserRating, pattern`/api/users/${'profileId'}/ratings/${'movieId'}`);
-export const destroyUserRating = destroyable(userRatingResource, {
+const userRatingMember = endpoint(UserRating, pattern`/api/users/${'profileId'}/ratings/${'movieId'}`);
+export const destroyUserRating = destroyable(userRatingMember, {
   auth: 'owner',
   ownership: 'profileId',
 });
@@ -170,11 +170,11 @@ export const createPollRating = creatable(pollRatingCollection, {
   defaults: {},
 });
 
-const pollCandidateRatingResource = endpoint(
+const pollCandidateRatingMember = endpoint(
   PollRating,
   pattern`/api/polls/${'pollId'}/candidates/${'movieId'}/ratings/${'profileId'}`,
 );
-export const destroyPollCandidateRating = destroyable(pollCandidateRatingResource, {
+export const destroyPollCandidateRating = destroyable(pollCandidateRatingMember, {
   auth: 'owner',
   ownership: 'profileId',
 });
@@ -182,8 +182,8 @@ export const destroyPollCandidateRating = destroyable(pollCandidateRatingResourc
 /**
  * Movies
  */
-const movieResource = endpoint(Movie, pattern`/api/movies/${'id'}`);
-export const retrieveMovie = retrievable(movieResource);
+const movieMember = endpoint(Movie, pattern`/api/movies/${'id'}`);
+export const retrieveMovie = retrievable(movieMember);
 
 /**
  * Search results
