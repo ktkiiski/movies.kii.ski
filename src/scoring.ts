@@ -4,7 +4,7 @@ import order from 'immuton/order';
 import sort from 'immuton/sort';
 import { useMemo } from 'react';
 import * as api from './api';
-import type { Vote } from './resources';
+import type { Vote, DetailedCandidate } from './resources';
 
 export function getMovieScore(movieId: number, votes: Vote[], participantIds: string[]): number {
   const totalValue = votes.reduce((sum, vote) => sum + (vote.movieId === movieId ? vote.value : 0), 0);
@@ -14,40 +14,40 @@ export function getMovieScore(movieId: number, votes: Vote[], participantIds: st
   return (100 * (totalValue - minScore)) / (maxScore - minScore);
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function useSortedCandidates(pollId: string, sorting: 'unvoted' | 'top') {
+export function useSortedCandidates(pollId: string, sorting: 'unvoted' | 'top'): DetailedCandidate[] {
   const userId = useUserId();
-  const [candidates] = useList(api.listPollCandidates, {
+  const [candidates, , isCandidatesLoading] = useList(api.listPollCandidates, {
     pollId,
     ordering: 'createdAt',
     direction: 'asc',
   });
-  const [votes] = useList(api.listPollVotes, {
+  const [votes, , isVotesLoading] = useList(api.listPollVotes, {
     pollId,
     ordering: 'createdAt',
     direction: 'asc',
   });
-  const [ratings] = useList(api.listPollRatings, {
+  const [ratings, , isRatingsLoading] = useList(api.listPollRatings, {
     pollId,
     ordering: 'createdAt',
     direction: 'asc',
   });
-  // NOTE: Only the latest votes affect the ordering!
-  // Therefore intentionally cache them until poll ID or sorting changes.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const cachedVotes = useMemo(() => votes, [pollId, sorting, votes == null]);
   const [participants] = useList(api.listPollParticipants, {
     pollId,
     ordering: 'createdAt',
     direction: 'asc',
   });
-  const participantIds = participants ? participants.map(({ profileId }) => profileId) : [];
+  const isLoading = isCandidatesLoading || isVotesLoading || isRatingsLoading;
+  // NOTE: Only the latest votes affect the ordering!
+  // Therefore intentionally cache them until poll ID or sorting changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const cachedVotes = useMemo(() => votes, [pollId, sorting, isLoading]);
   return useMemo(() => {
-    if (!candidates || !cachedVotes) {
+    if (!candidates || !cachedVotes || !participants) {
       return [];
     }
+    const participantIds = participants.map(({ profileId }) => profileId);
     // Calculate score for each movie
-    const candidateScoring = candidates.map((candidate) => ({
+    const candidateScorings = candidates.map((candidate) => ({
       candidate,
       score: getMovieScore(candidate.movieId, cachedVotes, participantIds),
       ratingCount: ratings ? ratings.filter((rating) => rating.movieId === candidate.movieId).length : 0,
@@ -57,13 +57,13 @@ export function useSortedCandidates(pollId: string, sorting: 'unvoted' | 'top') 
     const sortedScorings =
       sorting === 'top' && ratings
         ? // Sort top scored first, secondarily ordered by the rating count
-          order(order(candidateScoring, 'ratingCount', 'asc'), 'score', 'desc')
+          order(order(candidateScorings, 'ratingCount', 'asc'), 'score', 'desc')
         : // Sort unvoted first, secondariy last added first
           sort(
-            sort(candidateScoring, ({ candidate }) => candidate.createdAt, 'desc'),
+            sort(candidateScorings, ({ candidate }) => candidate.createdAt, 'desc'),
             (candidate) => (candidate.hasVoted ? 1 : 0),
           );
     // Return just the candidates
     return sortedScorings.map(({ candidate }) => candidate);
-  }, [candidates, cachedVotes, participantIds, ratings, userId, sorting]);
+  }, [candidates, cachedVotes, participants, ratings, userId, sorting]);
 }
