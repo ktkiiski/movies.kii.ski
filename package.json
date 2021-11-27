@@ -16,16 +16,16 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
-    "@material-ui/core": "^4.11.0",
-    "@material-ui/icons": "^4.9.1",
-    "@material-ui/styles": "^4.10.0",
-    "broilerkit": "^0.28.0",
-    "csv-parse": "^4.12.0",
-    "immuton": "^1.1.1",
-    "recharts": "^1.8.5"
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/styles": "^4.11.3",
+    "broilerkit": "file:../broilerkit/broilerkit-0.28.0.tgz",
+    "csv-parse": "^4.15.3",
+    "immuton": "^1.2.0",
+    "recharts": "^2.0.9"
   },
   "devDependencies": {
-    "@types/recharts": "^1.8.15",
+    "@types/recharts": "^1.8.19",
     "eslint-config-broilerplate": "^2.1.0"
   }
 }

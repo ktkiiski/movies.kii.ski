@@ -186,6 +186,8 @@ export const PollParticipant = Participant.nest('profile', PublicProfile, { id: 
     { negativeVoteCount: 0 },
   );
 
+export type PollParticipant = Deserialization<typeof PollParticipant>;
+
 export const Candidate = resource('candidate')
   .fields({
     pollId: Poll.fields.id,

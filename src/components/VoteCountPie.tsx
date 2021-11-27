@@ -63,7 +63,6 @@ function VoteCountPie(props: VoteCountPieProps) {
             outerRadius={size * 0.4}
             data={ratingsData}
             dataKey="value"
-            stroke={0}
             animationBegin={0}
             animationDuration={700}
             isAnimationActive={animate}
@@ -77,7 +76,6 @@ function VoteCountPie(props: VoteCountPieProps) {
             outerRadius={size * 0.5}
             data={data}
             dataKey="value"
-            stroke={0}
             animationBegin={0}
             animationDuration={700}
             isAnimationActive={animate}

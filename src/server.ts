@@ -1,4 +1,4 @@
-import { create, destroy, initiate, retrieve, update, upsert, write } from 'broilerkit/db';
+import { create, destroy, initiate, retrieve, update, upsert, write, ensure } from 'broilerkit/db';
 import { Created, OK } from 'broilerkit/http';
 import { identifier } from 'broilerkit/id';
 import { implementAll } from 'broilerkit/server';
@@ -65,20 +65,17 @@ export default implementAll(api).using({
     const profileId = auth.id;
     const [, participant] = await db.batch([
       write(Profile, auth),
-      upsert(
-        PollParticipant,
-        {
-          pollId,
-          profileId,
-          createdAt: now,
-          updatedAt: now,
-        },
-        {
-          updatedAt: now,
-        },
-      ),
+      ensure(PollParticipant, {
+        pollId,
+        profileId,
+        createdAt: now,
+        updatedAt: now,
+      }),
     ]);
-    return new Created(participant);
+    if (participant.createdAt === now) {
+      return new Created(participant);
+    }
+    return new OK(participant);
   },
   destroyPollParticipant: async (query, { db }) => db.run(destroy(Participant, query)),
   createPollVote: async ({ value, pollId, movieId }, { db, auth }) => {
@@ -199,7 +196,7 @@ export default implementAll(api).using({
     return new OK(vote);
   },
   destroyPollVote: async (query, { db }) => {
-    db.run(destroy(Vote, query));
+    await db.run(destroy(Vote, query));
   },
   retrieveMovie: async ({ id }, { db, environment }) => {
     const apiKey = environment.TMDBApiKey;

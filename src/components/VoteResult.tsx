@@ -3,7 +3,7 @@ import { useList } from 'broilerkit/react/api';
 import * as React from 'react';
 import * as api from '../api';
 import { getMovieScore } from '../scoring';
-import VotePie from './VotePie';
+import VoteCountPie from './VoteCountPie';
 
 interface VoteTableProps {
   pollId: string;
@@ -34,26 +34,45 @@ function VoteResult({ pollId, movieId }: VoteTableProps) {
   const participantIds = pollParticipants.map(({ profileId }) => profileId);
   const score = getMovieScore(movieId, movieVotes, participantIds);
   const participantCount = pollParticipants.length;
+  const positiveVoteCount = movieVotes.filter(({ value }) => value === 1).length;
+  const neutralVoteCount = movieVotes.filter(({ value }) => value === 0).length;
+  const negativeVoteCount = movieVotes.filter(({ value }) => value === -1).length;
 
   return (
     <>
       <Hidden xsDown implementation="js">
-        <VotePie size={120} votes={movieVotes} maxCount={participantCount} ratings={movieRatings} animate>
+        <VoteCountPie
+          size={120}
+          positiveVoteCount={positiveVoteCount}
+          neutralVoteCount={neutralVoteCount}
+          negativeVoteCount={negativeVoteCount}
+          maxCount={participantCount}
+          ratings={movieRatings}
+          animate
+        >
           {Number.isFinite(score) ? (
             <Typography color="textPrimary" style={{ fontSize: 24 }}>
               {`${Math.round(score)}%`}
             </Typography>
           ) : null}
-        </VotePie>
+        </VoteCountPie>
       </Hidden>
       <Hidden smUp implementation="js">
-        <VotePie size={64} votes={movieVotes} maxCount={participantCount} ratings={movieRatings} animate>
+        <VoteCountPie
+          size={64}
+          positiveVoteCount={positiveVoteCount}
+          neutralVoteCount={neutralVoteCount}
+          negativeVoteCount={negativeVoteCount}
+          maxCount={participantCount}
+          ratings={movieRatings}
+          animate
+        >
           {Number.isFinite(score) ? (
             <Typography color="textPrimary" style={{ fontSize: 15 }}>
               {`${Math.round(score)}%`}
             </Typography>
           ) : null}
-        </VotePie>
+        </VoteCountPie>
       </Hidden>
     </>
   );
