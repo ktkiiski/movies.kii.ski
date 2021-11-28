@@ -12,8 +12,8 @@
   "scripts": {
     "start": "broilerkit serve --debug",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint": "eslint . --ext .ts,.tsx && prettier --check .",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix && prettier --write ."
   },
   "dependencies": {
     "@material-ui/core": "^4.11.3",
@@ -26,6 +26,6 @@
   },
   "devDependencies": {
     "@types/recharts": "^1.8.19",
-    "eslint-config-broilerplate": "^2.1.0"
+    "eslint-config-broilerplate": "^3.0.0"
   }
 }

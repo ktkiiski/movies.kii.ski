@@ -102,12 +102,12 @@ export async function retrieveMovieByImdbId(imdbId: string, apiKey: string): Pro
     const movieResult = data.movie_results[0];
     if (movieResult) {
       // Retrieve as a movie
-      return retrieveMovie(movieResult.id, apiKey);
+      return await retrieveMovie(movieResult.id, apiKey);
     }
     const seriesResult = data.tv_results[0];
     if (seriesResult) {
       // Retrieve as a TV series
-      return retrieveSeries(seriesResult.id, apiKey, imdbId);
+      return await retrieveSeries(seriesResult.id, apiKey, imdbId);
     }
     throw new Error(`Could not find a movie/series with IMDb ID ${imdbId}`);
   } catch (error) {

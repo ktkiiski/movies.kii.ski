@@ -1,4 +1,4 @@
 {
-    "root": true,
-    "extends": "broilerplate"
+  "root": true,
+  "extends": "broilerplate/react"
 }

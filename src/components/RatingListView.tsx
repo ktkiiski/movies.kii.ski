@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 import { Typography } from '@material-ui/core';
 import { useOperation } from 'broilerkit/react/api';
 import { useUserId } from 'broilerkit/react/auth';

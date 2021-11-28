@@ -11,9 +11,7 @@ interface SpacerProps {
   children?: React.ReactNode;
 }
 
-const Spacer = ({ children }: SpacerProps) => {
+export default function Spacer({ children }: SpacerProps) {
   const classes = useStyles();
   return <div className={classes.spacer}>{children}</div>;
-};
-
-export default Spacer;
+}

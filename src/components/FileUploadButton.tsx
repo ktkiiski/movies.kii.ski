@@ -26,6 +26,7 @@ export default function FileUploadButton(props: FileUploadButtonProps) {
   }
 
   return (
+    // eslint-disable-next-line react/jsx-no-bind
     <FileUpload onChange={onChange} {...uploadProps}>
       <Button size="small" component="span" variant="outlined" disabled={isUploading}>
         {isUploading ? <CircularProgress color="inherit" size={16} /> : <UploadIcon color="inherit" />}

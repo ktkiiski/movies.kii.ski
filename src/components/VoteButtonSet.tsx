@@ -21,7 +21,7 @@ interface VoteButtonProps {
   children: React.ReactNode;
 }
 
-const VoteButton = ({ children, value, buttonValue, onSelect }: VoteButtonProps) => {
+function VoteButton({ children, value, buttonValue, onSelect }: VoteButtonProps) {
   // eslint-disable-next-line no-nested-ternary
   const color = buttonValue === 1 ? 'primary' : buttonValue === -1 ? 'secondary' : 'inherit';
   return (
@@ -29,7 +29,7 @@ const VoteButton = ({ children, value, buttonValue, onSelect }: VoteButtonProps)
       {children}
     </IconButton>
   );
-};
+}
 
 interface VoteButtonSetProps {
   movieId: number;

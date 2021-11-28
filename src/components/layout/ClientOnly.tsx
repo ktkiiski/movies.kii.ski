@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useEffect, useState } from 'react';
 
 interface ClientOnlyProps {
@@ -13,7 +12,7 @@ function ClientOnly({ children }: ClientOnlyProps) {
   if (!isRendered) {
     return null;
   }
-  return <>{children}</>;
+  return children;
 }
 
 export default ClientOnly;
