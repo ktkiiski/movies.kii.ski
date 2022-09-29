@@ -22,7 +22,7 @@
     "broilerkit": "file:../broilerkit/broilerkit-0.28.0.tgz",
     "csv-parse": "^4.15.3",
     "immuton": "^1.2.0",
-    "recharts": "^2.0.9"
+    "recharts": "^2.1.14"
   },
   "devDependencies": {
     "@types/recharts": "^1.8.19",
