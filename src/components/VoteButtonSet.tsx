@@ -3,9 +3,10 @@ import IconButton from '@material-ui/core/IconButton';
 import SelectedNegativeIcon from '@material-ui/icons/ThumbDown';
 import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
 import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
-import { useOperation } from 'broilerkit/react/api';
 import * as React from 'react';
-import * as api from '../api';
+import useCreatePollParticipant from '../hooks/useCreatePollParticipant';
+import useCreatePollVote from '../hooks/useCreatePollVote';
+import useDeletePollVote from '../hooks/useDeletePollVote';
 import type { Vote } from '../resources';
 import { useRequireAuth } from './SignInDialogProvider';
 import NegativeIcon from './icons/ThumbDownOutline';
@@ -39,37 +40,28 @@ interface VoteButtonSetProps {
 
 function VoteButtonSet({ movieId, pollId, currentValue }: VoteButtonSetProps) {
   const requireAuth = useRequireAuth();
-  const createPollParticipantOperation = useOperation(api.createPollParticipant);
-  const createPollVoteOperation = useOperation(api.createPollVote);
-  const destroyPollVoteOperation = useOperation(api.destroyPollVote);
-  const updatePollVote = useOperation(api.updatePollVote);
+  const createPollParticipant = useCreatePollParticipant();
+  const createOrUpdatePollVote = useCreatePollVote();
+  const deletePollVote = useDeletePollVote();
 
   const onSelect = async (value: VoteValue, oldValue?: VoteValue | null) => {
     const auth = await requireAuth();
+    const profileId = auth.uid;
     if (value !== oldValue) {
       // Ensure that the user is the participant in this poll
-      createPollParticipantOperation.post({ pollId });
+      createPollParticipant({ pollId, profileId });
     }
-    if (oldValue == null) {
-      // Create a new vote
-      const now = new Date();
-      await createPollVoteOperation.postOptimistically({
+    if (oldValue == null || value !== oldValue) {
+      // Create or update a new vote
+      await createOrUpdatePollVote({
         movieId,
         pollId,
         value,
-        profileId: auth.id,
-        profile: auth,
-        createdAt: now,
-        updatedAt: now,
+        profileId,
       });
-      return;
-    }
-    if (value === oldValue) {
-      // Remove old value
-      destroyPollVoteOperation.delete({ movieId, pollId, profileId: auth.id });
     } else {
-      // Update existing value
-      updatePollVote.patch({ movieId, pollId, value, profileId: auth.id });
+      // Remove old value
+      await deletePollVote({ movieId, pollId, profileId });
     }
   };
   return (

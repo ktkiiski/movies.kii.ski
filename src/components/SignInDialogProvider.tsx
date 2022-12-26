@@ -2,12 +2,15 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from '@material-ui/core/Typography';
-import type { AuthIdentityProvider, Auth } from 'broilerkit/auth';
-import { useSignIn, useAuth } from 'broilerkit/react/auth';
-import FacebookLoginButton from 'broilerkit/react/components/FacebookLoginButton';
-import GoogleLoginButton from 'broilerkit/react/components/GoogleLoginButton';
+import { User } from 'firebase/auth';
 import * as React from 'react';
 import { useState, useCallback, useContext } from 'react';
+import useSignIn from '../hooks/useSignIn';
+import useUser from '../hooks/useUser';
+import FacebookLoginButton from './FacebookLoginButton';
+import GoogleLoginButton from './GoogleLoginButton';
+
+type AuthIdentityProvider = 'Facebook' | 'Google';
 
 interface SignInDialogProps {
   open: boolean;
@@ -16,12 +19,12 @@ interface SignInDialogProps {
 }
 
 interface DialogState {
-  promise: Promise<Auth>;
+  promise: Promise<User>;
   dismiss: (reason?: unknown) => void;
   setProvider: (provider: AuthIdentityProvider) => void;
 }
 
-const SignInContext = React.createContext<() => Promise<Auth>>(async () => {
+const SignInContext = React.createContext<() => Promise<User>>(async () => {
   throw new Error(`SignInContext not provided!`);
 });
 
@@ -47,13 +50,13 @@ interface SignInDialogProviderProps {
 }
 
 export default function SignInDialogProvider({ children }: SignInDialogProviderProps): JSX.Element {
-  const auth = useAuth();
-  const signIn = useSignIn();
+  const user = useUser();
+  const [signIn] = useSignIn();
   const [dialogState, setDialogState] = useState<DialogState | null>(null);
   const authPromise = dialogState?.promise;
   const requireAuth = useCallback(async () => {
-    if (auth) {
-      return auth;
+    if (user) {
+      return user;
     }
     if (authPromise) {
       return authPromise;
@@ -67,7 +70,7 @@ export default function SignInDialogProvider({ children }: SignInDialogProviderP
     const promise = providerPromise.then((provider) => signIn(provider));
     setDialogState({ promise, dismiss, setProvider });
     return promise;
-  }, [signIn, authPromise, auth]);
+  }, [signIn, authPromise, user]);
   const onDialogDismiss = useCallback(() => {
     if (dialogState) {
       dialogState.dismiss(new Error('Sign in dialog dismissed'));
@@ -82,6 +85,6 @@ export default function SignInDialogProvider({ children }: SignInDialogProviderP
   );
 }
 
-export function useRequireAuth(): () => Promise<Auth> {
+export function useRequireAuth(): () => Promise<User> {
   return useContext(SignInContext);
 }

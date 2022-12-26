@@ -1,51 +1,31 @@
-import { useList } from 'broilerkit/react/api';
-import * as React from 'react';
-import * as api from '../api';
-import type { PollParticipant } from '../resources';
+import usePollCandidates from '../hooks/usePollCandidates';
+import usePollVotes from '../hooks/usePollVotes';
+import useUserRatings from '../hooks/useUserRatings';
+import { Participant } from '../resources';
 import ProfileAvatar from './ProfileAvatar';
 import VoteCountPie from './VoteCountPie';
 
 interface ProfileVoteAvatarProps {
   pollId: string;
-  participant: PollParticipant;
+  participant: Participant;
 }
 
 function ProfileVoteAvatar({ pollId, participant }: ProfileVoteAvatarProps) {
-  const { profile, profileId, positiveVoteCount, neutralVoteCount, negativeVoteCount } = participant;
-  const [votes] = useList(
-    api.listPollVotes,
-    {
-      pollId,
-      ordering: 'createdAt',
-      direction: 'asc',
-    },
-    {
-      profileId,
-    },
-  );
-  const [userRatings] = useList(
-    api.listPollRatings,
-    {
-      pollId,
-      ordering: 'createdAt',
-      direction: 'asc',
-    },
-    {
-      profileId,
-    },
-  );
-  const [pollCandidates] = useList(api.listPollCandidates, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
-  if (!votes || !userRatings || !pollCandidates) {
+  const { profileId } = participant;
+  const [allVotes, isLoadingVotes] = usePollVotes(pollId);
+  const profileVotes = allVotes.filter((vote) => vote.profileId === profileId);
+  const [userRatings, isLoadingRatings] = useUserRatings(profileId);
+  const [pollCandidates, isLoadingCandidates] = usePollCandidates(pollId);
+  if (isLoadingVotes || isLoadingRatings || isLoadingCandidates) {
     return null;
   }
   const ratings = userRatings.filter((rating) =>
     pollCandidates.some((candidate) => candidate.movieId === rating.movieId),
   );
   const movieCount = pollCandidates.length;
+  const positiveVoteCount = profileVotes.filter((vote) => vote.value === 1).length;
+  const neutralVoteCount = profileVotes.filter((vote) => vote.value === 0).length;
+  const negativeVoteCount = profileVotes.filter((vote) => vote.value === -1).length;
   return (
     <VoteCountPie
       positiveVoteCount={positiveVoteCount}
@@ -56,7 +36,7 @@ function ProfileVoteAvatar({ pollId, participant }: ProfileVoteAvatarProps) {
       size={56}
       animate={false}
     >
-      {profile && <ProfileAvatar user={profile} size={36} />}
+      <ProfileAvatar profileId={profileId} size={36} />
     </VoteCountPie>
   );
 }

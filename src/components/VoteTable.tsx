@@ -9,9 +9,9 @@ import SeenIcon from '@material-ui/icons/CheckBox';
 import NegativeIcon from '@material-ui/icons/ThumbDown';
 import PositiveIcon from '@material-ui/icons/ThumbUp';
 import NeutralIcon from '@material-ui/icons/ThumbsUpDown';
-import { useList } from 'broilerkit/react/api';
-import * as React from 'react';
-import * as api from '../api';
+import usePollParticipants from '../hooks/usePollParticipants';
+import usePollRatings from '../hooks/usePollRatings';
+import usePollVotes from '../hooks/usePollVotes';
 import { getMovieScore } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
 
@@ -55,23 +55,11 @@ interface VoteTableProps {
 
 function VoteTable({ pollId, movieId }: VoteTableProps) {
   const classes = useStyles();
-  const [ratings] = useList(api.listPollRatings, { pollId, ordering: 'createdAt', direction: 'asc' }, { movieId });
-  const [movieVotes] = useList(
-    api.listPollVotes,
-    {
-      pollId,
-      ordering: 'createdAt',
-      direction: 'asc',
-    },
-    {
-      movieId,
-    },
-  );
-  const [pollParticipants] = useList(api.listPollParticipants, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
+  const [pollRatings] = usePollRatings(pollId);
+  const ratings = pollRatings.filter((rating) => rating.movieId === movieId);
+  const [pollVotes] = usePollVotes(pollId);
+  const movieVotes = pollVotes.filter((vote) => vote.movieId === movieId);
+  const [pollParticipants] = usePollParticipants(pollId);
   const participantIds = pollParticipants ? pollParticipants.map(({ profileId }) => profileId) : [];
   const score = getMovieScore(movieId, movieVotes || [], participantIds);
   const positiveVotes = (movieVotes || []).filter((vote) => vote.value === 1);
@@ -88,19 +76,15 @@ function VoteTable({ pollId, movieId }: VoteTableProps) {
           </TableCell>
           <TableCell className={`${classes.votesColumn} ${classes.positiveColumn}`}>
             {positiveVotes &&
-              positiveVotes.map(
-                (vote) =>
-                  vote.profile &&
-                  vote.profile.picture && (
-                    <ProfileAvatar
-                      className={classes.avatar}
-                      key={vote.profileId}
-                      user={vote.profile}
-                      size={22}
-                      fade={green[400]}
-                    />
-                  ),
-              )}
+              positiveVotes.map((vote) => (
+                <ProfileAvatar
+                  className={classes.avatar}
+                  key={vote.profileId}
+                  profileId={vote.profileId}
+                  size={22}
+                  fade={green[400]}
+                />
+              ))}
           </TableCell>
           <TableCell className={`${classes.sumColumn} ${classes.positiveColumn}`} align="right">
             {positiveVotes && positiveVotes.length}
@@ -112,19 +96,15 @@ function VoteTable({ pollId, movieId }: VoteTableProps) {
           </TableCell>
           <TableCell className={`${classes.votesColumn} ${classes.neutralColumn}`}>
             {neutralVotes &&
-              neutralVotes.map(
-                (vote) =>
-                  vote.profile &&
-                  vote.profile.picture && (
-                    <ProfileAvatar
-                      className={classes.avatar}
-                      key={vote.profileId}
-                      user={vote.profile}
-                      size={22}
-                      fade={yellow[400]}
-                    />
-                  ),
-              )}
+              neutralVotes.map((vote) => (
+                <ProfileAvatar
+                  className={classes.avatar}
+                  key={vote.profileId}
+                  profileId={vote.profileId}
+                  size={22}
+                  fade={yellow[400]}
+                />
+              ))}
           </TableCell>
           <TableCell className={`${classes.sumColumn} ${classes.neutralColumn}`} align="right">
             {neutralVotes && neutralVotes.length}
@@ -136,19 +116,15 @@ function VoteTable({ pollId, movieId }: VoteTableProps) {
           </TableCell>
           <TableCell className={`${classes.votesColumn} ${classes.negativeColumn}`}>
             {negativeVotes &&
-              negativeVotes.map(
-                (vote) =>
-                  vote.profile &&
-                  vote.profile.picture && (
-                    <ProfileAvatar
-                      className={classes.avatar}
-                      key={vote.profileId}
-                      user={vote.profile}
-                      size={22}
-                      fade={red[400]}
-                    />
-                  ),
-              )}
+              negativeVotes.map((vote) => (
+                <ProfileAvatar
+                  className={classes.avatar}
+                  key={vote.profileId}
+                  profileId={vote.profileId}
+                  size={22}
+                  fade={red[400]}
+                />
+              ))}
           </TableCell>
           <TableCell className={`${classes.sumColumn} ${classes.negativeColumn}`} align="right">
             {negativeVotes && negativeVotes.length}
@@ -160,13 +136,14 @@ function VoteTable({ pollId, movieId }: VoteTableProps) {
           </TableCell>
           <TableCell className={classes.votesColumn}>
             {ratings &&
-              ratings.map(
-                (rating) =>
-                  rating.profile &&
-                  rating.profile.picture && (
-                    <ProfileAvatar className={classes.avatar} key={rating.profileId} user={rating.profile} size={22} />
-                  ),
-              )}
+              ratings.map((rating) => (
+                <ProfileAvatar
+                  className={classes.avatar}
+                  key={rating.profileId}
+                  profileId={rating.profileId}
+                  size={22}
+                />
+              ))}
           </TableCell>
           <TableCell className={classes.sumColumn} align="right">
             {ratings && ratings.length}

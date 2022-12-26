@@ -1,6 +1,5 @@
-import { datetime, integer, nullable, string } from 'broilerkit/fields';
-import { Encoding, serializer } from 'broilerkit/serializers';
-import * as parseCSV from 'csv-parse/lib/sync';
+import parseCSV from 'csv-parse/lib/sync';
+import { serializer, fields, Encoding } from 'serializers';
 
 const fieldTransforms: Record<string, string> = {
   'id': 'id',
@@ -14,13 +13,11 @@ const fieldTransforms: Record<string, string> = {
 };
 
 const imdbRatingSerializer = serializer({
-  id: string(), // Example: '99'
-  title: string(), // Example: 'Synecdoche, New York'
-  created: datetime(), // Example: 'Thu Jul  1 00:00:00 2010'
-  modified: nullable(datetime()), // Example: ''
-  value: integer(), // Example: '9'
-}).defaults({
-  modified: null,
+  id: fields.string(0, null, true), // Example: '99'
+  title: fields.string(0, null, true), // Example: 'Synecdoche, New York'
+  created: fields.datetime(), // Example: 'Thu Jul  1 00:00:00 2010'
+  modified: fields.nullable(fields.datetime()), // Example: ''
+  value: fields.integer(), // Example: '9'
 });
 
 // eslint-disable-next-line import/prefer-default-export
@@ -37,6 +34,9 @@ export function parseImdbRatingsCsv(data: string) {
       const newKey = fieldTransforms[lowerKey] || lowerKey;
       entry[newKey] = item[key];
     });
-    return imdbRatingSerializer.decode(entry);
+    return imdbRatingSerializer.decodeFields({
+      modified: '',
+      ...entry,
+    });
   });
 }

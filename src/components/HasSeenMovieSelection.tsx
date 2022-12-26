@@ -1,7 +1,7 @@
-import { Checkbox, FormControlLabel, FormGroup, Hidden, makeStyles } from '@material-ui/core';
-import { useOperation } from 'broilerkit/react/api';
-import * as React from 'react';
-import * as api from '../api';
+import { Checkbox, FormControlLabel, FormGroup, makeStyles, Theme, useMediaQuery } from '@material-ui/core';
+import { memo } from 'react';
+import useCreateRating from '../hooks/useCreateRating';
+import useDeleteRating from '../hooks/useDeleteRating';
 import { useRequireAuth } from './SignInDialogProvider';
 
 const useStyles = makeStyles((theme) => ({
@@ -21,29 +21,24 @@ interface HasSeenMovieSelectionProps {
 }
 
 function HasSeenMovieSelection({ movieId, pollId, hasSeen, ...props }: HasSeenMovieSelectionProps) {
+  const longerLabel = useMediaQuery<Theme>((theme) => theme.breakpoints.up('sm'));
   const classes = useStyles();
   const requireAuth = useRequireAuth();
-  const createPollRating = useOperation(api.createPollRating);
-  const destroyPollCandidateRating = useOperation(api.destroyPollCandidateRating);
+  const createRating = useCreateRating();
+  const deleteRating = useDeleteRating();
   const onChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = event.target;
-    const { id, name, picture } = await requireAuth();
+    const { uid } = await requireAuth();
     if (checked) {
-      const now = new Date();
-      await createPollRating.postOptimistically({
-        pollId,
+      await createRating({
         movieId,
-        profileId: id,
-        profile: { id, name, picture },
+        profileId: uid,
         value: null,
-        createdAt: now,
-        updatedAt: now,
       });
     } else {
-      await destroyPollCandidateRating.delete({
-        pollId,
+      await deleteRating({
         movieId,
-        profileId: id,
+        profileId: uid,
       });
     }
   };
@@ -51,15 +46,10 @@ function HasSeenMovieSelection({ movieId, pollId, hasSeen, ...props }: HasSeenMo
     <FormGroup className={classes.root} {...props}>
       <FormControlLabel
         control={<Checkbox checked={hasSeen} onChange={onChange} />}
-        label={
-          <span className={classes.labelText}>
-            {"I've seen this "}
-            <Hidden xsDown>movie</Hidden>
-          </span>
-        }
+        label={<span className={classes.labelText}>{longerLabel ? "I've seen this movie" : "I've seen this"}</span>}
       />
     </FormGroup>
   );
 }
 
-export default React.memo(HasSeenMovieSelection);
+export default memo(HasSeenMovieSelection);

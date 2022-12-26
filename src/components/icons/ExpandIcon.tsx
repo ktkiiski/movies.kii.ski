@@ -1,6 +1,5 @@
 import { makeStyles } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import * as React from 'react';
 
 const useStyles = makeStyles((theme) => ({
   expand: {

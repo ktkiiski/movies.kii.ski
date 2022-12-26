@@ -1,31 +1,69 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NotFound } from 'broilerkit/http';
-import { identifier } from 'broilerkit/id';
-import { requestJson } from 'broilerkit/request';
-import { retryRequestWithBackoff } from 'broilerkit/retry';
-import { Movie, MovieSearchResult } from './resources';
+
+import { isNotNully } from 'immuton';
+import { Movie, MovieSearchResult, movieSearchResultSerializer, movieSerializer } from './movies';
+
+// const retryableStatusCodes = [503, 408, 429, 504];
+// const maxRetryCount = 20;
 
 async function requestTMDB(url: string, query: { [key: string]: string }): Promise<any> {
-  const { data } = await retryRequestWithBackoff(20, (retryCount) => {
-    if (retryCount > 0) {
-      // eslint-disable-next-line no-console
-      console.warn(`Retrying request to ${url} with attempt ${retryCount}`);
-    }
-    return requestJson({ method: 'GET', url, query });
-  });
-  return data;
+  const response = await fetch(`${url}?${new URLSearchParams(query)}`);
+  if (!response.ok) {
+    // eslint-disable-next-line @typescript-eslint/no-throw-literal
+    throw response;
+  }
+  return response.json();
 }
+/*
+async function requestTMDB(url: string, query: { [key: string]: string }): Promise<any> {
+  let retryCount = 0;
+  const startTime = new Date().getTime();
 
-export async function retrieveMovie(id: number, apiKey: string): Promise<Movie> {
+  async function assertRetry(error: any) {
+    if (retryCount >= maxRetryCount) {
+      // No more retries or not retryable error
+      throw error;
+    }
+    // Retry
+    retryCount += 1;
+    // Wait for a random portion of the total time spent
+    const totalDuration = new Date().getTime() - startTime;
+    const waitDuration = Math.floor(Math.random() * totalDuration);
+    await new Promise((resolve) => {
+      setTimeout(resolve, waitDuration);
+    });
+  }
+
+  for (;;) {
+    try {
+      const response = await fetch(`${url}?${new URLSearchParams(query)}`);
+      if (!response.ok) {
+        if (retryableStatusCodes.includes(response.status)) {
+          await assertRetry(response);
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-throw-literal
+          throw response;
+        }
+      }
+      // eslint-disable-next-line @typescript-eslint/return-await
+      return response.json();
+    } catch (error) {
+      await assertRetry(error);
+    }
+  }
+}
+*/
+
+export async function retrieveMovie(id: number, apiKey: string): Promise<Movie | null> {
   const now = new Date();
   try {
     const data = await requestTMDB(`https://api.themoviedb.org/3/movie/${id}`, {
       api_key: apiKey,
     });
-    return Movie.deserialize({
+    return movieSerializer.deserialize({
       id: data.id,
       type: 'movie',
-      version: identifier(now),
       createdAt: now.toISOString(), // TODO: Do not overwrite this!
       updatedAt: now.toISOString(),
       budget: data.budget,
@@ -50,20 +88,19 @@ export async function retrieveMovie(id: number, apiKey: string): Promise<Movie> 
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Failed to retrieve movie ${id}`, error);
-    throw new NotFound(`Movie not found`);
+    return null;
   }
 }
 
-export async function retrieveSeries(id: number, apiKey: string, imdbId: string): Promise<Movie> {
+export async function retrieveSeries(id: number, apiKey: string, imdbId: string): Promise<Movie | null> {
   const now = new Date();
   try {
     const data = await requestTMDB(`https://api.themoviedb.org/3/tv/${id}`, {
       api_key: apiKey,
     });
-    return Movie.deserialize({
+    return movieSerializer.deserialize({
       id: data.id,
       type: 'series',
-      version: identifier(now),
       createdAt: now.toISOString(), // TODO: Do not overwrite this!
       updatedAt: now.toISOString(),
       budget: null,
@@ -88,11 +125,11 @@ export async function retrieveSeries(id: number, apiKey: string, imdbId: string)
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Failed to retrieve TV series ${id}`, error);
-    throw new NotFound(`TV series not found`);
+    return null;
   }
 }
 
-export async function retrieveMovieByImdbId(imdbId: string, apiKey: string): Promise<Movie> {
+export async function retrieveMovieByImdbId(imdbId: string, apiKey: string): Promise<Movie | null> {
   try {
     const data = await requestTMDB(`https://api.themoviedb.org/3/find/${imdbId}`, {
       external_source: 'imdb_id',
@@ -113,15 +150,35 @@ export async function retrieveMovieByImdbId(imdbId: string, apiKey: string): Pro
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Failed to retrieve the movie by IMDb ID ${imdbId}:`, error);
-    throw new NotFound(`Movie not found`);
+    return null;
   }
 }
 
 export async function searchMovies(query: string, apiKey: string): Promise<MovieSearchResult[]> {
-  const data = await requestTMDB(`https://api.themoviedb.org/3/search/movie`, {
+  const data = await requestTMDB('https://api.themoviedb.org/3/search/movie', {
     api_key: apiKey,
     query,
   });
-  const results = data.results as any[];
-  return results.map(({ id }, index) => MovieSearchResult.deserialize({ id, index, query }));
+  const searchResults = data.results as any[];
+  return searchResults
+    .map((result) => {
+      try {
+        return movieSearchResultSerializer.deserialize({
+          id: result.id,
+          posterPath: result.poster_path,
+          isAdult: result.adult,
+          overview: result.overview,
+          releasedOn: result.release_date,
+          originalTitle: result.original_title,
+          title: result.title,
+          backdropPath: result.backdrop_path,
+          popularity: result.popularity,
+          voteCount: result.vote_count,
+          voteAverage: result.vote_average,
+        });
+      } catch {
+        return null;
+      }
+    })
+    .filter(isNotNully);
 }

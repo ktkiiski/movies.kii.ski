@@ -3,15 +3,15 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
-import { useList, useOperation, useResource } from 'broilerkit/react/api';
-import { useUserId } from 'broilerkit/react/auth';
-import { useClient } from 'broilerkit/react/client';
-import { useTitle } from 'broilerkit/react/meta';
-import * as React from 'react';
 import { useState } from 'react';
-import { useHistory } from 'react-router';
-import * as api from '../api';
-import { home } from '../routes';
+import { useNavigate, useParams } from 'react-router-dom';
+import useDeletePollParticipant from '../hooks/useDeletePollParticipant';
+import useDeleteUserPoll from '../hooks/useDeleteUserPoll';
+import usePoll from '../hooks/usePoll';
+import usePollParticipants from '../hooks/usePollParticipants';
+import useTitle from '../hooks/useTitle';
+import useUpdateUserPoll from '../hooks/useUpdateUserPoll';
+import useUserId from '../hooks/useUserId';
 import Layout from './Layout';
 import MovieCandidateList from './MovieCandidateList';
 import MovieSearch from './MovieSearch';
@@ -23,54 +23,45 @@ import VerticalFlow from './layout/VerticalFlow';
 
 type CandidateSorting = 'unvoted' | 'top';
 
-interface PollViewProps {
-  pollId: string;
-}
-
-function PollView({ pollId }: PollViewProps) {
-  const history = useHistory();
+function PollView() {
+  const { pollId } = useParams<'pollId'>();
+  if (!pollId) {
+    throw new Error('Missing poll ID!');
+  }
+  const navigate = useNavigate();
   const userId = useUserId();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [sorting, setSorting] = useState<CandidateSorting>('unvoted');
   const requireAuth = useRequireAuth();
-  const [poll] = useResource(api.retrievePoll, { id: pollId });
-  const [participants] = useList(api.listPollParticipants, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
+  const [poll] = usePoll(pollId);
+  const [participants] = usePollParticipants(pollId);
   useTitle((poll && poll.title) || `Movie poll`);
-  const client = useClient();
-  const updatePoll = useOperation(api.updateUserPoll);
-  const destroyPoll = useOperation(api.destroyUserPoll);
-  const destroyPollParticipant = useOperation(api.destroyPollParticipant);
+  const updatePoll = useUpdateUserPoll();
+  const deletePoll = useDeleteUserPoll();
+  const deletePollParticipant = useDeletePollParticipant();
   const openUpdateModal = () => setIsUpdateModalOpen(true);
   const closeUpdateModal = () => setIsUpdateModalOpen(false);
   const onModalSubmit = async (title: string) => {
     closeUpdateModal();
-    const auth = await requireAuth();
-    await updatePoll.patch({ id: pollId, title, profileId: auth.id });
+    await updatePoll({ ...poll!, title });
   };
   const onDeleteClick = async () => {
     const auth = await requireAuth();
-    await destroyPoll.delete({ id: pollId, profileId: auth.id });
-    history.push(home.compile({}).toString());
+    await deletePoll({ id: pollId, profileId: auth.uid });
+    navigate('/');
   };
   const onLeaveClick = async () => {
     // eslint-disable-next-line no-alert
     if (window.confirm(`Are you sure you want to unparticipate this poll?`)) {
       const auth = await requireAuth();
-      await destroyPollParticipant.delete({ pollId, profileId: auth.id });
+      await deletePollParticipant({ pollId, profileId: auth.uid });
     }
   };
   const onRefreshClick = async () => {
+    // TODO: Remove!
     setIsRefreshing(true);
-    try {
-      await client.refreshAll();
-    } finally {
-      setIsRefreshing(false);
-    }
+    setIsRefreshing(false);
   };
   const menu =
     poll && userId && userId === poll.profileId

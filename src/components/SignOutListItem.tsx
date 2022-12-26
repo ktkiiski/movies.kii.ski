@@ -1,6 +1,8 @@
 import ListItem from '@material-ui/core/ListItem';
-import { useAuth, useSignOut } from 'broilerkit/react/auth';
 import * as React from 'react';
+import { useSignOut } from 'react-firebase-hooks/auth';
+import { auth } from '../firebase';
+import useUser from '../hooks/useUser';
 
 interface SignOutListItemProps {
   onClick?: React.MouseEventHandler<HTMLElement>;
@@ -8,8 +10,8 @@ interface SignOutListItemProps {
 }
 
 function SignOutListItem({ onClick, children }: SignOutListItemProps) {
-  const user = useAuth();
-  const signOut = useSignOut();
+  const user = useUser();
+  const [signOut] = useSignOut(auth);
   const onItemClick: React.MouseEventHandler<HTMLElement> = (event: React.MouseEvent<HTMLElement>) => {
     signOut();
     if (onClick) {

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 import type { Rating } from '../resources';
 import Center from './layout/Center';
-import ClientOnly from './layout/ClientOnly';
 import Stack from './layout/Stack';
 
 interface VoteCountPieProps {
@@ -56,36 +55,34 @@ function VoteCountPie(props: VoteCountPieProps) {
   ];
   return (
     <Stack style={{ width: `${size}px`, height: `${size}px` }}>
-      <ClientOnly>
-        <PieChart width={size} height={size}>
-          <Pie
-            innerRadius={size * 0.32}
-            outerRadius={size * 0.4}
-            data={ratingsData}
-            dataKey="value"
-            animationBegin={0}
-            animationDuration={700}
-            isAnimationActive={animate}
-          >
-            {ratingsData.map(({ name, color }) => (
-              <Cell fill={color} key={name} />
-            ))}
-          </Pie>
-          <Pie
-            innerRadius={size * 0.4}
-            outerRadius={size * 0.5}
-            data={data}
-            dataKey="value"
-            animationBegin={0}
-            animationDuration={700}
-            isAnimationActive={animate}
-          >
-            {data.map(({ name, color }) => (
-              <Cell fill={color} key={name} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ClientOnly>
+      <PieChart width={size} height={size}>
+        <Pie
+          innerRadius={size * 0.32}
+          outerRadius={size * 0.4}
+          data={ratingsData}
+          dataKey="value"
+          animationBegin={0}
+          animationDuration={700}
+          isAnimationActive={animate}
+        >
+          {ratingsData.map(({ name, color }) => (
+            <Cell fill={color} key={name} />
+          ))}
+        </Pie>
+        <Pie
+          innerRadius={size * 0.4}
+          outerRadius={size * 0.5}
+          data={data}
+          dataKey="value"
+          animationBegin={0}
+          animationDuration={700}
+          isAnimationActive={animate}
+        >
+          {data.map(({ name, color }) => (
+            <Cell fill={color} key={name} />
+          ))}
+        </Pie>
+      </PieChart>
       {children && <Center>{children}</Center>}
     </Stack>
   );

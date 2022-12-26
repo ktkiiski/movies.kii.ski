@@ -3,9 +3,10 @@ import CardActions from '@material-ui/core/CardActions';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import CheckIcon from '@material-ui/icons/Check';
-import { useList, useResource } from 'broilerkit/react/api';
 import * as React from 'react';
-import * as api from '../api';
+import useMovie from '../hooks/useMovie';
+import useMovieSearchResults from '../hooks/useMovieSearchResults';
+import usePollCandidates from '../hooks/usePollCandidates';
 import LoadingIndicator from './LoadingIndicator';
 import MovieCard from './MovieCard';
 import Center from './layout/Center';
@@ -17,7 +18,7 @@ interface MovieSearchResultListItemProps {
 
 function MovieSearchResultListItem(props: MovieSearchResultListItemProps) {
   const { movieId, children } = props;
-  const [movie] = useResource(api.retrieveMovie, { id: movieId });
+  const [movie] = useMovie(movieId);
   return <MovieCard movie={movie}>{children}</MovieCard>;
 }
 
@@ -34,12 +35,8 @@ interface AddMovieCandidateButtonProps {
 }
 
 function AddMovieCandidateButton({ pollId, movieId, onClick }: AddMovieCandidateButtonProps) {
-  const [pollCandidates] = useList(api.listPollCandidates, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
-  if (!pollCandidates) {
+  const [pollCandidates, isLoading] = usePollCandidates(pollId);
+  if (isLoading) {
     // We don't know yet if the movie is already added
     return null;
   }
@@ -61,12 +58,8 @@ interface MovieSearchResultListProps {
 }
 
 function MovieSearchResultList({ pollId, query, onSelect }: MovieSearchResultListProps) {
-  const [searchResults] = useList(api.searchMovies, {
-    query,
-    ordering: 'index',
-    direction: 'asc',
-  });
-  if (!searchResults) {
+  const [searchResults, isSearching] = useMovieSearchResults(query);
+  if (isSearching) {
     return <LoadingIndicator />;
   }
   if (!searchResults.length) {

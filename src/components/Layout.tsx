@@ -10,13 +10,11 @@ import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ListIcon from '@material-ui/icons/List';
-import { useOperation } from 'broilerkit/react/api';
-import { useUserId } from 'broilerkit/react/auth';
 import * as React from 'react';
 import { useState } from 'react';
-import { useHistory } from 'react-router';
-import * as api from '../api';
-import { listRatings, showPoll } from '../routes';
+import { useNavigate } from 'react-router-dom';
+import useCreateUserPoll from '../hooks/useCreateUserPoll';
+import useUserId from '../hooks/useUserId';
 import AppDrawer from './AppDrawer';
 import PollList from './PollList';
 import Profile from './Profile';
@@ -33,12 +31,12 @@ interface LayoutProps {
 }
 
 function Layout({ title, children, menu }: LayoutProps) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const userId = useUserId();
   const requireAuth = useRequireAuth();
-  const createUserPoll = useOperation(api.createUserPoll);
+  const createUserPoll = useCreateUserPoll();
 
   function openDrawer() {
     setIsDrawerOpen(true);
@@ -57,12 +55,12 @@ function Layout({ title, children, menu }: LayoutProps) {
   async function onCreateModalSubmit(newTitle: string) {
     closeCreateModal();
     const auth = await requireAuth();
-    const poll = await createUserPoll.post({
+    const poll = await createUserPoll({
       title: newTitle,
       description: '', // TODO
-      profileId: auth.id,
+      profileId: auth.uid,
     });
-    history.push(showPoll.compile({ pollId: poll.id }).toString());
+    navigate(`/poll/${encodeURIComponent(poll.id)}`);
   }
 
   const pollList = userId ? (
@@ -72,7 +70,6 @@ function Layout({ title, children, menu }: LayoutProps) {
       <Typography variant="caption">Sign in to see your polls</Typography>
     </ListItem>
   );
-  const ratingListUrl = listRatings.compile({}).toString();
   return (
     <div>
       <TopBar title={title} onMenuButtonClick={openDrawer} menu={menu} />
@@ -90,12 +87,12 @@ function Layout({ title, children, menu }: LayoutProps) {
           </ListItem>
           <ListItem
             onClick={(event: React.MouseEvent) => {
-              history.push(ratingListUrl);
+              navigate('/ratings');
               event.preventDefault();
             }}
             button
             component="a"
-            href={ratingListUrl}
+            href="/ratings"
           >
             <ListItemIcon>
               <ListIcon />

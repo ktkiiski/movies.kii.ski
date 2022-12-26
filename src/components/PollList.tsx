@@ -1,12 +1,10 @@
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import { useList } from 'broilerkit/react/api';
 import order from 'immuton/order';
 import * as React from 'react';
-import { useHistory } from 'react-router';
-import * as api from '../api';
-import { showPoll } from '../routes';
+import { useNavigate } from 'react-router-dom';
+import useUserPolls from '../hooks/useUserPolls';
 import LoadingIndicator from './LoadingIndicator';
 
 interface PollListProps {
@@ -14,12 +12,8 @@ interface PollListProps {
 }
 
 function PollList({ userId }: PollListProps) {
-  const history = useHistory();
-  const [polls, , isLoading] = useList(api.listUserPolls, {
-    ordering: 'createdAt',
-    direction: 'asc',
-    profileId: userId,
-  });
+  const navigate = useNavigate();
+  const [polls, isLoading] = useUserPolls(userId);
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -30,13 +24,13 @@ function PollList({ userId }: PollListProps) {
   return (
     <List>
       {sortedItems.map((poll) => {
-        const pollUrl = showPoll.compile({ pollId: poll.id }).toString();
+        const pollUrl = `/polls/${encodeURIComponent(poll.id)}`;
         return (
           <ListItem
             key={poll.id}
             button
             onClick={(event: React.MouseEvent) => {
-              history.push(pollUrl);
+              navigate(pollUrl);
               event.preventDefault();
             }}
             component="a"

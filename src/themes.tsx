@@ -1,7 +1,7 @@
-import { createMuiTheme } from '@material-ui/core';
+import { createTheme } from '@material-ui/core';
 import { pink } from '@material-ui/core/colors';
 
-export const mainTheme = createMuiTheme({
+export const mainTheme = createTheme({
   palette: {
     primary: {
       main: '#1e88e5',
@@ -13,7 +13,7 @@ export const mainTheme = createMuiTheme({
   },
 });
 
-export const darkTheme = createMuiTheme({
+export const darkTheme = createTheme({
   palette: {
     type: 'dark',
   },

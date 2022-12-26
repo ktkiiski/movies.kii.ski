@@ -1,13 +1,13 @@
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
-import type { Auth } from 'broilerkit/auth';
+import { User } from 'firebase/auth';
 import * as React from 'react';
 import DropdownMenu from './DropdownMenu';
-import ProfileAvatar from './ProfileAvatar';
+import PersonAvatar from './PersonAvatar';
 
 interface TopBarProfileMenuProps {
-  user: Auth | null;
+  user: User | null;
   onLogout: () => void;
 }
 
@@ -39,10 +39,19 @@ class TopBarProfileMenu extends React.Component<TopBarProfileMenuProps, TolBarPr
     return (
       <>
         <Button onClick={this.handleOpen} color="inherit">
-          {user && <ProfileAvatar user={user} size={32} />}
+          {user && (
+            <PersonAvatar
+              user={{
+                id: user.uid,
+                name: user.displayName,
+                picture: user.photoURL,
+              }}
+              size={32}
+            />
+          )}
           {user && (
             <Typography style={{ marginLeft: '1em' }} color="inherit">
-              {user.name}
+              {user.displayName}
             </Typography>
           )}
         </Button>

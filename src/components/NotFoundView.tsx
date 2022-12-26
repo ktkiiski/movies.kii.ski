@@ -1,6 +1,5 @@
 import { Typography } from '@material-ui/core';
-import { useTitle } from 'broilerkit/react/meta';
-import * as React from 'react';
+import useTitle from '../hooks/useTitle';
 import notFoundImageUrl from '../images/not-found.png';
 import styles from './NotFoundView.module.css';
 import Root from './layout/Root';

@@ -1,6 +1,5 @@
 import { makeStyles } from '@material-ui/core';
 import Drawer, { DrawerProps } from '@material-ui/core/Drawer';
-import * as React from 'react';
 
 const useStyles = makeStyles({
   drawerContents: {

@@ -1,10 +1,12 @@
-import { useList } from 'broilerkit/react/api';
-import { useUserId } from 'broilerkit/react/auth';
 import order from 'immuton/order';
 import sort from 'immuton/sort';
 import { useMemo } from 'react';
-import * as api from './api';
-import type { Vote, DetailedCandidate } from './resources';
+import usePollCandidates from './hooks/usePollCandidates';
+import usePollParticipants from './hooks/usePollParticipants';
+import usePollRatings from './hooks/usePollRatings';
+import usePollVotes from './hooks/usePollVotes';
+import useUserId from './hooks/useUserId';
+import type { Vote, Candidate } from './resources';
 
 export function getMovieScore(movieId: number, votes: Vote[], participantIds: string[]): number {
   const totalValue = votes.reduce((sum, vote) => sum + (vote.movieId === movieId ? vote.value : 0), 0);
@@ -14,28 +16,12 @@ export function getMovieScore(movieId: number, votes: Vote[], participantIds: st
   return (100 * (totalValue - minScore)) / (maxScore - minScore);
 }
 
-export function useSortedCandidates(pollId: string, sorting: 'unvoted' | 'top'): DetailedCandidate[] {
+export function useSortedCandidates(pollId: string, sorting: 'unvoted' | 'top'): Candidate[] {
   const userId = useUserId();
-  const [candidates, , isCandidatesLoading] = useList(api.listPollCandidates, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
-  const [votes, , isVotesLoading] = useList(api.listPollVotes, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
-  const [ratings, , isRatingsLoading] = useList(api.listPollRatings, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
-  const [participants] = useList(api.listPollParticipants, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
+  const [candidates, isCandidatesLoading] = usePollCandidates(pollId);
+  const [votes, isVotesLoading] = usePollVotes(pollId);
+  const [ratings, isRatingsLoading] = usePollRatings(pollId);
+  const [participants] = usePollParticipants(pollId);
   const isLoading = isCandidatesLoading || isVotesLoading || isRatingsLoading;
   // NOTE: Only the latest votes affect the ordering!
   // Therefore intentionally cache them until poll ID or sorting changes.

@@ -1,12 +1,13 @@
 import Button from '@material-ui/core/Button';
-import { useAuth, useSignOut } from 'broilerkit/react/auth';
-import * as React from 'react';
+import { useSignOut } from 'react-firebase-hooks/auth';
+import { auth } from '../firebase';
+import useUser from '../hooks/useUser';
 import { useRequireAuth } from './SignInDialogProvider';
 import TopBarProfileMenu from './TopBarProfileMenu';
 
 function TopBarProfile() {
-  const user = useAuth();
-  const signOut = useSignOut();
+  const user = useUser();
+  const [signOut] = useSignOut(auth);
   const signInWithDialog = useRequireAuth();
   return user ? (
     <TopBarProfileMenu user={user} onLogout={signOut} />

@@ -1,7 +1,6 @@
 import { makeStyles } from '@material-ui/core';
-import { useList } from 'broilerkit/react/api';
 import * as React from 'react';
-import { listPollParticipants } from '../api';
+import usePollParticipants from '../hooks/usePollParticipants';
 import ProfileVoteAvatar from './ProfileVoteAvatar';
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -22,12 +21,8 @@ interface ParticipantListProps {
 
 function ParticipantList({ pollId }: ParticipantListProps) {
   const classes = useStyles();
-  const [participants] = useList(listPollParticipants, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
-  if (!participants) {
+  const [participants, isLoading] = usePollParticipants(pollId);
+  if (isLoading) {
     return null;
   }
   return (

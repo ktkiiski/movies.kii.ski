@@ -1,5 +1,4 @@
 import Menu, { MenuProps } from '@material-ui/core/Menu';
-import * as React from 'react';
 
 export interface DropdownMenuProps extends MenuProps {
   align?: 'left' | 'right';

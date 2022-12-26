@@ -1,24 +1,24 @@
-import { CardActionArea } from '@material-ui/core';
+import { CardActionArea, Theme, useMediaQuery } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import Hidden from '@material-ui/core/Hidden';
 import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
-import { shortenSentences } from 'broilerkit/strings';
 import * as React from 'react';
 import type { Movie, PublicProfile } from '../resources';
+import shortenSentences from '../utils/shortenSentences';
 import MovieCardBackdrop from './MovieCardBackdrop';
 import RatingBar from './RatingBar';
 import HorizontalLayout from './layout/HorizontalLayout';
 
 interface MovieCardProps {
-  movie: Movie | null;
+  movie: Movie | null | undefined;
   profile?: PublicProfile | null;
   content?: React.ReactNode;
   children?: React.ReactNode;
 }
 
 function MovieCard({ movie, profile, children, content }: MovieCardProps) {
+  const largeViewport = useMediaQuery<Theme>((theme) => theme.breakpoints.up('sm'));
   const year = movie && movie.releasedOn && movie.releasedOn.getFullYear();
   const genres = movie && [''].concat(movie.genres).join(', ');
   const runtime = movie && getRuntime(movie.runtime);
@@ -38,16 +38,11 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
         ) : null}
         <Typography color="textPrimary" variant="subtitle1">
           {year}
-          {genres}{' '}
-          {runtime && (
-            <Hidden smUp>
-              <br />
-            </Hidden>
-          )}
+          {genres} {runtime && largeViewport && <br />}
           {runtime}
         </Typography>
         {rating == null ? null : <RatingBar rating={rating} />}
-        <Hidden xsDown implementation="css">
+        {!largeViewport && (
           <Typography color="textSecondary" component="p">
             {movie && shortenSentences(movie.overview, 300)}
             {profile && (
@@ -57,7 +52,7 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
               </>
             )}
           </Typography>
-        </Hidden>
+        )}
       </HorizontalLayout>
     </MovieCardBackdrop>
   );
@@ -70,7 +65,7 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
       ) : (
         backdrop
       )}
-      <Hidden smUp implementation="css">
+      {largeViewport && (
         <CardContent>
           <Typography component="p" color="textSecondary">
             {movie && movie.overview}
@@ -82,7 +77,7 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
             )}
           </Typography>
         </CardContent>
-      </Hidden>
+      )}
       {children}
     </Card>
   );

@@ -1,6 +1,4 @@
-import { useUniqueId } from 'broilerkit/react/client';
-import * as React from 'react';
-import { useRef } from 'react';
+import { useId, useRef } from 'react';
 
 interface FileUploadProps {
   children: React.ReactNode;
@@ -11,7 +9,7 @@ interface FileUploadProps {
 
 export default function FileUpload(props: FileUploadProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const inputId = `file-upload-${useUniqueId()}`;
+  const inputId = `file-upload-${useId()}`;
   const { children, onChange, ...inputProps } = props;
 
   function onFileSelect() {

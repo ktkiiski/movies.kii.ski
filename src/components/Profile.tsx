@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import { useAuth } from 'broilerkit/react/auth';
 import * as React from 'react';
+import useUser from '../hooks/useUser';
 
 const useStyles = makeStyles(({ spacing }) => ({
   profile: {
@@ -19,10 +19,10 @@ function ProfileContainer({ children }: ProfileContainerStyles) {
 }
 
 function Profile() {
-  const user = useAuth();
+  const user = useUser();
   return user ? (
     <ProfileContainer>
-      <Typography variant="h6">{user.name}</Typography>
+      <Typography variant="h6">{user.displayName}</Typography>
       <Typography variant="subtitle1">{user.email}</Typography>
     </ProfileContainer>
   ) : null;

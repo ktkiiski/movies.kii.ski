@@ -1,7 +1,8 @@
-import { Hidden, Typography } from '@material-ui/core';
-import { useList } from 'broilerkit/react/api';
+import { Theme, Typography, useMediaQuery } from '@material-ui/core';
 import * as React from 'react';
-import * as api from '../api';
+import usePollParticipants from '../hooks/usePollParticipants';
+import usePollRatings from '../hooks/usePollRatings';
+import usePollVotes from '../hooks/usePollVotes';
 import { getMovieScore } from '../scoring';
 import VoteCountPie from './VoteCountPie';
 
@@ -11,23 +12,12 @@ interface VoteTableProps {
 }
 
 function VoteResult({ pollId, movieId }: VoteTableProps) {
-  const [movieVotes] = useList(
-    api.listPollVotes,
-    {
-      pollId,
-      ordering: 'createdAt',
-      direction: 'asc',
-    },
-    {
-      movieId,
-    },
-  );
-  const [pollParticipants] = useList(api.listPollParticipants, {
-    pollId,
-    ordering: 'createdAt',
-    direction: 'asc',
-  });
-  const [movieRatings] = useList(api.listPollRatings, { pollId, ordering: 'createdAt', direction: 'asc' }, { movieId });
+  const smallCountPie = useMediaQuery<Theme>((theme) => theme.breakpoints.up('sm'));
+  const [pollVotes] = usePollVotes(pollId);
+  const movieVotes = pollVotes.filter((vote) => vote.movieId === movieId);
+  const [pollParticipants] = usePollParticipants(pollId);
+  const [pollRatings] = usePollRatings(pollId);
+  const movieRatings = pollRatings.filter((rating) => rating.movieId === movieId);
   if (movieVotes == null || pollParticipants == null || movieRatings == null) {
     return null;
   }
@@ -39,42 +29,21 @@ function VoteResult({ pollId, movieId }: VoteTableProps) {
   const negativeVoteCount = movieVotes.filter(({ value }) => value === -1).length;
 
   return (
-    <>
-      <Hidden xsDown implementation="js">
-        <VoteCountPie
-          size={120}
-          positiveVoteCount={positiveVoteCount}
-          neutralVoteCount={neutralVoteCount}
-          negativeVoteCount={negativeVoteCount}
-          maxCount={participantCount}
-          ratings={movieRatings}
-          animate
-        >
-          {Number.isFinite(score) ? (
-            <Typography color="textPrimary" style={{ fontSize: 24 }}>
-              {`${Math.round(score)}%`}
-            </Typography>
-          ) : null}
-        </VoteCountPie>
-      </Hidden>
-      <Hidden smUp implementation="js">
-        <VoteCountPie
-          size={64}
-          positiveVoteCount={positiveVoteCount}
-          neutralVoteCount={neutralVoteCount}
-          negativeVoteCount={negativeVoteCount}
-          maxCount={participantCount}
-          ratings={movieRatings}
-          animate
-        >
-          {Number.isFinite(score) ? (
-            <Typography color="textPrimary" style={{ fontSize: 15 }}>
-              {`${Math.round(score)}%`}
-            </Typography>
-          ) : null}
-        </VoteCountPie>
-      </Hidden>
-    </>
+    <VoteCountPie
+      size={smallCountPie ? 64 : 120}
+      positiveVoteCount={positiveVoteCount}
+      neutralVoteCount={neutralVoteCount}
+      negativeVoteCount={negativeVoteCount}
+      maxCount={participantCount}
+      ratings={movieRatings}
+      animate
+    >
+      {Number.isFinite(score) ? (
+        <Typography color="textPrimary" style={{ fontSize: smallCountPie ? 15 : 24 }}>
+          {`${Math.round(score)}%`}
+        </Typography>
+      ) : null}
+    </VoteCountPie>
   );
 }
 

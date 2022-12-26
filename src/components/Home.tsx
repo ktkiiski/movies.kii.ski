@@ -1,6 +1,5 @@
 import Typography from '@material-ui/core/Typography';
-import { useTitle } from 'broilerkit/react/meta';
-import * as React from 'react';
+import useTitle from '../hooks/useTitle';
 import Layout from './Layout';
 import Center from './layout/Center';
 
