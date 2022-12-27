@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { functions } from '../firebase';
 import { MovieSearchResult } from '../resources';
 
-const searchMovies = httpsCallable<{ query: string }, MovieSearchResult[]>(functions, 'searchMovies');
+const searchMovies = httpsCallable<{ query: string }, unknown[]>(functions, 'searchMovies');
 
 export default function useMovieSearchResults(query: string): [MovieSearchResult[], boolean, Error | null] {
   const [searchResults, setSearchResults] = useState<MovieSearchResult[]>(empty);
@@ -17,8 +17,12 @@ export default function useMovieSearchResults(query: string): [MovieSearchResult
       (result) => {
         if (!isAborted) {
           setIsLoading(false);
-          setSearchResults(result.data);
-          setError(null);
+          try {
+            setSearchResults(result.data.map((item) => MovieSearchResult.deserialize(item)));
+            setError(null);
+          } catch (err) {
+            setError(err as Error);
+          }
         }
       },
       (searchError) => {

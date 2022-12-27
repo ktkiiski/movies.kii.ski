@@ -37,11 +37,11 @@ export const Movie = serializer({
 
   type: fields.choice(['movie', 'series']),
 
-  imdbId: fields.nullable(fields.string(1, 64, true)),
-  title: fields.nullable(fields.string(0, 1024, true)),
-  originalTitle: fields.nullable(fields.string(0, 1024, true)),
-  tagline: fields.string(0, null, true),
-  overview: fields.string(0, null, true),
+  imdbId: fields.nullable(fields.string(1, null, true)),
+  title: fields.nullable(fields.string(0, null, true)),
+  originalTitle: fields.nullable(fields.string(0, null, true)),
+  tagline: fields.nullable(fields.string(0, null, true)),
+  overview: fields.nullable(fields.string(0, null, true)),
   homePageUrl: fields.nullable(fields.url()),
 
   releasedOn: fields.nullable(fields.date()),
@@ -56,16 +56,14 @@ export const Movie = serializer({
   posterPath: fields.nullable(fields.matching(/^\/.+\.(jpg|png)$/, `Invalid path`)),
   backdropPath: fields.nullable(fields.matching(/^\/.+\.(jpg|png)$/, `Invalid path`)),
 
-  genres: fields.list(fields.string(0, 1024, true)),
-  languages: fields.list(fields.string(0, 1024, true)),
+  genres: fields.list(fields.string(0, null, true)),
+  languages: fields.list(fields.string(0, null, true)),
 });
 
 export type Movie = ValueOf<typeof Movie>;
 
 export const MovieSearchResult = serializer({
   id: fields.integer(),
-  query: fields.string(0, 1024, true),
-  index: fields.integer(),
 });
 
 export type MovieSearchResult = ValueOf<typeof MovieSearchResult>;

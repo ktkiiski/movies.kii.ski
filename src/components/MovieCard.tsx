@@ -44,7 +44,7 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
         {rating == null ? null : <RatingBar rating={rating} />}
         {!largeViewport && (
           <Typography color="textSecondary" component="p">
-            {movie && shortenSentences(movie.overview, 300)}
+            {shortenSentences(movie?.overview ?? '', 300)}
             {profile && (
               <>
                 {' Suggested by  '}

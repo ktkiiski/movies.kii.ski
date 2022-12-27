@@ -31,3 +31,6 @@ yarn-error.log*
 
 # Firebase logs
 .firebase-debug.log
+
+# Local env files
+.env.*
