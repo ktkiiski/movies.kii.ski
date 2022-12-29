@@ -18,9 +18,14 @@ service cloud.firestore {
       return wasOwner() && becomesOwner();
     }
 
-    function belongsToPoll(pollId) {
-      return (resource.data == null || resource.data.pollId == pollId)
-        && request.resource.data.pollId == pollId;
+    function wasInPoll(pollId) {
+      return resource.data.pollId == pollId;
+    }
+    function becomesInPoll(pollId) {
+      return request.resource.data.pollId == pollId;
+    }
+    function isInPoll(pollId) {
+      return wasInPoll(pollId) && becomesInPoll(pollId);
     }
 
     function isPollOwner(pollId) {
@@ -47,21 +52,21 @@ service cloud.firestore {
     }
     match /polls/{pollId}/votes/{voteId} {
       allow read;
-      allow create: if (becomesOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
-      allow update: if (isOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
-      allow delete: if (wasOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
+      allow create: if (becomesOwner() || isPollOwner(pollId)) && becomesInPoll(pollId);
+      allow update: if (isOwner() || isPollOwner(pollId)) && isInPoll(pollId);
+      allow delete: if (wasOwner() || isPollOwner(pollId)) && wasInPoll(pollId);
     }
     match /polls/{pollId}/candidates/{candidateId} {
       allow read;
-      allow create: if (becomesOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
-      allow update: if (isOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
-      allow delete: if (wasOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
+      allow create: if (becomesOwner() || isPollOwner(pollId)) && becomesInPoll(pollId);
+      allow update: if (isOwner() || isPollOwner(pollId)) && isInPoll(pollId);
+      allow delete: if (wasOwner() || isPollOwner(pollId)) && wasInPoll(pollId);
     }
-    match /polls/{pollId}/candidates/{candidateId} {
+    match /polls/{pollId}/participants/{profileId} {
       allow read;
-      allow create: if (becomesOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
-      allow update: if (isOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
-      allow delete: if (wasOwner() || isPollOwner(pollId)) && belongsToPoll(pollId);
+      allow create: if (becomesOwner() || isPollOwner(pollId)) && becomesInPoll(pollId);
+      allow update: if (isOwner() || isPollOwner(pollId)) && isInPoll(pollId);
+      allow delete: if (wasOwner() || isPollOwner(pollId)) && wasInPoll(pollId);
     }
     match /movies/{movieId} {
       allow read;
