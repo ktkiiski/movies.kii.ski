@@ -31,7 +31,6 @@ function PollView() {
   const navigate = useNavigate();
   const userId = useUserId();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [sorting, setSorting] = useState<CandidateSorting>('unvoted');
   const requireAuth = useRequireAuth();
   const [poll] = usePoll(pollId);
@@ -58,11 +57,6 @@ function PollView() {
       await deletePollParticipant({ pollId, profileId: auth.uid });
     }
   };
-  const onRefreshClick = async () => {
-    // TODO: Remove!
-    setIsRefreshing(true);
-    setIsRefreshing(false);
-  };
   const menu =
     poll && userId && userId === poll.profileId
       ? [
@@ -77,9 +71,9 @@ function PollView() {
   const isParticipating = !!userId && !!participants && participants.some(({ profileId }) => userId === profileId);
   return (
     <Layout title={(poll && poll.title) || ''} menu={menu}>
-      <Grid container direction="row-reverse" justify="center" spacing={4}>
+      <Grid container direction="row-reverse" justifyContent="center" spacing={4}>
         <Grid item md={3} sm={10} xs={12}>
-          <Grid container direction="row" spacing={4} alignItems="flex-end">
+          <Grid container direction="row" spacing={4} alignItems="center">
             <Grid item sm={8} xs={12} md={12}>
               <VerticalFlow>
                 <Typography variant="subtitle1">Participants</Typography>
@@ -87,20 +81,13 @@ function PollView() {
               </VerticalFlow>
             </Grid>
             <Grid item sm={4} xs={12} md={12}>
-              <VerticalFlow>
-                {!isParticipating ? null : (
-                  <div>
-                    <Button size="small" onClick={onLeaveClick}>
-                      Leave the poll
-                    </Button>
-                  </div>
-                )}
+              {!isParticipating ? null : (
                 <div>
-                  <Button size="small" disabled={isRefreshing} onClick={onRefreshClick}>
-                    Refresh
+                  <Button size="small" onClick={onLeaveClick}>
+                    Leave the poll
                   </Button>
                 </div>
-              </VerticalFlow>
+              )}
             </Grid>
           </Grid>
         </Grid>
