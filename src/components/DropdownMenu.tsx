@@ -1,4 +1,4 @@
-import Menu, { MenuProps } from '@material-ui/core/Menu';
+import Menu, { MenuProps } from '@mui/material/Menu';
 
 export interface DropdownMenuProps extends MenuProps {
   align?: 'left' | 'right';
@@ -9,7 +9,6 @@ export default function DropdownMenu({ align, children, ...props }: DropdownMenu
     <Menu
       anchorOrigin={{ vertical: 'bottom', horizontal: align || 'left' }}
       transformOrigin={{ vertical: 'top', horizontal: align || 'left' }}
-      getContentAnchorEl={undefined}
       disableRestoreFocus
       {...props}
     >

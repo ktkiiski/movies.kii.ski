@@ -1,6 +1,6 @@
-import { makeStyles } from '@material-ui/core';
-import CardMedia from '@material-ui/core/CardMedia';
-import { ThemeProvider } from '@material-ui/styles';
+import CardMedia from '@mui/material/CardMedia';
+import { ThemeProvider } from '@mui/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import * as React from 'react';
 import { darkTheme } from '../themes';
 

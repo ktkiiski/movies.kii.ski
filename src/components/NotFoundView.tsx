@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import useTitle from '../hooks/useTitle';
 import notFoundImageUrl from '../images/not-found.png';
 import styles from './NotFoundView.module.css';

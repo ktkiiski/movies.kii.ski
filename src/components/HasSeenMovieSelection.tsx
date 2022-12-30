@@ -1,4 +1,5 @@
-import { Checkbox, FormControlLabel, FormGroup, makeStyles, Theme, useMediaQuery } from '@material-ui/core';
+import { Checkbox, FormControlLabel, FormGroup, Theme, useMediaQuery } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { memo } from 'react';
 import useCreateRating from '../hooks/useCreateRating';
 import useDeleteRating from '../hooks/useDeleteRating';

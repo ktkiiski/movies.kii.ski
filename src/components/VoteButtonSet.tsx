@@ -1,8 +1,8 @@
-import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import SelectedNegativeIcon from '@material-ui/icons/ThumbDown';
-import SelectedPositiveIcon from '@material-ui/icons/ThumbUp';
-import SelectedNeutralIcon from '@material-ui/icons/ThumbsUpDown';
+import SelectedNegativeIcon from '@mui/icons-material/ThumbDown';
+import SelectedPositiveIcon from '@mui/icons-material/ThumbUp';
+import SelectedNeutralIcon from '@mui/icons-material/ThumbsUpDown';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import * as React from 'react';
 import useCreatePollParticipant from '../hooks/useCreatePollParticipant';
 import useCreatePollVote from '../hooks/useCreatePollVote';
@@ -26,7 +26,7 @@ function VoteButton({ children, value, buttonValue, onSelect }: VoteButtonProps)
   // eslint-disable-next-line no-nested-ternary
   const color = buttonValue === 1 ? 'primary' : buttonValue === -1 ? 'secondary' : 'inherit';
   return (
-    <IconButton onClick={() => onSelect(buttonValue, value)} color={color}>
+    <IconButton onClick={() => onSelect(buttonValue, value)} color={color} size="large">
       {children}
     </IconButton>
   );

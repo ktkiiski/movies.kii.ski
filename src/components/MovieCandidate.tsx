@@ -1,6 +1,6 @@
-import { Collapse, Divider, IconButton, MenuItem } from '@material-ui/core';
-import CardActions from '@material-ui/core/CardActions';
-import MenuIcon from '@material-ui/icons/MoreVert';
+import MenuIcon from '@mui/icons-material/MoreVert';
+import { Collapse, Divider, IconButton, MenuItem } from '@mui/material';
+import CardActions from '@mui/material/CardActions';
 import * as React from 'react';
 import { useState } from 'react';
 import useDeletePollCandidate from '../hooks/useDeletePollCandidate';
@@ -25,7 +25,7 @@ interface MovieCandidateProps {
 }
 
 const menuButton = (
-  <IconButton>
+  <IconButton size="large">
     <MenuIcon />
   </IconButton>
 );
@@ -64,7 +64,7 @@ function MovieCandidate({ pollId, candidate }: MovieCandidateProps) {
               <MenuItem onClick={onDestroyClick}>Remove the movie suggestion</MenuItem>
             </Dropdown>
           )}
-          <IconButton onClick={() => setIsExpanded(!isExpanded)}>
+          <IconButton onClick={() => setIsExpanded(!isExpanded)} size="large">
             <ExpandIcon up={isExpanded} />
           </IconButton>
         </div>

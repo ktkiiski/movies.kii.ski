@@ -1,10 +1,10 @@
-import { makeStyles } from '@material-ui/core';
-import AppBar from '@material-ui/core/AppBar';
-import IconButton from '@material-ui/core/IconButton';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import MenuIcon from '@material-ui/icons/Menu';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+import MenuIcon from '@mui/icons-material/Menu';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import AppBar from '@mui/material/AppBar';
+import IconButton from '@mui/material/IconButton';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import makeStyles from '@mui/styles/makeStyles';
 import * as React from 'react';
 import Dropdown from './Dropdown';
 import TopBarProfile from './TopBarProfile';
@@ -30,33 +30,36 @@ interface TopBarProps {
 
 function TopBar({ title, onMenuButtonClick, menu }: TopBarProps) {
   const classes = useStyles();
-  return (
-    <>
-      <AppBar>
-        <Toolbar>
-          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={onMenuButtonClick}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" color="inherit" className={classes.flex}>
-            {title}
-          </Typography>
-          <TopBarProfile />
-          {menu && (
-            <Dropdown
-              button={
-                <IconButton color="inherit">
-                  <MoreVertIcon />
-                </IconButton>
-              }
-            >
-              {menu}
-            </Dropdown>
-          )}
-        </Toolbar>
-      </AppBar>
-      <div className={classes.push} />
-    </>
-  );
+  return <>
+    <AppBar>
+      <Toolbar>
+        <IconButton
+          className={classes.menuButton}
+          color="inherit"
+          aria-label="Menu"
+          onClick={onMenuButtonClick}
+          size="large">
+          <MenuIcon />
+        </IconButton>
+        <Typography variant="h6" color="inherit" className={classes.flex}>
+          {title}
+        </Typography>
+        <TopBarProfile />
+        {menu && (
+          <Dropdown
+            button={
+              <IconButton color="inherit" size="large">
+                <MoreVertIcon />
+              </IconButton>
+            }
+          >
+            {menu}
+          </Dropdown>
+        )}
+      </Toolbar>
+    </AppBar>
+    <div className={classes.push} />
+  </>;
 }
 
 export default TopBar;

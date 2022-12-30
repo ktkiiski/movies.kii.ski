@@ -1,5 +1,5 @@
-import { makeStyles } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
+import makeStyles from '@mui/styles/makeStyles';
 import * as React from 'react';
 import useUser from '../hooks/useUser';
 

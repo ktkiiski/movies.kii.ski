@@ -1,7 +1,7 @@
-import { createTheme } from '@material-ui/core';
-import { pink } from '@material-ui/core/colors';
+import { createTheme, adaptV4Theme } from '@mui/material';
+import { pink } from '@mui/material/colors';
 
-export const mainTheme = createTheme({
+export const mainTheme = createTheme(adaptV4Theme({
   palette: {
     primary: {
       main: '#1e88e5',
@@ -11,10 +11,10 @@ export const mainTheme = createTheme({
       default: '#f5f5f5',
     },
   },
-});
+}));
 
-export const darkTheme = createTheme({
+export const darkTheme = createTheme(adaptV4Theme({
   palette: {
-    type: 'dark',
+    mode: 'dark',
   },
-});
+}));

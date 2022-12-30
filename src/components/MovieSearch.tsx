@@ -1,8 +1,8 @@
-import IconButton from '@material-ui/core/IconButton';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import ClearIcon from '@material-ui/icons/Clear';
+import ClearIcon from '@mui/icons-material/Clear';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import { useCallback, useMemo, useState } from 'react';
 import * as React from 'react';
 import useCreatePollCandidate from '../hooks/useCreatePollCandidate';
@@ -29,7 +29,7 @@ function MovieSearch({ pollId, children }: MovieSearchProps) {
     return {
       endAdornment: (
         <InputAdornment position="end">
-          <IconButton onClick={resetQuery}>
+          <IconButton onClick={resetQuery} size="large">
             <ClearIcon />
           </IconButton>
         </InputAdornment>

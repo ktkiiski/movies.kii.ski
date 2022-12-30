@@ -1,8 +1,8 @@
-import Button from '@material-ui/core/Button';
-import CardActions from '@material-ui/core/CardActions';
-import Typography from '@material-ui/core/Typography';
-import AddIcon from '@material-ui/icons/Add';
-import CheckIcon from '@material-ui/icons/Check';
+import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
+import Button from '@mui/material/Button';
+import CardActions from '@mui/material/CardActions';
+import Typography from '@mui/material/Typography';
 import * as React from 'react';
 import useMovie from '../hooks/useMovie';
 import useMovieSearchResults from '../hooks/useMovieSearchResults';

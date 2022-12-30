@@ -1,8 +1,8 @@
-import { CardActionArea, Theme, useMediaQuery } from '@material-ui/core';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import ScheduleIcon from '@material-ui/icons/Schedule';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import { CardActionArea, Theme, useMediaQuery } from '@mui/material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 import * as React from 'react';
 import type { Movie, PublicProfile } from '../resources';
 import shortenSentences from '../utils/shortenSentences';
@@ -18,7 +18,7 @@ interface MovieCardProps {
 }
 
 function MovieCard({ movie, profile, children, content }: MovieCardProps) {
-  const smallViewport = useMediaQuery<Theme>((theme) => theme.breakpoints.down('xs'));
+  const smallViewport = useMediaQuery<Theme>((theme) => theme.breakpoints.down('sm'));
   const year = movie && movie.releasedOn && movie.releasedOn.getFullYear();
   const genres = movie && [''].concat(movie.genres).join(', ');
   const runtime = movie && getRuntime(movie.runtime);

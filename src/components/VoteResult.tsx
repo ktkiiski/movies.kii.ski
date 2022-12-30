@@ -1,4 +1,4 @@
-import { Theme, Typography, useMediaQuery } from '@material-ui/core';
+import { Theme, Typography, useMediaQuery } from '@mui/material';
 import * as React from 'react';
 import usePollParticipants from '../hooks/usePollParticipants';
 import usePollRatings from '../hooks/usePollRatings';
@@ -12,7 +12,7 @@ interface VoteTableProps {
 }
 
 function VoteResult({ pollId, movieId }: VoteTableProps) {
-  const smallCountPie = useMediaQuery<Theme>((theme) => theme.breakpoints.down('xs'));
+  const smallCountPie = useMediaQuery<Theme>((theme) => theme.breakpoints.down('sm'));
   const [pollVotes] = usePollVotes(pollId);
   const movieVotes = pollVotes.filter((vote) => vote.movieId === movieId);
   const [pollParticipants] = usePollParticipants(pollId);

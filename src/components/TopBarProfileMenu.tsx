@@ -1,6 +1,6 @@
-import Button from '@material-ui/core/Button';
-import MenuItem from '@material-ui/core/MenuItem';
-import Typography from '@material-ui/core/Typography';
+import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import Typography from '@mui/material/Typography';
 import { User } from 'firebase/auth';
 import * as React from 'react';
 import DropdownMenu from './DropdownMenu';

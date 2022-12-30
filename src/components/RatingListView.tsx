@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-bind */
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import useTitle from '../hooks/useTitle';
 import useUserId from '../hooks/useUserId';
 import FileUploadButton from './FileUploadButton';

@@ -1,5 +1,6 @@
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { ThemeProvider } from '@material-ui/styles';
+import { StyledEngineProvider, Theme } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider } from '@mui/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -9,6 +10,11 @@ import PollView from './components/PollView';
 import RatingListView from './components/RatingListView';
 import SignInDialogProvider from './components/SignInDialogProvider';
 import { mainTheme } from './themes';
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const queryClient = new QueryClient();
 
@@ -33,12 +39,14 @@ const router = createBrowserRouter([
 
 const App = React.memo(() => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider theme={mainTheme}>
-      <CssBaseline />
-      <SignInDialogProvider>
-        <RouterProvider router={router} />
-      </SignInDialogProvider>
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={mainTheme}>
+        <CssBaseline />
+        <SignInDialogProvider>
+          <RouterProvider router={router} />
+        </SignInDialogProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   </QueryClientProvider>
 ));
 

@@ -1,4 +1,4 @@
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import useTitle from '../hooks/useTitle';
 import Layout from './Layout';
 import Center from './layout/Center';

@@ -1,9 +1,9 @@
-import { makeStyles } from '@material-ui/core';
-import Typography from '@material-ui/core/Typography';
-import { yellow } from '@material-ui/core/colors';
-import StarFullIcon from '@material-ui/icons/Star';
-import StarEmptyIcon from '@material-ui/icons/StarBorder';
-import StarHalfIcon from '@material-ui/icons/StarHalf';
+import StarFullIcon from '@mui/icons-material/Star';
+import StarEmptyIcon from '@mui/icons-material/StarBorder';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
+import Typography from '@mui/material/Typography';
+import { yellow } from '@mui/material/colors';
+import makeStyles from '@mui/styles/makeStyles';
 import * as React from 'react';
 
 const useStyles = makeStyles({

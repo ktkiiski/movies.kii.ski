@@ -1,4 +1,4 @@
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 import { useSignOut } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 import useUser from '../hooks/useUser';

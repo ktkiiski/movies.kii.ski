@@ -1,8 +1,8 @@
-import { Button } from '@material-ui/core';
-import Grid from '@material-ui/core/Grid';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import Typography from '@material-ui/core/Typography';
+import { Button } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useDeletePollParticipant from '../hooks/useDeletePollParticipant';

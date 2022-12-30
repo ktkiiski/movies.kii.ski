@@ -1,8 +1,9 @@
-import { ListItemSecondaryAction, makeStyles, MenuItem, Select, Typography } from '@material-ui/core';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import StarIcon from '@material-ui/icons/Star';
+import StarIcon from '@mui/icons-material/Star';
+import { ListItemSecondaryAction, MenuItem, Select, Typography } from '@mui/material';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import makeStyles from '@mui/styles/makeStyles';
 import order from 'immuton/order';
 import * as React from 'react';
 import useMovie from '../hooks/useMovie';

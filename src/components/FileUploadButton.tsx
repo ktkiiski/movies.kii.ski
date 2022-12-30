@@ -1,5 +1,5 @@
-import { Button, CircularProgress, Typography } from '@material-ui/core';
-import UploadIcon from '@material-ui/icons/CloudUpload';
+import UploadIcon from '@mui/icons-material/CloudUpload';
+import { Button, CircularProgress, Typography } from '@mui/material';
 import * as React from 'react';
 import { useState } from 'react';
 import FileUpload from './FileUpload';

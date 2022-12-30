@@ -1,4 +1,4 @@
-import { green, red, yellow } from '@material-ui/core/colors';
+import { green, red, yellow } from '@mui/material/colors';
 import * as React from 'react';
 import { Cell, Pie, PieChart } from 'recharts';
 import type { Rating } from '../resources';
