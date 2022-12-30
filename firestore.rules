@@ -34,9 +34,9 @@ service cloud.firestore {
 
     match /profiles/{profileId} {
       allow read;
-      allow create: if isUser(profileId) && becomesOwner();
-      allow update: if isUser(profileId) && isOwner();
-      allow delete: if isUser(profileId) && wasOwner();
+      allow create: if isUser(profileId) && isUser(request.resource.data.id);
+      allow update: if isUser(profileId) && isUser(request.resource.data.id) && isUser(resource.data.id);
+      allow delete: if isUser(profileId) && isUser(resource.data.id);
     }
     match /profiles/{profileId}/ratings/{ratingId} {
       allow read;

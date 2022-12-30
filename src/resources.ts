@@ -20,9 +20,7 @@ const idField = fields.matching(/^[a-z0-9_-]{1,32}$/i, 'Invalid ID');
 export const PublicProfile = serializer({
   id: idField,
   name: fields.nullable(fields.string(0, 256, true)),
-  // email: fields.nullable(fields.email()),
   picture: fields.nullable(fields.url()),
-  groups: fields.list(fields.string(1, 64, true)),
 });
 
 /*
