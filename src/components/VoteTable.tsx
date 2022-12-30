@@ -16,6 +16,9 @@ import { getMovieScore } from '../scoring';
 import ProfileAvatar from './ProfileAvatar';
 
 const useStyles = makeStyles({
+  table: {
+    tableLayout: 'fixed',
+  },
   avatar: {
     float: 'left',
     marginRight: 5,
@@ -68,7 +71,7 @@ function VoteTable({ pollId, movieId }: VoteTableProps) {
   const sum = (movieVotes || []).reduce((total, vote) => vote.value + total, 0);
 
   return (
-    <Table size="small">
+    <Table size="small" className={classes.table}>
       <TableBody>
         <TableRow>
           <TableCell className={`${classes.headerColumn} ${classes.positiveColumn}`} component="th">
