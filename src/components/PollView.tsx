@@ -100,6 +100,7 @@ function PollView() {
                   displayEmpty
                   value={sorting}
                   onChange={(event) => setSorting(event.target.value as CandidateSorting)}
+                  size="small"
                 >
                   <MenuItem value="unvoted">Unvoted first</MenuItem>
                   <MenuItem value="top">Top voted first</MenuItem>

@@ -1,6 +1,6 @@
 import { StyledEngineProvider, Theme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider } from '@mui/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';

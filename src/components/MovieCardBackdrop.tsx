@@ -1,5 +1,5 @@
 import CardMedia from '@mui/material/CardMedia';
-import { ThemeProvider } from '@mui/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import makeStyles from '@mui/styles/makeStyles';
 import * as React from 'react';
 import { darkTheme } from '../themes';
