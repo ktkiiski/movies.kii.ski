@@ -12,7 +12,7 @@ interface VoteTableProps {
 }
 
 function VoteResult({ pollId, movieId }: VoteTableProps) {
-  const smallCountPie = useMediaQuery<Theme>((theme) => theme.breakpoints.up('sm'));
+  const smallCountPie = useMediaQuery<Theme>((theme) => theme.breakpoints.down('xs'));
   const [pollVotes] = usePollVotes(pollId);
   const movieVotes = pollVotes.filter((vote) => vote.movieId === movieId);
   const [pollParticipants] = usePollParticipants(pollId);

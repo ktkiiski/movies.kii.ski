@@ -18,7 +18,7 @@ interface MovieCardProps {
 }
 
 function MovieCard({ movie, profile, children, content }: MovieCardProps) {
-  const largeViewport = useMediaQuery<Theme>((theme) => theme.breakpoints.up('sm'));
+  const smallViewport = useMediaQuery<Theme>((theme) => theme.breakpoints.down('xs'));
   const year = movie && movie.releasedOn && movie.releasedOn.getFullYear();
   const genres = movie && [''].concat(movie.genres).join(', ');
   const runtime = movie && getRuntime(movie.runtime);
@@ -38,11 +38,11 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
         ) : null}
         <Typography color="textPrimary" variant="subtitle1">
           {year}
-          {genres} {runtime && largeViewport && <br />}
+          {genres} {runtime && smallViewport && <br />}
           {runtime}
         </Typography>
         {rating == null ? null : <RatingBar rating={rating} />}
-        {!largeViewport && (
+        {!smallViewport && (
           <Typography color="textSecondary" component="p">
             {shortenSentences(movie?.overview ?? '', 300)}
             {profile && (
@@ -65,7 +65,7 @@ function MovieCard({ movie, profile, children, content }: MovieCardProps) {
       ) : (
         backdrop
       )}
-      {largeViewport && (
+      {smallViewport && (
         <CardContent>
           <Typography component="p" color="textSecondary">
             {movie && movie.overview}

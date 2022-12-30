@@ -64,6 +64,7 @@ function VoteCountPie(props: VoteCountPieProps) {
           animationBegin={0}
           animationDuration={700}
           isAnimationActive={animate}
+          strokeWidth={0}
         >
           {ratingsData.map(({ name, color }) => (
             <Cell fill={color} key={name} />
@@ -77,6 +78,7 @@ function VoteCountPie(props: VoteCountPieProps) {
           animationBegin={0}
           animationDuration={700}
           isAnimationActive={animate}
+          strokeWidth={0}
         >
           {data.map(({ name, color }) => (
             <Cell fill={color} key={name} />
