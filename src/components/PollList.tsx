@@ -24,7 +24,7 @@ function PollList({ userId }: PollListProps) {
   return (
     <List>
       {sortedItems.map((poll) => {
-        const pollUrl = `/polls/${encodeURIComponent(poll.id)}`;
+        const pollUrl = `/poll/${encodeURIComponent(poll.id)}`;
         return (
           <ListItem
             key={poll.id}
