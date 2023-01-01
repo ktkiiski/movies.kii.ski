@@ -34,7 +34,7 @@ function SignInDialog({ open, onDismiss, onSelect }: SignInDialogProps): JSX.Ele
   return (
     <Dialog onClose={onDismiss} aria-labelledby="login-dialog-title" open={open}>
       <DialogTitle id="login-dialog-title">Sign in with…</DialogTitle>
-      <DialogContent style={{ width: '400px' }}>
+      <DialogContent>
         {!onSelect ? null : (
           <>
             <Typography>Select your account service</Typography>
