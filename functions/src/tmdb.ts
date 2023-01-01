@@ -76,13 +76,13 @@ export async function retrieveMovie(id: number, apiKey: string): Promise<Movie |
       isAdult: data.adult,
       revenue: data.revenue,
       runtime: data.runtime,
-      tagline: data.tagline || '',
+      tagline: data.tagline || null,
       title: data.title,
       voteAverage: data.vote_average,
       voteCount: data.vote_count,
       languages: ((data.spoken_languages as any[]) || []).map((lang) => lang.name as string).filter((lang) => !!lang), // TODO: Language codes?
-      backdropPath: data.backdrop_path,
-      posterPath: data.poster_path,
+      backdropPath: data.backdrop_path || null,
+      posterPath: data.poster_path || null,
     };
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -113,13 +113,13 @@ export async function retrieveSeries(id: number, apiKey: string, imdbId: string)
       isAdult: null,
       revenue: null,
       runtime: null,
-      tagline: '',
+      tagline: null,
       title: data.name,
       voteAverage: data.vote_average,
       voteCount: data.vote_count,
       languages: ((data.languages as string[]) || []).filter((lang) => !!lang),
-      backdropPath: data.backdrop_path,
-      posterPath: data.poster_path,
+      backdropPath: data.backdrop_path || null,
+      posterPath: data.poster_path || null,
     };
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -164,13 +164,13 @@ export async function searchMovies(query: string, apiKey: string): Promise<Movie
       try {
         return {
           id: result.id,
-          posterPath: result.poster_path,
+          posterPath: result.poster_path || null,
           isAdult: result.adult,
           overview: result.overview,
-          releasedOn: result.release_date,
+          releasedOn: result.release_date || null,
           originalTitle: result.original_title,
           title: result.title,
-          backdropPath: result.backdrop_path,
+          backdropPath: result.backdrop_path || null,
           popularity: result.popularity,
           voteCount: result.vote_count,
           voteAverage: result.vote_average,
