@@ -81,7 +81,11 @@ export default function SignInDialogProvider({ children }: SignInDialogProviderP
       setProvider = resolve;
       dismiss = reject;
     });
-    const promise = providerPromise.then((provider) => signIn(provider));
+    const promise = providerPromise
+      .then((provider) => signIn(provider))
+      .finally(() => {
+        setDialogState(null);
+      });
     setDialogState({ promise, dismiss, setProvider });
     return promise;
   }, [authPromise, user]);
